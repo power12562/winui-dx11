@@ -1,5 +1,5 @@
 # 🎮 WSIU Engine
-**WinUI**와 **DirectX 11**을 결합한 학습용 게임 엔진 프로젝트입니다.
+**WinUI**와 **DirectX 11** 학습용 게임 엔진 프로젝트입니다.
 
 ---
 
