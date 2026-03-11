@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WsiuEngine (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WsiuEngine (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

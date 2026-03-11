@@ -39,3 +39,34 @@
 
 # debug information files
 *.dwo
+
+## [ .NET / C# ]
+bin/
+obj/
+/Generated Files/
+[Log]/
+TestResults/
+*.suo
+*.user
+*.userosscache
+*.sln.doccache
+
+## [ Windows App SDK / WinUI 3 ]
+*.msix
+*.appx
+*.appxbundle
+*.appxcert
+*.appxrecipe
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+
+## [ NuGet ]
+packages/
+*.nuget.props
+*.nuget.targets
+
+## [ Visual Studio 임시 파일 ]
+.vs/
+$Recycle.Bin/
