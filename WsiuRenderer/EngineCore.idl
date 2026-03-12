@@ -1,2 +1,11 @@
-import "oaidl.idl";
-import "ocidl.idl";
+namespace WsiuRenderer
+{
+    [default_interface]
+    runtimeclass EngineCore
+    {
+        EngineCore();
+        void Initialize();
+        void Update();
+        void Render();
+    }
+}
