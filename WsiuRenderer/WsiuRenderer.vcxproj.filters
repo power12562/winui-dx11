@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Class.idl" />
+    <Midl Include="EngineCore.idl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="WsiuRenderer.def" />

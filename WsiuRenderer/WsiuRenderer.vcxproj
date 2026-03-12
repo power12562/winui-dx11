@@ -135,6 +135,7 @@
       <SubType>Code</SubType>
       <DependentUpon>Class.cpp</DependentUpon>
     </Midl>
+    <Midl Include="EngineCore.idl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
