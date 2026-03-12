@@ -20,8 +20,14 @@ namespace winrt::WsiuRenderer::implementation
         bool CreateDevice();
         bool CreateSwapChain(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel);
         void Tick();
+
+        void Clear();
+        void BeginImgui();
         void Update();
         void Render();
+        void EndImgui();
+        void Flip();
+
         void Finalize();
         
         HWND                           _hwnd;

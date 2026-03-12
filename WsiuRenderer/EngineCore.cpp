@@ -2,14 +2,20 @@
 #include "EngineCore.h"
 #include <microsoft.ui.xaml.media.dxinterop.h>
 #include "EngineCore.g.cpp"
-
+#include "imguicommons.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace winrt::WsiuRenderer::implementation
 {
+
     static LRESULT WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR dwRefData)
     {
+        if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+            return 1;
+
         switch (msg)
         {
         case WM_SIZE:
@@ -18,7 +24,7 @@ namespace winrt::WsiuRenderer::implementation
             EngineCore* core = reinterpret_cast<EngineCore*>(dwRefData);
             core->Quit();
             PostQuitMessage(0);
-            return 0;
+            return 1;
         }
         return DefSubclassProc(hWnd, msg, wParam, lParam);
     }
@@ -41,20 +47,48 @@ namespace winrt::WsiuRenderer::implementation
         Tick();
     }
 
+    void EngineCore::Clear() 
+    {
+        constexpr float clearColor[] = {0.0f, 1.0f, 1.0f, 1.0f};
+        _deviceContext->ClearRenderTargetView(_backbufferRTV.Get(), clearColor);
+    }
+
+    void EngineCore::BeginImgui() 
+    {
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+        ImGui::DockSpaceOverViewport();
+    }
+
     void EngineCore::Update() 
     {
-    
+        ImGui::ShowDemoWindow(); // Show demo window! :)
     }
 
     void EngineCore::Render()
     {
-        constexpr float clearColor[] = {0.0f, 1.0f, 1.0f, 1.0f};
-        _deviceContext->ClearRenderTargetView(_backbufferRTV.Get(), clearColor);
+
+    }
+
+    void EngineCore::EndImgui() 
+    {
+        _deviceContext->OMSetRenderTargets(1, _backbufferRTV.GetAddressOf(), nullptr);
+        ImGui::Render();
+        ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    void EngineCore::Flip() 
+    {
         _swapChain->Present(_vSync ? 1 : 0, 0);
     }
 
     void EngineCore::Finalize() 
     { 
+        ImGui_ImplDX11_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+
         _backbufferRTV.Reset();
         _swapChain.Reset();
         _deviceContext->ClearState();
@@ -105,6 +139,14 @@ namespace winrt::WsiuRenderer::implementation
         hr = baseContext.As(&_deviceContext);
         if (FAILED(hr))
             return false;
+
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     
+        ImGui_ImplWin32_Init(_hwnd);
+        ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
         return true;
     }
@@ -170,8 +212,12 @@ namespace winrt::WsiuRenderer::implementation
     { 
         using namespace Microsoft::UI::Dispatching;
 
+        Clear();
+        BeginImgui();
         Update();
         Render();
+        EndImgui();
+        Flip();
 
         if (_isRun)
             _dispatcherQueue.TryEnqueue(DispatcherQueuePriority::Low, [this]() { Tick(); });
