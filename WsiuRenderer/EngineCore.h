@@ -12,6 +12,9 @@ namespace winrt::WsiuRenderer::implementation
         void Render();
 
     private:
+        bool CreateDevice();
+        bool CreateSwapChain();
+
         ComPtr<ID3D11Device5>           _device;
         ComPtr<ID3D11DeviceContext4>    _deviceContext;
         ComPtr<IDXGISwapChain1>        _swapChain;
