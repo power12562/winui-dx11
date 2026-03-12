@@ -6,6 +6,15 @@
 *.lo
 *.o
 *.obj
+*.log
+*.tlog
+
+# 빌드 로그 및 임시 파일
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+ARM64/
 
 # Precompiled Headers
 *.gch
@@ -43,7 +52,7 @@
 ## [ .NET / C# ]
 bin/
 obj/
-/Generated Files/
+Generated Files/
 [Log]/
 TestResults/
 *.suo
@@ -70,6 +79,3 @@ packages/
 ## [ Visual Studio 임시 파일 ]
 .vs/
 $Recycle.Bin/
-
-## [ c++/WinRT ]
-Generated Files/
