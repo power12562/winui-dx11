@@ -11,7 +11,7 @@ BraceWrapping:
   AfterControlStatement: MultiLine
   AfterEnum: true
   AfterFunction: true
-  AfterNamespace: false # 네임스페이스는 들여쓰기 안 하는 게 편합니다.
+  AfterNamespace: true 
   AfterStruct: true
   BeforeElse: true
 
@@ -23,8 +23,9 @@ PointerAlignment: Left # 포인터 기호(*)를 타입 쪽에 붙입니다 (int*
 
 # 3. 최신 C++ 기능 지원
 Standard: Latest
-NamespaceIndentation: None # 네임스페이스 내부 들여쓰기 방지 (가로 공간 확보)
-FixNamespaceComments: true # } // namespace ... 자동 추가
+NamespaceIndentation: All          
+CompactNamespaces: false           
+FixNamespaceComments: true         
 
 # 4. 접근 제어자 정렬 (public, private)
 AccessModifierOffset: -4
@@ -32,3 +33,15 @@ AccessModifierOffset: -4
 # 5. 정렬(Alignment) - 변수 선언 시 눈이 편해집니다.
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+
+SortIncludes: true
+IncludeCategories:
+  - Regex:           '^"pch\.h"'    
+    Priority:        -1             
+    CaseSensitive:   false          
+  - Regex:           '^<winrt/.*'   
+    Priority:        2              
+  - Regex:           '^<.*'         
+    Priority:        3              
+  - Regex:           '.*'           
+    Priority:        4              
