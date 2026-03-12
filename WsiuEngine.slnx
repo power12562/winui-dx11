@@ -10,4 +10,5 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="WsiuRenderer/WsiuRenderer.vcxproj" Id="2d451733-eacd-4962-a925-04e0c3b794b6" />
 </Solution>
