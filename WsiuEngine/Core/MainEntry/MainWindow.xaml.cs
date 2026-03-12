@@ -39,8 +39,11 @@ namespace WsiuEngine
 
                 private void InitializeEngineCore()
                 {
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+
                     _engine = new EngineCore();
-                    _engine.Initialize(EnginePanel);
+                    _engine.Initialize((ulong)hwnd, EnginePanel);
+                    _engine.Run();
                 }
             }
         }

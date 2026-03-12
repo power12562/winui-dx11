@@ -3,10 +3,31 @@
 #include <microsoft.ui.xaml.media.dxinterop.h>
 #include "EngineCore.g.cpp"
 
+#include <commctrl.h>
+#pragma comment(lib, "comctl32.lib")
+
 namespace winrt::WsiuRenderer::implementation
 {
-    void EngineCore::Initialize(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel)
+    static LRESULT WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR dwRefData)
     {
+        switch (msg)
+        {
+        case WM_SIZE:
+            break;
+        case WM_DESTROY:
+            EngineCore* core = reinterpret_cast<EngineCore*>(dwRefData);
+            core->Quit();
+            PostQuitMessage(0);
+            return 0;
+        }
+        return DefSubclassProc(hWnd, msg, wParam, lParam);
+    }
+
+    void EngineCore::Initialize(uint64_t windowHandle, winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel)
+    {
+        if (SetSubclass(windowHandle) == false)
+            throw std::runtime_error("Set HWND Failed.");
+
         if (CreateDevice() == false)
             throw std::runtime_error("Create Device Failed.");
 
@@ -14,23 +35,48 @@ namespace winrt::WsiuRenderer::implementation
             throw std::runtime_error("Create Device Failed.");
     }
 
-    void EngineCore::Update() {}
+    void EngineCore::Run()
+    {
+        _dispatcherQueue = Microsoft::UI::Dispatching::DispatcherQueue::GetForCurrentThread();
+        Tick();
+    }
+
+    void EngineCore::Update() 
+    {
+    
+    }
 
     void EngineCore::Render()
     {
-        constexpr float clearColor[] = {0.1f, 0.1f, 0.1f, 1.0f};
+        constexpr float clearColor[] = {0.0f, 1.0f, 1.0f, 1.0f};
         _deviceContext->ClearRenderTargetView(_backbufferRTV.Get(), clearColor);
         _swapChain->Present(_vSync ? 1 : 0, 0);
     }
 
-    bool EngineCore::VSync() const
-    {
-        return _vSync;
+    void EngineCore::Finalize() 
+    { 
+        _backbufferRTV.Reset();
+        _swapChain.Reset();
+        _deviceContext->ClearState();
+        _deviceContext->Flush();
+        _deviceContext.Reset();
+        _device.Reset();
+
+        RemoveWindowSubclass(_hwnd, WinAppProc, IID); 
     }
 
-    void EngineCore::VSync(bool value) 
-    {
-        _vSync = value;
+    bool EngineCore::VSync() const { return _vSync; }
+
+    void EngineCore::VSync(bool value) { _vSync = value; }
+
+    bool EngineCore::SetSubclass(uint64_t windowHandle) 
+    { 
+         _hwnd = reinterpret_cast<HWND>(windowHandle);
+        if (SetWindowSubclass(_hwnd, WinAppProc, IID, reinterpret_cast<DWORD_PTR>(this)))
+        {
+            return true; 
+        }
+        return false;
     }
 
     bool EngineCore::CreateDevice()
@@ -118,5 +164,18 @@ namespace winrt::WsiuRenderer::implementation
             return false;
 
         return true;
+    }
+
+    void EngineCore::Tick() 
+    { 
+        using namespace Microsoft::UI::Dispatching;
+
+        Update();
+        Render();
+
+        if (_isRun)
+            _dispatcherQueue.TryEnqueue(DispatcherQueuePriority::Low, [this]() { Tick(); });
+        else
+            Finalize();
     }
 } // namespace winrt::WsiuRenderer::implementation
