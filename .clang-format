@@ -3,45 +3,30 @@ BasedOnStyle: LLVM
 
 # 1. 들여쓰기 및 줄 바꿈
 IndentWidth: 4
-ColumnLimit: 120 # WinRT는 타입 이름이 길어서 80은 너무 좁습니다.
+ColumnLimit: 120
 UseTab: Never
-BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterClass: true
-  AfterControlStatement: MultiLine
-  AfterEnum: true
-  AfterFunction: true
-  AfterNamespace: true 
-  AfterStruct: true
-  BeforeElse: true
 
-# 2. 정렬 및 공백
-AlignAfterOpenBracket: Align
-AlignOperands: true
-AllowShortFunctionsOnASingleLine: Inline
-PointerAlignment: Left # 포인터 기호(*)를 타입 쪽에 붙입니다 (int* ptr)
+# 2. 중괄호 스타일 
+BreakBeforeBraces: Allman
 
-# 3. 최신 C++ 기능 지원
-Standard: Latest
-NamespaceIndentation: All          
-CompactNamespaces: false           
-FixNamespaceComments: true         
+# 3. 네임스페이스 설정 
+NamespaceIndentation: All    
+CompactNamespaces: true     
+FixNamespaceComments: true   
 
-# 4. 접근 제어자 정렬 (public, private)
-AccessModifierOffset: -4
-
-# 5. 정렬(Alignment) - 변수 선언 시 눈이 편해집니다.
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-
+# 4. 헤더 정렬 및 PCH 최상단 고정 
 SortIncludes: true
 IncludeCategories:
-  - Regex:           '^"pch\.h"'    
-    Priority:        -1             
-    CaseSensitive:   false          
-  - Regex:           '^<winrt/.*'   
-    Priority:        2              
-  - Regex:           '^<.*'         
-    Priority:        3              
-  - Regex:           '.*'           
-    Priority:        4              
+  - Regex:           '^"pch\.h"'
+    Priority:        -1
+  - Regex:           '^<winrt/.*'
+    Priority:        2
+  - Regex:           '^<.*'
+    Priority:        3
+  - Regex:           '.*'
+    Priority:        4
+
+# 5. 기타 정렬
+PointerAlignment: Left      
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
