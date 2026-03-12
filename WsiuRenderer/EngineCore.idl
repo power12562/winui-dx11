@@ -2,7 +2,7 @@ namespace WsiuRenderer {
 [default_interface] runtimeclass EngineCore {
     EngineCore();
     void Initialize(UInt64 windowHandle, Microsoft.UI.Xaml.Controls.SwapChainPanel panel);
-    void Run();
+    void Tick();
     void Quit();
     Boolean VSync;
 }

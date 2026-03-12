@@ -7,19 +7,17 @@ namespace winrt::WsiuRenderer::implementation
     {
         EngineCore() = default;
         void Initialize(uint64_t windowHandle, winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel);
-        void Run();
+        void Tick();
         bool VSync() const;
         void VSync(bool value);
-        void Quit() { _isRun = false; }
+        void Quit();
 
     private:
         static constexpr UINT_PTR IID = 1;
-        using DispatcherQueue         = Microsoft::UI::Dispatching::DispatcherQueue;
-
-        bool SetSubclass(uint64_t windowHandle);
+        bool SetHWND(uint64_t windowHandle);
         bool CreateDevice();
         bool CreateSwapChain(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel);
-        void Tick();
+        void Finalize();
 
         void Clear();
         void BeginImgui();
@@ -28,12 +26,9 @@ namespace winrt::WsiuRenderer::implementation
         void EndImgui();
         void Flip();
 
-        void Finalize();
-        
-        HWND                           _hwnd;
-        DispatcherQueue                _dispatcherQueue = nullptr;
-        bool                           _isRun = true;
-        bool                           _vSync = true;
+        HWND                           _hwnd            = NULL;
+        bool                           _isRun           = true;
+        bool                           _vSync           = true;
         ComPtr<ID3D11Device5>          _device;
         ComPtr<ID3D11DeviceContext4>   _deviceContext;
         ComPtr<IDXGISwapChain1>        _swapChain;

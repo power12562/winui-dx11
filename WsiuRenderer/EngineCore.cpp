@@ -10,7 +10,6 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace winrt::WsiuRenderer::implementation
 {
-
     static LRESULT WinAppProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR dwRefData)
     {
         if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
@@ -31,7 +30,7 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::Initialize(uint64_t windowHandle, winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel)
     {
-        if (SetSubclass(windowHandle) == false)
+        if (SetHWND(windowHandle) == false)
             throw std::runtime_error("Set HWND Failed.");
 
         if (CreateDevice() == false)
@@ -39,12 +38,6 @@ namespace winrt::WsiuRenderer::implementation
 
         if (CreateSwapChain(panel) == false)
             throw std::runtime_error("Create Device Failed.");
-    }
-
-    void EngineCore::Run()
-    {
-        _dispatcherQueue = Microsoft::UI::Dispatching::DispatcherQueue::GetForCurrentThread();
-        Tick();
     }
 
     void EngineCore::Clear() 
@@ -55,6 +48,10 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::BeginImgui() 
     {
+        ImGuiIO& io = ImGui::GetIO();
+        io.AddMouseButtonEvent(0, (GetKeyState(VK_LBUTTON) & 0x8000) != 0);
+        io.AddMouseButtonEvent(1, (GetKeyState(VK_RBUTTON) & 0x8000) != 0);
+
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
@@ -103,14 +100,23 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::VSync(bool value) { _vSync = value; }
 
-    bool EngineCore::SetSubclass(uint64_t windowHandle) 
+    void EngineCore::Quit() 
+    {
+        _isRun = false;
+        Finalize();
+    }
+
+    bool EngineCore::SetHWND(uint64_t windowHandle) 
     { 
          _hwnd = reinterpret_cast<HWND>(windowHandle);
         if (SetWindowSubclass(_hwnd, WinAppProc, IID, reinterpret_cast<DWORD_PTR>(this)))
         {
             return true; 
         }
-        return false;
+        else
+        {
+            return false;
+        }
     }
 
     bool EngineCore::CreateDevice()
@@ -142,8 +148,8 @@ namespace winrt::WsiuRenderer::implementation
 
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     
         ImGui_ImplWin32_Init(_hwnd);
         ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
@@ -210,18 +216,14 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::Tick() 
     { 
-        using namespace Microsoft::UI::Dispatching;
-
-        Clear();
-        BeginImgui();
-        Update();
-        Render();
-        EndImgui();
-        Flip();
-
         if (_isRun)
-            _dispatcherQueue.TryEnqueue(DispatcherQueuePriority::Low, [this]() { Tick(); });
-        else
-            Finalize();
+        {
+            Clear();
+            BeginImgui();
+            Update();
+            Render();
+            EndImgui();
+            Flip();
+        }
     }
 } // namespace winrt::WsiuRenderer::implementation
