@@ -16,7 +16,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <SwapChainPanel x:Name="SceneCanvas"
                         Grid.Column="0" />
