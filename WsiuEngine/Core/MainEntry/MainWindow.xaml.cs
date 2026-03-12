@@ -40,7 +40,7 @@ namespace WsiuEngine
                 private void InitializeEngineCore()
                 {
                     _engine = new EngineCore();
-                    _engine.Initialize();
+                    _engine.Initialize(EnginePanel);
                 }
             }
         }

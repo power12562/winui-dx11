@@ -1,11 +1,10 @@
-namespace WsiuRenderer
-{
-    [default_interface]
-    runtimeclass EngineCore
-    {
-        EngineCore();
-        void Initialize();
-        void Update();
-        void Render();
-    }
+namespace WsiuRenderer {
+[default_interface] runtimeclass EngineCore {
+    EngineCore();
+    void Initialize(Microsoft.UI.Xaml.Controls.SwapChainPanel panel);
+    void Update();
+    void Render();
+
+    Boolean VSync;
 }
+} // namespace WsiuRenderer

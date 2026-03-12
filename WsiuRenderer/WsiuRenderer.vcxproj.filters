@@ -16,19 +16,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Class.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="EngineCore.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>pch</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EngineCore.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>pch</Filter>
     </ClInclude>
