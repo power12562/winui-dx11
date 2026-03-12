@@ -1,0 +1,34 @@
+Language: Cpp
+BasedOnStyle: LLVM
+
+# 1. 들여쓰기 및 줄 바꿈
+IndentWidth: 4
+ColumnLimit: 120 # WinRT는 타입 이름이 길어서 80은 너무 좁습니다.
+UseTab: Never
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: MultiLine
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: false # 네임스페이스는 들여쓰기 안 하는 게 편합니다.
+  AfterStruct: true
+  BeforeElse: true
+
+# 2. 정렬 및 공백
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AllowShortFunctionsOnASingleLine: Inline
+PointerAlignment: Left # 포인터 기호(*)를 타입 쪽에 붙입니다 (int* ptr)
+
+# 3. 최신 C++ 기능 지원
+Standard: Latest
+NamespaceIndentation: None # 네임스페이스 내부 들여쓰기 방지 (가로 공간 확보)
+FixNamespaceComments: true # } // namespace ... 자동 추가
+
+# 4. 접근 제어자 정렬 (public, private)
+AccessModifierOffset: -4
+
+# 5. 정렬(Alignment) - 변수 선언 시 눈이 편해집니다.
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true

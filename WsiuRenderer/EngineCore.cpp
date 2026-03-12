@@ -79,17 +79,17 @@ namespace winrt::WsiuRenderer::implementation
         UINT width = GetSystemMetrics(SM_CXSCREEN);
         UINT height = GetSystemMetrics(SM_CYSCREEN);
       
-        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-        swapChainDesc.Width = width;
-        swapChainDesc.Height = height;
-        swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-        swapChainDesc.Stereo = false;
-        swapChainDesc.SampleDesc.Count = 1;               
-        swapChainDesc.SampleDesc.Quality = 0;
-        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = 2;                     
-        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;      
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+        swapChainDesc.Width                 = width;
+        swapChainDesc.Height                = height;
+        swapChainDesc.Format                = DXGI_FORMAT_B8G8R8A8_UNORM;
+        swapChainDesc.Stereo                = false;
+        swapChainDesc.SampleDesc.Count      = 1;
+        swapChainDesc.SampleDesc.Quality    = 0;
+        swapChainDesc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount           = 2;
+        swapChainDesc.Scaling               = DXGI_SCALING_STRETCH;
+        swapChainDesc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
         hr = dxgiFactory->CreateSwapChainForComposition(
             _device.Get(),

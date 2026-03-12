@@ -1,30 +1,28 @@
 #pragma once
 #include "EngineCore.g.h"
 
-namespace winrt::WsiuRenderer::implementation
+namespace winrt::WsiuRenderer::implementation {
+struct EngineCore : EngineCoreT<EngineCore>
 {
-    struct EngineCore : EngineCoreT<EngineCore>
-    {
-        EngineCore() = default;
+    EngineCore() = default;
 
-        void Initialize();
-        void Update();
-        void Render();
+    void Initialize();
+    void Update();
+    void Render();
 
-    private:
-        bool CreateDevice();
-        bool CreateSwapChain();
+private:
+    bool CreateDevice();
+    bool CreateSwapChain();
 
-        ComPtr<ID3D11Device5>           _device;
-        ComPtr<ID3D11DeviceContext4>    _deviceContext;
-        ComPtr<IDXGISwapChain1>        _swapChain;
-        ComPtr<ID3D11RenderTargetView> _renderTargetView;
-    };
-}
+    ComPtr<ID3D11Device5>          _device;
+    ComPtr<ID3D11DeviceContext4>   _deviceContext;
+    ComPtr<IDXGISwapChain1>        _swapChain;
+    ComPtr<ID3D11RenderTargetView> _renderTargetView;
+};
+} // namespace winrt::WsiuRenderer::implementation
 
-namespace winrt::WsiuRenderer::factory_implementation
+namespace winrt::WsiuRenderer::factory_implementation {
+struct EngineCore : EngineCoreT<EngineCore, implementation::EngineCore>
 {
-    struct EngineCore : EngineCoreT<EngineCore, implementation::EngineCore>
-    {
-    };
-}
+};
+} // namespace winrt::WsiuRenderer::factory_implementation
