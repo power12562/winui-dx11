@@ -22,12 +22,14 @@
             <ColumnDefinition Width="300" MinWidth="200" />
         </Grid.ColumnDefinitions>
         
-        <SwapChainPanel x:Name="SceneCanvas"
-                        Grid.Column="0" />
+        <SwapChainPanel Grid.Column="0"
+                        x:Name="SceneCanvas"/>
+        
         <controls:GridSplitter Grid.Column="1"
                                Width="1"
                                HorizontalAlignment="Stretch"
                                Cursor="SizeWestEast"/>
+        
         <Border Grid.Column="2"
                 Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
