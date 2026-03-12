@@ -15,32 +15,9 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="300" MinWidth="200" />
-        </Grid.ColumnDefinitions>
-        
-        <SwapChainPanel Grid.Column="0"
-                        x:Name="SceneCanvas"/>
-        
-        <controls:GridSplitter Grid.Column="1"
-                               Width="1"
-                               HorizontalAlignment="Stretch"
-                               Cursor="SizeWestEast"/>
-        
-        <Border Grid.Column="2"
-                Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1,0,0,0">
-            <StackPanel Padding="20" Spacing="10">
-                <TextBlock Text="Inspector"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           Margin="0,0,0,10"
-                           HorizontalAlignment="Center"/>
-                <Button Content="Test Button" HorizontalAlignment="Stretch"/>
-            </StackPanel>
-        </Border>
+    <Grid Background="Black">
+        <SwapChainPanel x:Name="EnginePanel" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch"/>
     </Grid>
 </Window>
