@@ -40,10 +40,9 @@ namespace WsiuEngine
                 private void InitializeEngineCore()
                 {
                     var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-
                     _engine = new EngineCore();
                     _engine.Initialize((ulong)hwnd, EnginePanel);
-                    _engine.Run();
+                    CompositionTarget.Rendering += (sender, args) => _engine.Tick();
                 }
             }
         }
