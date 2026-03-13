@@ -8,6 +8,10 @@ class slot_pool
     using cleaner_type = _cleaner_type;
     using element_type = std::pair<value_type, bool>;
 public:
+    slot_pool() = default;
+    slot_pool(const cleaner_type& cleaner) : _cleaner(cleaner) {};
+    slot_pool(const cleaner_type&& cleaner) noexcept : _cleaner(std::move(cleaner)) {};
+    ~slot_pool() = default;
 
     template <typename __value_type> 
     size_t create(__value_type&& value)
@@ -15,6 +19,7 @@ public:
         if (_freeIndices.empty() == false)
         {
             size_t id = _freeIndices.back();
+            _freeIndices.pop_back();
             auto& [val, isValid] = _elements[id];
             val = std::forward<__value_type>(value);
             isValid = true;
