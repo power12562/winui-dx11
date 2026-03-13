@@ -1,23 +1,36 @@
 #pragma once
 #include "EngineCore.g.h"
+#include "slot_pool.h"
+
+#undef max
+#undef min
 
 namespace winrt::WsiuRenderer::implementation
 {
     struct EngineCore : EngineCoreT<EngineCore>
     {
+        using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
+        using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
+
         EngineCore() = default;
-        void Initialize(uint64_t windowHandle, winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel);
+        void Initialize(uint64_t windowHandle, SwapChainPanel const& panel);
+        void BeginFrame();
         void Tick();
+        void EndFrame();
+        void Quit();
         bool VSync() const;
         void VSync(bool value);
-        void Quit();
+        uint64_t RtvBackBufferID() const { return _rtvBackBufferID; }
 
     private:
         static constexpr UINT_PTR IID = 1;
         bool SetHWND(uint64_t windowHandle);
         bool CreateDevice();
-        bool CreateSwapChain(winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel);
+        bool CreateSwapChain(SwapChainPanel const& panel);
         void Finalize();
+
+        const ComPtr<ID3D11RenderTargetView>& GetBackBufferRTV() const { return _randerTargetViews.at(_rtvBackBufferID); }
+        ComPtr<ID3D11RenderTargetView>& GetBackBufferRTV() { return _randerTargetViews.at(_rtvBackBufferID); }
 
         void Clear();
         void BeginImgui();
@@ -32,7 +45,9 @@ namespace winrt::WsiuRenderer::implementation
         ComPtr<ID3D11Device5>          _device;
         ComPtr<ID3D11DeviceContext4>   _deviceContext;
         ComPtr<IDXGISwapChain1>        _swapChain;
-        ComPtr<ID3D11RenderTargetView> _backbufferRTV;
+
+        size_t     _rtvBackBufferID = std::numeric_limits<size_t>::max();
+        rtv_pool_t _randerTargetViews;
     };
 } // namespace winrt::WsiuRenderer::implementation
 

@@ -40,10 +40,12 @@ namespace winrt::WsiuRenderer::implementation
             throw std::runtime_error("Create Device Failed.");
     }
 
+
     void EngineCore::Clear() 
     {
         constexpr float clearColor[] = {0.0f, 1.0f, 1.0f, 1.0f};
-        _deviceContext->ClearRenderTargetView(_backbufferRTV.Get(), clearColor);
+        auto& backBuffer = GetBackBufferRTV();
+        _deviceContext->ClearRenderTargetView(backBuffer.Get(), clearColor);
     }
 
     void EngineCore::BeginImgui() 
@@ -70,7 +72,8 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::EndImgui() 
     {
-        _deviceContext->OMSetRenderTargets(1, _backbufferRTV.GetAddressOf(), nullptr);
+        auto& backBuffer = GetBackBufferRTV();
+        _deviceContext->OMSetRenderTargets(1, backBuffer.GetAddressOf(), nullptr);
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     }
@@ -86,7 +89,7 @@ namespace winrt::WsiuRenderer::implementation
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
 
-        _backbufferRTV.Reset();
+        _randerTargetViews.clear();
         _swapChain.Reset();
         _deviceContext->ClearState();
         _deviceContext->Flush();
@@ -199,7 +202,9 @@ namespace winrt::WsiuRenderer::implementation
         if (FAILED(hr))
             return false;
 
-        hr = _device->CreateRenderTargetView(backBuffer.Get(), nullptr, _backbufferRTV.GetAddressOf());
+        _rtvBackBufferID = _randerTargetViews.create(ComPtr<ID3D11RenderTargetView>());
+        auto& backBufferRTV = _randerTargetViews.at(_rtvBackBufferID);
+        hr = _device->CreateRenderTargetView(backBuffer.Get(), nullptr, backBufferRTV.GetAddressOf());
         if (FAILED(hr))
             return false;
 
@@ -214,16 +219,27 @@ namespace winrt::WsiuRenderer::implementation
         return true;
     }
 
-    void EngineCore::Tick() 
-    { 
-        if (_isRun)
-        {
-            Clear();
-            BeginImgui();
-            Update();
-            Render();
-            EndImgui();
-            Flip();
-        }
+    void EngineCore::BeginFrame()
+    {
+        if (_isRun == false) return;
+
+        Clear();
+        BeginImgui();
+    }
+
+    void EngineCore::Tick()
+    {
+        if (_isRun == false) return;
+
+        Update();
+        Render();
+    }
+
+    void EngineCore::EndFrame() 
+    {
+        if (_isRun == false) return;
+
+        EndImgui(); 
+        Flip();
     }
 } // namespace winrt::WsiuRenderer::implementation

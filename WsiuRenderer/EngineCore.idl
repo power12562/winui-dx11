@@ -1,9 +1,16 @@
-namespace WsiuRenderer {
-[default_interface] runtimeclass EngineCore {
-    EngineCore();
-    void Initialize(UInt64 windowHandle, Microsoft.UI.Xaml.Controls.SwapChainPanel panel);
-    void Tick();
-    void Quit();
-    Boolean VSync;
-}
+namespace WsiuRenderer
+{
+    [default_interface] runtimeclass EngineCore
+    {
+        EngineCore();
+        void Initialize(UInt64 windowHandle, Microsoft.UI.Xaml.Controls.SwapChainPanel panel);
+        void BeginFrame();
+        void Tick();
+        void EndFrame();
+        void Quit();
+
+        Boolean VSync;
+
+        UInt64 RtvBackBufferID { get; };
+    }
 } // namespace WsiuRenderer

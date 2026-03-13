@@ -42,7 +42,16 @@ namespace WsiuEngine
                     var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                     _engine = new EngineCore();
                     _engine.Initialize((ulong)hwnd, EnginePanel);
-                    CompositionTarget.Rendering += (sender, args) => _engine.Tick();
+                    CompositionTarget.Rendering += (sender, args) => Update();
+                }
+
+                private void Update()
+                {
+                    if (_engine == null) return;
+
+                    _engine.BeginFrame();
+                    _engine.Tick();
+                    _engine.EndFrame();
                 }
             }
         }
