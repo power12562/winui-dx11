@@ -1,3 +1,6 @@
+import "KeyboardInputState.idl";
+import "MouseInputState.idl";
+
 namespace WsiuRenderer
 {
     [default_interface] runtimeclass EngineCore
@@ -12,5 +15,7 @@ namespace WsiuRenderer
         Boolean VSync;
 
         UInt64 RtvBackBufferID { get; };
+        MouseInputState InputMouseState { get; };
+        KeyboardInputState InputKeyboardState { get; };
     }
 } // namespace WsiuRenderer

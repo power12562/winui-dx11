@@ -29,7 +29,7 @@ void InputSystem::RawInputProcessing(HRAWINPUT hRawInput)
     if (_useRawInput == false)
         return;
 
-    UINT dwSize;
+    UINT dwSize{};
     GetRawInputData(hRawInput, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 
     alignas(RAWINPUT) BYTE   fixedBuffer[64]{};

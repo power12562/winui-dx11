@@ -102,7 +102,7 @@ namespace winrt::WsiuRenderer::implementation
         }
 
         BYTE keyboardState[256];
-        GetKeyboardState(keyboardState); 
+        ::GetKeyboardState(keyboardState); 
         uint32_t* pBits = reinterpret_cast<uint32_t*>(&InputSystem.KeyboardState);
         uint32_t* pLastBits = reinterpret_cast<uint32_t*>(&prevKeyboardState);
         for (int i = 0; i < 256; ++i)
@@ -186,6 +186,16 @@ namespace winrt::WsiuRenderer::implementation
     bool EngineCore::VSync() const { return _vSync; }
 
     void EngineCore::VSync(bool value) { _vSync = value; }
+
+    InputSystem::MouseInputState EngineCore::InputMouseState() const 
+    {
+       return InputSystem.MouseState;
+    }
+
+    InputSystem::KeyboardInputState EngineCore::InputKeyboardState() const 
+    {
+       return InputSystem.KeyboardState;
+    }
 
     void EngineCore::Quit() 
     {

@@ -21,7 +21,8 @@ namespace winrt::WsiuRenderer::implementation
         bool VSync() const;
         void VSync(bool value);
         uint64_t RtvBackBufferID() const { return _rtvBackBufferID; }
-
+        InputSystem::MouseInputState    InputMouseState() const;
+        InputSystem::KeyboardInputState InputKeyboardState() const;
     public:
         InputSystem InputSystem;
 
