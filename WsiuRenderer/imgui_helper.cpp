@@ -143,21 +143,21 @@ ImGuiKey VirtualKeyToImGuiKey(WPARAM wParam)
     // 모디파이어 키
     case VK_LSHIFT:
     case VK_SHIFT:
-        return ImGuiKey_LeftShift;
+        return ImGuiMod_Shift;
     case VK_RSHIFT:
         return ImGuiKey_RightShift;
     case VK_LCONTROL:
     case VK_CONTROL:
-        return ImGuiKey_LeftCtrl;
+        return ImGuiMod_Ctrl;
     case VK_RCONTROL:
         return ImGuiKey_RightCtrl;
     case VK_LMENU:
     case VK_MENU:
-        return ImGuiKey_LeftAlt;
+        return ImGuiMod_Alt;
     case VK_RMENU:
         return ImGuiKey_RightAlt;
     case VK_LWIN:
-        return ImGuiKey_LeftSuper;
+        return ImGuiMod_Shift;
     case VK_RWIN:
         return ImGuiKey_RightSuper;
     default:
