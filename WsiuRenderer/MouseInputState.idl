@@ -1,0 +1,15 @@
+namespace WsiuRenderer
+{
+    struct MouseInputState
+    {
+        Int32 DeltaX;     
+        Int32 DeltaY;     
+        Int32 WheelDelta; 
+
+        Boolean IsLeftDown;
+        Boolean IsRightDown;
+        Boolean IsMiddleDown;
+        Boolean IsX1Down;
+        Boolean IsX2Down;
+    };
+}

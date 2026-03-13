@@ -1,0 +1,14 @@
+namespace WsiuRenderer
+{
+    struct KeyboardInputState
+    {
+        UInt32 BitStates0;
+        UInt32 BitStates1;
+        UInt32 BitStates2;
+        UInt32 BitStates3;
+        UInt32 BitStates4;
+        UInt32 BitStates5;
+        UInt32 BitStates6;
+        UInt32 BitStates7;
+    };
+} 
