@@ -60,8 +60,10 @@
       <Filter>thirdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="default_cleaner.cpp" />
-    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="imgui_helper.cpp" />
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>Core\InputSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
