@@ -5,6 +5,8 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 120
 UseTab: Never
+AccessModifierOffset: -4
+EmptyLineBeforeAccessModifier: Always
 
 # 2. 중괄호 스타일 
 BreakBeforeBraces: Allman
