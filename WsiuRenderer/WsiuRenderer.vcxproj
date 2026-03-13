@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="default_cleaner.h" />
     <ClInclude Include="dx11commons.h" />
     <ClInclude Include="imguicommons.h" />
     <ClInclude Include="pch.h" />
@@ -132,6 +133,7 @@
       <DependentUpon>EngineCore.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="slot_pool.h" />
     <ClInclude Include="thirdparty\imgui\imgui.h" />
     <ClInclude Include="thirdparty\imgui\imgui_impl_dx11.h" />
     <ClInclude Include="thirdparty\imgui\imgui_impl_win32.h" />
@@ -139,6 +141,7 @@
     <ClInclude Include="thirdparty\imgui\imgui_stdlib.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="default_cleaner.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

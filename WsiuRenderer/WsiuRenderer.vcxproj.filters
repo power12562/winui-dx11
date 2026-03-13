@@ -20,6 +20,12 @@
     <Filter Include="thirdparty\imgui">
       <UniqueIdentifier>{2a44eb1b-1f46-4779-beb6-5ef9c29aa129}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{3fd281e5-3dc0-4278-8a3f-e6883a8b70d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\slot_pool">
+      <UniqueIdentifier>{2696aa9f-9cf0-4a4d-87d6-1b2d78337857}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
@@ -50,6 +56,7 @@
     <ClCompile Include="thirdparty\imgui\imgui_widgets.cpp">
       <Filter>thirdparty\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="default_cleaner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -75,6 +82,12 @@
     </ClInclude>
     <ClInclude Include="imguicommons.h">
       <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="slot_pool.h">
+      <Filter>Common\slot_pool</Filter>
+    </ClInclude>
+    <ClInclude Include="default_cleaner.h">
+      <Filter>Common\slot_pool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
