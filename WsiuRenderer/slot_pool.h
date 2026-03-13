@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "default_cleaner.h"
 
 template <typename _value_type, typename _cleaner_type> 
 class slot_pool
@@ -11,7 +12,16 @@ public:
     slot_pool() = default;
     slot_pool(const cleaner_type& cleaner) : _cleaner(cleaner) {};
     slot_pool(const cleaner_type&& cleaner) noexcept : _cleaner(std::move(cleaner)) {};
-    ~slot_pool() = default;
+    ~slot_pool() 
+    {
+        for (auto& [value, valid] : _elements)
+        {
+            if (valid)
+            {
+                _cleaner(value);
+            }
+        }
+    }
 
     template <typename __value_type> 
     size_t create(__value_type&& value)
@@ -47,6 +57,20 @@ public:
                 _cleaner(value);
                 isValid = false;
                 _freeIndices.push_back(index);
+            }
+        }
+    }
+    void clear()
+    {
+        size_t size = _elements.size();
+        for (size_t i = 0; i < size; ++i)
+        {
+            auto& [value, valid] = _elements[i];
+            if (valid)
+            {
+                _cleaner(value);
+                valid = false;
+                _freeIndices.push_back(i);
             }
         }
     }
