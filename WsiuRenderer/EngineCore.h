@@ -1,17 +1,17 @@
 #pragma once
 #include "EngineCore.g.h"
 #include "slot_pool.h"
-
-#undef max
-#undef min
+#include "InputSystem.h"
 
 namespace winrt::WsiuRenderer::implementation
 {
     struct EngineCore : EngineCoreT<EngineCore>
     {
+    public:
         using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
         using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
 
+        //idl funtions
         EngineCore() = default;
         void Initialize(uint64_t windowHandle, SwapChainPanel const& panel);
         void BeginFrame();
@@ -22,8 +22,11 @@ namespace winrt::WsiuRenderer::implementation
         void VSync(bool value);
         uint64_t RtvBackBufferID() const { return _rtvBackBufferID; }
 
+    public:
+        InputSystem InputSystem;
+
     private:
-        static constexpr UINT_PTR IID = 1;
+        static constexpr UINT_PTR SUBCLASS_IID = 1;
         bool SetHWND(uint64_t windowHandle);
         bool CreateDevice();
         bool CreateSwapChain(SwapChainPanel const& panel);
@@ -46,8 +49,8 @@ namespace winrt::WsiuRenderer::implementation
         ComPtr<ID3D11DeviceContext4>   _deviceContext;
         ComPtr<IDXGISwapChain1>        _swapChain;
 
-        size_t     _rtvBackBufferID = std::numeric_limits<size_t>::max();
-        rtv_pool_t _randerTargetViews;
+        size_t     _rtvBackBufferID = (std::numeric_limits<size_t>::max)();
+        rtv_pool_t _randerTargetViews;    
     };
 } // namespace winrt::WsiuRenderer::implementation
 

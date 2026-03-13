@@ -26,6 +26,9 @@
     <Filter Include="Common\slot_pool">
       <UniqueIdentifier>{2696aa9f-9cf0-4a4d-87d6-1b2d78337857}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\InputSystem">
+      <UniqueIdentifier>{a2b31458-cc76-4866-bfe9-50379512918e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
@@ -57,6 +60,8 @@
       <Filter>thirdparty\imgui</Filter>
     </ClCompile>
     <ClCompile Include="default_cleaner.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="imgui_helper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -89,6 +94,12 @@
     <ClInclude Include="default_cleaner.h">
       <Filter>Common\slot_pool</Filter>
     </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>Core\InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_helper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="WsiuRenderer.def" />
@@ -104,6 +115,12 @@
   <ItemGroup>
     <Midl Include="EngineCore.idl">
       <Filter>Core</Filter>
+    </Midl>
+    <Midl Include="MouseInputState.idl">
+      <Filter>Core\InputSystem</Filter>
+    </Midl>
+    <Midl Include="KeyboardInputState.idl">
+      <Filter>Core\InputSystem</Filter>
     </Midl>
   </ItemGroup>
 </Project>

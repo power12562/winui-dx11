@@ -15,15 +15,18 @@ namespace winrt::WsiuRenderer::implementation
         if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
             return 1;
 
+        EngineCore* core = reinterpret_cast<EngineCore*>(dwRefData);
         switch (msg)
         {
+        case WM_INPUT:
+            core->InputSystem.RawInputProcessing((HRAWINPUT)lParam);
+            return 0; 
         case WM_SIZE:
             break;
         case WM_DESTROY:
-            EngineCore* core = reinterpret_cast<EngineCore*>(dwRefData);
             core->Quit();
             PostQuitMessage(0);
-            return 1;
+            return 0;
         }
         return DefSubclassProc(hWnd, msg, wParam, lParam);
     }
@@ -38,6 +41,37 @@ namespace winrt::WsiuRenderer::implementation
 
         if (CreateSwapChain(panel) == false)
             throw std::runtime_error("Create Device Failed.");
+
+        if (InputSystem.RawInputRegister(_hwnd) == false)
+            throw std::runtime_error("Register RawInput Failed.");
+    }
+
+    void EngineCore::BeginFrame()
+    {
+        if (_isRun == false)
+            return;
+
+        Clear();
+        BeginImgui();
+    }
+
+    void EngineCore::Tick()
+    {
+        if (_isRun == false)
+            return;
+
+        Update();
+        Render();
+    }
+
+    void EngineCore::EndFrame()
+    {
+        if (_isRun == false)
+            return;
+
+        EndImgui();
+        Flip();
+        InputSystem.EndFrame();
     }
 
 
@@ -50,9 +84,59 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::BeginImgui() 
     {
+        static InputSystem::MouseInputState prevMouseState{};
+        static InputSystem::KeyboardInputState prevKeyboardState{};
         ImGuiIO& io = ImGui::GetIO();
-        io.AddMouseButtonEvent(0, (GetKeyState(VK_LBUTTON) & 0x8000) != 0);
-        io.AddMouseButtonEvent(1, (GetKeyState(VK_RBUTTON) & 0x8000) != 0);
+        const auto& mouseState = InputSystem.MouseState;
+
+        if (prevMouseState.IsLeftDown != mouseState.IsLeftDown)
+            io.AddMouseButtonEvent(ImGuiMouseButton_Left, mouseState.IsLeftDown);
+        if (prevMouseState.IsRightDown != mouseState.IsRightDown)
+            io.AddMouseButtonEvent(ImGuiMouseButton_Right, mouseState.IsRightDown);
+        if (prevMouseState.IsMiddleDown != mouseState.IsMiddleDown)
+            io.AddMouseButtonEvent(ImGuiMouseButton_Middle, mouseState.IsMiddleDown);
+        if (mouseState.WheelDelta != 0)
+        {
+            float wheel = (float)mouseState.WheelDelta / (float)WHEEL_DELTA;
+            io.AddMouseWheelEvent(0.0f, wheel);
+        }
+
+        BYTE keyboardState[256];
+        GetKeyboardState(keyboardState); 
+        uint32_t* pBits = reinterpret_cast<uint32_t*>(&InputSystem.KeyboardState);
+        uint32_t* pLastBits = reinterpret_cast<uint32_t*>(&prevKeyboardState);
+        for (int i = 0; i < 256; ++i)
+        {
+            int  index  = i / 32;
+            int  bit    = i % 32;
+
+            bool isDown  = (pBits[index] & (1u << bit)) != 0;
+            bool wasDown = (pLastBits[index] & (1u << bit)) != 0;
+
+            if (isDown != wasDown)
+            {
+                ImGuiKey imguiKey = VirtualKeyToImGuiKey(i);
+                if (imguiKey != ImGuiKey_None)
+                {
+                    io.AddKeyEvent(imguiKey, isDown);
+                }
+            }
+
+            if (isDown != wasDown && isDown)
+            {
+                wchar_t buffer[5];
+                int result = ToUnicode((UINT)i, i / 32, keyboardState, buffer, 4, 0);
+                if (result > 0)
+                {
+                    for (int n = 0; n < result; n++)
+                    {
+                        io.AddInputCharacter(buffer[n]);
+                    }
+                }
+            }
+        }
+        prevMouseState = mouseState;
+        prevKeyboardState = InputSystem.KeyboardState;
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
@@ -96,7 +180,7 @@ namespace winrt::WsiuRenderer::implementation
         _deviceContext.Reset();
         _device.Reset();
 
-        RemoveWindowSubclass(_hwnd, WinAppProc, IID); 
+        RemoveWindowSubclass(_hwnd, WinAppProc, SUBCLASS_IID); 
     }
 
     bool EngineCore::VSync() const { return _vSync; }
@@ -112,7 +196,7 @@ namespace winrt::WsiuRenderer::implementation
     bool EngineCore::SetHWND(uint64_t windowHandle) 
     { 
          _hwnd = reinterpret_cast<HWND>(windowHandle);
-        if (SetWindowSubclass(_hwnd, WinAppProc, IID, reinterpret_cast<DWORD_PTR>(this)))
+        if (SetWindowSubclass(_hwnd, WinAppProc, SUBCLASS_IID, reinterpret_cast<DWORD_PTR>(this)))
         {
             return true; 
         }
@@ -219,27 +303,4 @@ namespace winrt::WsiuRenderer::implementation
         return true;
     }
 
-    void EngineCore::BeginFrame()
-    {
-        if (_isRun == false) return;
-
-        Clear();
-        BeginImgui();
-    }
-
-    void EngineCore::Tick()
-    {
-        if (_isRun == false) return;
-
-        Update();
-        Render();
-    }
-
-    void EngineCore::EndFrame() 
-    {
-        if (_isRun == false) return;
-
-        EndImgui(); 
-        Flip();
-    }
 } // namespace winrt::WsiuRenderer::implementation
