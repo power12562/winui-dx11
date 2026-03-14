@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "WsiuEditor (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
+    },
+    "WsiuEditor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
