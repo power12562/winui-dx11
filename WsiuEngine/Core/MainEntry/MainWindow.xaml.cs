@@ -20,13 +20,13 @@ namespace WsiuEngine.Core.MainEntry
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private WsiuEngine _engine;
+        private Engine _engine;
 
         public MainWindow()
         {
             InitializeComponent();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            _engine = new WsiuEngine(hwnd, EnginePanel);
+            _engine = new Engine(hwnd, EnginePanel);
             CompositionTarget.Rendering += (sender, args) => _engine.Update();
         }
     }
