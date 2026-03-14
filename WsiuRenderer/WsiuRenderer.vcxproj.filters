@@ -29,6 +29,15 @@
     <Filter Include="Core\InputSystem">
       <UniqueIdentifier>{a2b31458-cc76-4866-bfe9-50379512918e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\EditorSystem">
+      <UniqueIdentifier>{21574c33-e79f-4383-bcd6-2511621a26d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\EditorSystem\EditorWindow">
+      <UniqueIdentifier>{fbbbbe6c-6536-46c9-a5f6-d525d399bd54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\WsiuGUI">
+      <UniqueIdentifier>{5e3c545f-4236-44df-8c5d-2e368484086e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
@@ -63,6 +72,9 @@
     <ClCompile Include="imgui_helper.cpp" />
     <ClCompile Include="InputSystem.cpp">
       <Filter>Core\InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorWindow.cpp">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +113,12 @@
     </ClInclude>
     <ClInclude Include="imgui_helper.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="IWsiuGUI.h">
+      <Filter>Core\WsiuGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorWindow.h">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

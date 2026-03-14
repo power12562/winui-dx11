@@ -127,9 +127,11 @@
   <ItemGroup>
     <ClInclude Include="default_cleaner.h" />
     <ClInclude Include="dx11commons.h" />
+    <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="imguicommons.h" />
     <ClInclude Include="imgui_helper.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="IWsiuGUI.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="EngineCore.h">
       <DependentUpon>EngineCore.idl</DependentUpon>
@@ -144,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="default_cleaner.cpp" />
+    <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="imgui_helper.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="pch.cpp">
