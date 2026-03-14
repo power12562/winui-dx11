@@ -37,21 +37,7 @@ namespace WsiuEngine.Core
             _engine.BeginFrame();
             _inputSystem.Update();
             _engine.Tick();
-            Test();
             _engine.EndFrame();
-        }
-
-        private static void Test()
-        {
-            if(InputSystem.GetKeyState(MouseKey.X1) == KeyState.Up)
-            {
-                Debug.WriteLine("mouse key up");
-            }
-
-            if (InputSystem.GetKeyState(VirtualKey.Enter) == KeyState.Up)
-            {
-                Debug.WriteLine("enter key up");
-            }
         }
     }
 }
