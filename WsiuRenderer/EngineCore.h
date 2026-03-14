@@ -2,6 +2,7 @@
 #include "EngineCore.g.h"
 #include "slot_pool.h"
 #include "InputSystem.h"
+#include "IWsiuGUI.h"
 
 namespace winrt::WsiuRenderer::implementation
 {
@@ -10,6 +11,7 @@ namespace winrt::WsiuRenderer::implementation
     public:
         using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
         using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
+        using EditorWindows_t = slot_pool<std::unique_ptr<IWsiuGUI>, UniquePtrCleaner<IWsiuGUI>>;
 
         //idl funtions
         EngineCore() = default;
@@ -21,8 +23,13 @@ namespace winrt::WsiuRenderer::implementation
         bool VSync() const;
         void VSync(bool value);
         uint64_t RtvBackBufferID() const { return _rtvBackBufferID; }
+
         InputSystem::MouseInputState    InputMouseState() const;
         InputSystem::KeyboardInputState InputKeyboardState() const;
+       
+        uint64_t EditorWindowCreate(const hstring& title);
+        void     EditorWindowDestroy(uint64_t id);
+        void     EditorWindowChangeTitle(uint64_t id, hstring const& newTitle);
     public:
         InputSystem InputSystem;
 
@@ -52,6 +59,8 @@ namespace winrt::WsiuRenderer::implementation
 
         size_t     _rtvBackBufferID = (std::numeric_limits<size_t>::max)();
         rtv_pool_t _randerTargetViews;    
+
+        EditorWindows_t _editorWindows;
     };
 } // namespace winrt::WsiuRenderer::implementation
 

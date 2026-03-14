@@ -3,6 +3,7 @@
 #include <microsoft.ui.xaml.media.dxinterop.h>
 #include "EngineCore.g.cpp"
 #include "imguicommons.h"
+#include "EditorWindow.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
@@ -145,13 +146,17 @@ namespace winrt::WsiuRenderer::implementation
     }
 
     void EngineCore::Update() 
-    {
-        ImGui::ShowDemoWindow(); // Show demo window! :)
+    { 
+       
     }
 
     void EngineCore::Render()
     {
-
+        for (auto& gui : _editorWindows)
+        {
+            if (gui)
+                gui->OnDraw();
+        }
     }
 
     void EngineCore::EndImgui() 
@@ -194,7 +199,29 @@ namespace winrt::WsiuRenderer::implementation
 
     InputSystem::KeyboardInputState EngineCore::InputKeyboardState() const 
     {
-       return InputSystem.KeyboardState;
+       return InputSystem.KeyboardState; }
+
+    uint64_t EngineCore::EditorWindowCreate(const hstring& title)
+    {
+        uint64_t id        = _editorWindows.create();
+        auto&    newEditor = _editorWindows.at(id);
+        newEditor.reset(new EditorWindow(title));
+        newEditor->OnCreate();
+        return id;
+    }
+
+    void EngineCore::EditorWindowDestroy(uint64_t id)
+    {
+        auto& editor = _editorWindows.at(id);
+        editor->OnDestroy();
+        _editorWindows.erase(id);
+    }
+
+    void EngineCore::EditorWindowChangeTitle(uint64_t id, hstring const& newTitle) 
+    {
+        auto& gui = _editorWindows.at(id);
+        EditorWindow* editor = static_cast<EditorWindow*>(gui.get());
+        editor->SetTitle(newTitle);
     }
 
     void EngineCore::Quit() 
@@ -296,7 +323,7 @@ namespace winrt::WsiuRenderer::implementation
         if (FAILED(hr))
             return false;
 
-        _rtvBackBufferID = _randerTargetViews.create(ComPtr<ID3D11RenderTargetView>());
+        _rtvBackBufferID = _randerTargetViews.create();
         auto& backBufferRTV = _randerTargetViews.at(_rtvBackBufferID);
         hr = _device->CreateRenderTargetView(backBuffer.Get(), nullptr, backBufferRTV.GetAddressOf());
         if (FAILED(hr))

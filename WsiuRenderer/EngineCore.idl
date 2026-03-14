@@ -12,6 +12,10 @@ namespace WsiuRenderer
         void EndFrame();
         void Quit();
 
+        UInt64 EditorWindowCreate(String title);
+        void EditorWindowDestroy(UInt64 id);
+        void EditorWindowChangeTitle(UInt64 id, String newTitle);
+
         Boolean VSync;
 
         UInt64 RtvBackBufferID { get; };
