@@ -140,6 +140,11 @@ public:
     size_t size() const { return _size; } 
     bool empty() const { return _size == 0; }
     
+    size_t create()
+    { 
+        return create(value_type());
+    }
+
     template <typename __value_type> 
     size_t create(__value_type&& value)
     {
