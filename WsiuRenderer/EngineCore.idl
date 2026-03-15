@@ -3,6 +3,8 @@ import "MouseInputState.idl";
 
 namespace WsiuRenderer
 {
+    delegate void EditorWindowCallback();
+
     [default_interface] runtimeclass EngineCore
     {
         EngineCore();
@@ -15,6 +17,9 @@ namespace WsiuRenderer
         UInt64 EditorWindowCreate(String title);
         void EditorWindowDestroy(UInt64 id);
         void EditorWindowChangeTitle(UInt64 id, String newTitle);
+        void EditorWindowBeginCallback(UInt64 id, EditorWindowCallback handler);
+        void EditorWindowDrawCallback(UInt64 id, EditorWindowCallback handler);
+        void EditorWindowEndCallback(UInt64 id, EditorWindowCallback handler);
 
         Boolean VSync;
 

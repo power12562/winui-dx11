@@ -2,7 +2,7 @@
 #include "EngineCore.g.h"
 #include "slot_pool.h"
 #include "InputSystem.h"
-#include "IWsiuGUI.h"
+#include "EditorWindow.h"
 
 namespace winrt::WsiuRenderer::implementation
 {
@@ -11,9 +11,9 @@ namespace winrt::WsiuRenderer::implementation
     public:
         using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
         using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
-        using EditorWindows_t = slot_pool<std::unique_ptr<IWsiuGUI>, UniquePtrCleaner<IWsiuGUI>>;
+        using EditorWindows_t = slot_pool<std::unique_ptr<EditorWindow>, UniquePtrCleaner<EditorWindow>>;
 
-        //idl funtions
+        //idl funtions begin
         EngineCore() = default;
         void Initialize(uint64_t windowHandle, SwapChainPanel const& panel);
         void BeginFrame();
@@ -30,6 +30,9 @@ namespace winrt::WsiuRenderer::implementation
         uint64_t EditorWindowCreate(const hstring& title);
         void     EditorWindowDestroy(uint64_t id);
         void     EditorWindowChangeTitle(uint64_t id, hstring const& newTitle);
+        void     EditorWindowBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        void     EditorWindowDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        void     EditorWindowEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
     public:
         InputSystem InputSystem;
 
@@ -62,6 +65,7 @@ namespace winrt::WsiuRenderer::implementation
 
         EditorWindows_t _editorWindows;
     };
+
 } // namespace winrt::WsiuRenderer::implementation
 
 namespace winrt::WsiuRenderer::factory_implementation

@@ -1,7 +1,9 @@
 ﻿#include "pch.h"
 #include "EngineCore.h"
 #include <microsoft.ui.xaml.media.dxinterop.h>
+#if __has_include("EngineCore.g.cpp")
 #include "EngineCore.g.cpp"
+#endif
 #include "imguicommons.h"
 #include "EditorWindow.h"
 #include <commctrl.h>
@@ -219,9 +221,26 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::EditorWindowChangeTitle(uint64_t id, hstring const& newTitle) 
     {
-        auto& gui = _editorWindows.at(id);
-        EditorWindow* editor = static_cast<EditorWindow*>(gui.get());
+        auto& editor = _editorWindows.at(id);
         editor->SetTitle(newTitle);
+    }
+
+    void EngineCore::EditorWindowBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    {
+        auto& editor = _editorWindows.at(id);
+        editor->BeginCallback(handler);
+    }
+
+    void EngineCore::EditorWindowDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    {
+        auto& editor = _editorWindows.at(id);
+        editor->DrawCallback(handler);
+    }
+
+    void EngineCore::EditorWindowEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    {
+        auto& editor = _editorWindows.at(id);
+        editor->EndCallback(handler);
     }
 
     void EngineCore::Quit() 
