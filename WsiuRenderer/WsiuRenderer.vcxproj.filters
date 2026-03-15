@@ -38,6 +38,12 @@
     <Filter Include="Core\WsiuGUI">
       <UniqueIdentifier>{5e3c545f-4236-44df-8c5d-2e368484086e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\ImguiContext">
+      <UniqueIdentifier>{522417c8-30d0-4f8b-b707-afaf5d4a2ce7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\EngineCore">
+      <UniqueIdentifier>{069f447b-b83d-4a78-a186-ba3947cbeae4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
@@ -133,14 +139,17 @@
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="EngineCore.idl">
-      <Filter>Core</Filter>
-    </Midl>
     <Midl Include="MouseInputState.idl">
       <Filter>Core\InputSystem</Filter>
     </Midl>
     <Midl Include="KeyboardInputState.idl">
       <Filter>Core\InputSystem</Filter>
+    </Midl>
+    <Midl Include="ImguiContext.idl">
+      <Filter>Core\ImguiContext</Filter>
+    </Midl>
+    <Midl Include="EngineCore.idl">
+      <Filter>Core\EngineCore</Filter>
     </Midl>
   </ItemGroup>
 </Project>

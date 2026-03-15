@@ -129,6 +129,10 @@
     <ClInclude Include="dx11commons.h" />
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="imguicommons.h" />
+    <ClInclude Include="ImguiContext.h">
+      <DependentUpon>ImguiContext.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="imgui_helper.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="IWsiuGUI.h" />
@@ -147,6 +151,10 @@
   <ItemGroup>
     <ClCompile Include="default_cleaner.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
+    <ClCompile Include="ImguiContext.cpp">
+      <DependentUpon>ImguiContext.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="imgui_helper.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="pch.cpp">
@@ -201,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="EngineCore.idl">
+      <SubType>Designer</SubType>
+    </Midl>
+    <Midl Include="ImguiContext.idl">
       <SubType>Designer</SubType>
     </Midl>
     <Midl Include="KeyboardInputState.idl" />
