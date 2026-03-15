@@ -1,0 +1,15 @@
+import "EngineCore.idl";
+
+namespace WsiuRenderer
+{
+    [bindable]
+    [default_interface] 
+    runtimeclass ImguiContext 
+    {
+        ImguiContext(EngineCore engineCore);
+        void InitializeWindow(String title);
+        UInt64 GetWindowID();
+        void SetTitle(String newTitle);
+        void Text(String text); 
+    }
+}
