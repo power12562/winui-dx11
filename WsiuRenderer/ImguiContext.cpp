@@ -33,6 +33,8 @@ namespace winrt::WsiuRenderer::implementation
         {
             func();
         }
+        _beginCommands.clear();
+        _endCommands.clear();
     }
 
     void ImguiContext::SetTitle(hstring const& title) const 
