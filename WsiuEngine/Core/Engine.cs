@@ -19,6 +19,8 @@ namespace WsiuEngine.Core
         private readonly EngineCore _engine;
         private readonly InputSystem _inputSystem;
 
+        public EngineCore EngineCore { get { return _engine; } }
+
         public Engine(nint hwnd, SwapChainPanel enginePanel)
         {     
             if (Instance != null) throw new InvalidOperationException("Engine is already initialized!");
