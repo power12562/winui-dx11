@@ -13,7 +13,13 @@ public:
     void OnDestroy() override;
 
     void SetTitle(const winrt::hstring& title);
+    void BeginCallback(const std::function<void()>& begin);
+    void DrawCallback(const std::function<void()>& draw);
+    void EndCallback(const std::function<void()>& end);
 
 private:
     std::string _title;
+    std::function<void()> _beginFuntion;
+    std::function<void()> _drawFuntion;
+    std::function<void()> _endFuntion;
 };
