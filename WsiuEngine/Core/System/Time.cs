@@ -16,10 +16,13 @@ namespace WsiuEngine.Core.System
             _totalTime = _stopWatch.Elapsed;
         }
 
+
         /// <summary>
         /// 타이머의 업데이트가 일어난 횟수입니다.
         /// </summary>
         public ulong FrameCount => _frameCount;
+
+        public ulong FPS => _fps;
 
         public double TimeScaleAsDouble
         {
@@ -65,6 +68,7 @@ namespace WsiuEngine.Core.System
             _currentTicks = _stopWatch.ElapsedTicks;
             UpdateTotalTime();
             UpdateDT();
+            UpdateFPS();
             _lastTicks = _currentTicks;
         }
 
@@ -74,6 +78,9 @@ namespace WsiuEngine.Core.System
         private double _timeScale = 1.0;
         private TimeSpan _totalTime;
         private ulong _frameCount = 0;
+        private ulong _fpsLastframeCount = 0;
+        private double _fpsElapsedTime = 0;
+        private ulong _fps = 0;
 
         private void UpdateDT()
         {   
@@ -85,6 +92,17 @@ namespace WsiuEngine.Core.System
         {
             TimeSpan elapsedTime = TimeSpan.FromSeconds(UnscaleDeltaTimeAsDouble);
             _totalTime += elapsedTime * TimeScaleAsDouble;
+        }
+
+        private void UpdateFPS()
+        {
+            _fpsElapsedTime += UnscaleDeltaTimeAsDouble;
+            if ( 1.0 <= _fpsElapsedTime )
+            {
+                _fps = _frameCount - _fpsLastframeCount;
+                _fpsLastframeCount = _frameCount;
+                _fpsElapsedTime = 0.0;
+            }
         }
     }
 }
