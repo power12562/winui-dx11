@@ -28,6 +28,10 @@ namespace winrt::WsiuRenderer::implementation
 
         void PushID(uint32_t id);
         void PopID();
+
+        void BeginDisabled();
+        void EndDisabled();
+
         void Text(hstring const& text);
 
         void SettingFloat(float speed, float min, float max, hstring const& format,
@@ -44,8 +48,7 @@ namespace winrt::WsiuRenderer::implementation
         void DrawCommands();
 
         uint64_t _windowID = (std::numeric_limits<uint64_t>::max)();
-        std::vector<std::function<void()>> _beginCommands;
-        std::vector<std::function<void()>> _endCommands;
+        std::vector<std::function<void()>> _commands;
 
         FloatSetting _floatSetting;
         DoubleSetting _doubleSetting;

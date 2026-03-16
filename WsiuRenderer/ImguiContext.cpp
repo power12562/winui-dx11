@@ -26,16 +26,11 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::DrawCommands() 
     {
-        for (auto& func : _beginCommands)
+        for (auto& func : _commands)
         {
             func();
         }
-        for (auto& func : _endCommands)
-        {
-            func();
-        }
-        _beginCommands.clear();
-        _endCommands.clear();
+        _commands.clear();
     }
 
     void ImguiContext::SetTitle(hstring const& title) const 
@@ -45,18 +40,30 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::PushID(uint32_t id) 
     { 
         auto pushID = [=]{ ImGui::PushID(id); };
-        _beginCommands.emplace_back(pushID);
+        _commands.emplace_back(pushID);
     }
 
     void ImguiContext::PopID()
     { 
-       _endCommands.emplace_back(ImGui::PopID);
+       _commands.emplace_back(ImGui::PopID); 
+    }
+
+    void ImguiContext::BeginDisabled() 
+    {
+        auto disable = [] { ImGui::BeginDisabled(); };
+        _commands.emplace_back(disable);
+    }
+
+    void ImguiContext::EndDisabled()  
+    {
+        auto disable = [] { ImGui::EndDisabled(); };
+        _commands.emplace_back(disable);
     }
 
     void ImguiContext::Text(hstring const& text)
     {
         auto textDraw = [=] { ImGui::Text(winrt::to_string(text).c_str()); };
-        _beginCommands.emplace_back(textDraw);
+        _commands.emplace_back(textDraw);
     }
 
     void ImguiContext::SettingFloat(float speed, float min, float max, hstring const& format,
@@ -79,7 +86,7 @@ namespace winrt::WsiuRenderer::implementation
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _beginCommands.emplace_back(dragFloat);
+        _commands.emplace_back(dragFloat);
     }
 
     void ImguiContext::SettingDouble(float speed, double min, double max, hstring const& format,
@@ -102,7 +109,7 @@ namespace winrt::WsiuRenderer::implementation
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _beginCommands.emplace_back(dragDouble);
+        _commands.emplace_back(dragDouble);
     }
 
 
