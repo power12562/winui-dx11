@@ -60,9 +60,33 @@ namespace winrt::WsiuRenderer::implementation
         _commands.emplace_back(disable);
     }
 
+    void ImguiContext::PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x)
+    {
+        auto command = [=] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x}); };
+        _commands.emplace_back(command);
+    }
+
+    void ImguiContext::PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x, float y) 
+    {
+        auto command = [=] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x, y}); };
+        _commands.emplace_back(command);
+    }   
+
+    void ImguiContext::PopStyleVar() 
+    { 
+        auto command = [] { ImGui::PopStyleVar(); };
+        _commands.emplace_back(command);
+    }
+
+    void ImguiContext::PopStyleVar(int count) 
+    {
+        auto command = [count] { ImGui::PopStyleVar(count); };
+        _commands.emplace_back(command);
+    }
+
     void ImguiContext::Text(hstring const& text)
     {
-        auto textDraw = [=] { ImGui::Text(winrt::to_string(text).c_str()); };
+        auto textDraw = [text] { ImGui::Text(winrt::to_string(text).c_str()); };
         _commands.emplace_back(textDraw);
     }
 

@@ -32,6 +32,11 @@ namespace winrt::WsiuRenderer::implementation
         void BeginDisabled();
         void EndDisabled();
 
+        void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x);
+        void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x, float y);
+        void PopStyleVar();
+        void PopStyleVar(int count);
+
         void Text(hstring const& text);
 
         void SettingFloat(float speed, float min, float max, hstring const& format,

@@ -25,6 +25,10 @@ namespace WsiuRenderer
         void PopID();
         void BeginDisabled();
         void EndDisabled();
+        void PushStyleVar(ImGuiStyleVar style, Single x);
+        void PushStyleVar(ImGuiStyleVar style, Single x, Single y);
+        void PopStyleVar();
+        void PopStyleVar(Int32 count);
         void Text(String text); 
         void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
         void DragFloat(String label, Single val, FloatChangedCallback handle);
