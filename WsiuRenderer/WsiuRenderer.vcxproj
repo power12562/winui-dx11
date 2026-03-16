@@ -214,6 +214,9 @@
     <Midl Include="ImguiContext.idl">
       <SubType>Designer</SubType>
     </Midl>
+    <Midl Include="ImguiEnums.idl">
+      <SubType>Designer</SubType>
+    </Midl>
     <Midl Include="KeyboardInputState.idl" />
     <Midl Include="MouseInputState.idl">
       <SubType>Designer</SubType>

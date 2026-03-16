@@ -151,5 +151,8 @@
     <Midl Include="EngineCore.idl">
       <Filter>Core\EngineCore</Filter>
     </Midl>
+    <Midl Include="ImguiEnums.idl">
+      <Filter>Core\ImguiContext</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
