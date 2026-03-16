@@ -44,12 +44,12 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::PushID(uint32_t id) 
     { 
         auto pushID = [=]{ ImGui::PushID(id); };
-        _beginCommands.push_back(pushID);
+        _beginCommands.emplace_back(pushID);
     }
 
     void ImguiContext::PopID()
     { 
-       _endCommands.push_back(ImGui::PopID);
+       _endCommands.emplace_back(ImGui::PopID);
     }
 
     void ImguiContext::Text(hstring const& text)
