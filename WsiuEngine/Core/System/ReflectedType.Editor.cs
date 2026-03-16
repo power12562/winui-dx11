@@ -5,44 +5,42 @@ namespace WsiuEngine.Core.System
     {
         public static void DragFields(ImguiContext context, T target)
         {
-            foreach (var field in ReflectedType<T>.Fields)
+            foreach (var field in Fields)
             {
                 if (field.Type == typeof(double))
                 {
-                    if (field.Set == null)
+                    if (field.Get(target) is double f)
                     {
-                        if (field.Get(target) is double f)
+                        if (field.Set == null)
                         {
                             context.BeginDisabled();
                             context.DragDouble(field.Name, f, (val) => { });
                             context.EndDisabled();
+
                         }
-                    }
-                    else
-                    {
-                        if (field.Get(target) is double f)
+                        else
                         {
                             context.DragDouble(field.Name, f, (val) =>
                             {
                                 field.Set(target, val);
                             });
+
                         }
                     }
                 }
                 else if (field.Type == typeof(float))
                 {
-                    if (field.Set == null)
+                    if (field.Get(target) is float f)
                     {
-                        if (field.Get(target) is float f)
+                        if (field.Set == null)
                         {
+
                             context.BeginDisabled();
                             context.DragFloat(field.Name, f, (val) => { });
                             context.EndDisabled();
+
                         }
-                    }
-                    else
-                    {
-                        if (field.Get(target) is float f)
+                        else
                         {
                             context.DragFloat(field.Name, f, (val) =>
                             {
