@@ -9,11 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using WsiuRenderer;
 using WsiuEngine.Core;
+using WsiuEngine.Core.System;
+using WsiuRenderer;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,12 +27,8 @@ namespace WsiuEditor
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private Engine _engine;
-        private ImguiContext _inspector;
-        private UInt64 _frameCount;
-        private double _lastTime = 0;
-        private UInt64 _fps = 0;
-        private System.Diagnostics.Stopwatch _stopwatch = new();
+        private readonly Engine _engine;
+        private readonly ImguiContext _timeDebugUI;
 
         public MainWindow()
         {
@@ -38,33 +36,25 @@ namespace WsiuEditor
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(hwnd, EnginePanel);
 
-            _inspector = new(_engine.EngineCore);
-            _inspector.InitializeWindow("Inspector");
+            _timeDebugUI = new(_engine.EngineCore);
+            _timeDebugUI.InitializeWindow("Time");
 
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
-
-            _stopwatch.Start();
         }
 
         private void EditorLoop()
         {
-            InspectorDraw();
+            TimeDraw();
             _engine.Update();
         }
 
-        private void InspectorDraw()
+        
+        private void TimeDraw()
         {
-            ++_frameCount;
-            double currentTime = _stopwatch.Elapsed.TotalSeconds;
-            if (currentTime - _lastTime >= 1.0)
+            foreach(var field in ReflectedType<Time>.Fields)
             {
-                _fps = _frameCount;
-                _frameCount = 0;
-                _lastTime = currentTime;
-            }
-            _inspector.Text($"Current Frame: {_frameCount}");
-            _inspector.Text($"FPS: {_fps}");
-            _inspector.Text($"Engine Time: {DateTime.Now:HH:mm:ss}");
+                _timeDebugUI.Text($"{field.Name}: {field.Get(Engine.Time)}");
+            }                    
         }
     }
 }
