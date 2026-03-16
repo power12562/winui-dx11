@@ -20,18 +20,23 @@ namespace WsiuEngine.Core.System
         /// <summary>
         /// 타이머의 업데이트가 일어난 횟수입니다.
         /// </summary>
+        [SerializeField]
         public ulong FrameCount => _frameCount;
 
+        [SerializeField]
         public ulong FPS => _fps;
 
+        [SerializeField]
         public double TimeScaleAsDouble
         {
             get => _timeScale;
             set => _timeScale = Math.Clamp(value, 0, 10.0);
         }
+
         /// <summary>
         /// 시간이 흐르는 배율 입니다.
         /// </summary>
+        [SerializeField]
         public float TimeScale
 
         {
@@ -39,27 +44,34 @@ namespace WsiuEngine.Core.System
             set =>  TimeScaleAsDouble = (double)value; 
         }
 
+        [SerializeField]
         public double DeltaTimeAsDouble { get; private set; }
 
         /// <summary>
         /// 델타 타임입니다.
         /// </summary>
+        [SerializeField]
         public float DeltaTime => (float)DeltaTimeAsDouble;
+
+        [SerializeField]
         public double UnscaleDeltaTimeAsDouble { get; private set; }
 
         /// <summary>
         /// 타임 스케일이 적용되지 않는 델타타임입니다.
         /// </summary>
+        [SerializeField]
         public float UnscaleDeltaTime => (float)UnscaleDeltaTimeAsDouble;
 
         /// <summary>
         /// 현재까지 진행된 총 시간입니다.
         /// </summary>
+        [SerializeField]
         public TimeSpan UnscaledTotalTime => _stopWatch.Elapsed;
 
         /// <summary>
         /// 현재까지 진행된 총 델타타임 시간입니다.
         /// </summary>
+        [SerializeField]
         public TimeSpan TotalTime => _totalTime;
 
         internal void UpdateTime()
