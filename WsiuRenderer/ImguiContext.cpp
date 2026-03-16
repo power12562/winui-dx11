@@ -4,6 +4,7 @@
 #include "ImguiContext.g.cpp"
 #endif
 #include "imguicommons.h"
+#include "imgui_helper.h"
 #include "EngineCore.h"
 
 namespace winrt::WsiuRenderer::implementation
@@ -58,4 +59,52 @@ namespace winrt::WsiuRenderer::implementation
         _beginCommands.emplace_back(textDraw);
     }
 
+    void ImguiContext::SettingFloat(float speed, float min, float max, hstring const& format,
+                                    winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _floatSetting.Speed = speed;
+        _floatSetting.Min   = min;
+        _floatSetting.Max   = max;
+        _floatSetting.Format = winrt::to_string(format);
+        _floatSetting.Flags  = flags;
+    }
+
+    void ImguiContext::DragFloat(hstring const& label, float val,
+                                 winrt::WsiuRenderer::FloatChangedCallback const& handle)
+    {
+        auto& setting   = _floatSetting;
+        auto  dragFloat = [=]() mutable
+        {
+            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, 1, &val, setting.Speed,
+                                                &setting.Min, &setting.Max, setting.Format.c_str(),
+                                                static_cast<::ImGuiSliderFlags>(setting.Flags));
+        };
+        _beginCommands.emplace_back(dragFloat);
+    }
+
+    void ImguiContext::SettingDouble(float speed, double min, double max, hstring const& format,
+                                     winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _doubleSetting.Speed  = speed;
+        _doubleSetting.Min    = min;
+        _doubleSetting.Max    = max;
+        _doubleSetting.Format = winrt::to_string(format);
+        _doubleSetting.Flags  = flags;
+    }
+
+    void ImguiContext::DragDouble(hstring const& label, double val,
+                                  winrt::WsiuRenderer::DoubleChangedCallback const& handle)
+    {
+        auto& setting    = _doubleSetting;
+        auto  dragDouble = [=]() mutable
+        {
+            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, 1, &val, setting.Speed,
+                                                &setting.Min, &setting.Max, setting.Format.c_str(),
+                                                static_cast<::ImGuiSliderFlags>(setting.Flags));
+        };
+        _beginCommands.emplace_back(dragDouble);
+    }
+
+
+   
 } // namespace winrt::WsiuRenderer::implementation

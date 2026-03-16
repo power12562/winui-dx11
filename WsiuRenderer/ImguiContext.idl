@@ -1,7 +1,18 @@
 import "EngineCore.idl";
+import "ImguiEnums.idl";
 
 namespace WsiuRenderer
 {
+    delegate void FloatChangedCallback(Single x);
+    delegate void Float2ChangedCallback(Single x, Single y);
+    delegate void Float3ChangedCallback(Single x, Single y, Single z);
+    delegate void Float4ChangedCallback(Single x, Single y, Single z, Single w);
+
+    delegate void DoubleChangedCallback(Double x);
+    delegate void Double2ChangedCallback(Double x, Double y);
+    delegate void Double3ChangedCallback(Double x, Double y, Double z);
+    delegate void Double4ChangedCallback(Double x, Double y, Double z, Double w);
+
     [bindable]
     [default_interface] 
     runtimeclass ImguiContext 
@@ -13,5 +24,9 @@ namespace WsiuRenderer
         void PushID(UInt32 id);
         void PopID();
         void Text(String text); 
-    }
+        void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
+        void DragFloat(String label, Single val, FloatChangedCallback handle);
+        void SettingDouble(Single speed, Double min, Double max, String format, ImGuiSliderFlags flags);
+        void DragDouble(String label, Double val, DoubleChangedCallback handle);
+    } 
 }
