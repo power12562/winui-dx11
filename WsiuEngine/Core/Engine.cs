@@ -15,9 +15,11 @@ namespace WsiuEngine.Core
     {
         private static Engine Instance { get; set; } = null!;
         public static InputSystem InputSystem { get; private set; } = null!;
+        public static Time Time { get; private set; } = null!;
 
         private readonly EngineCore _engine;
         private readonly InputSystem _inputSystem;
+        private readonly Time _time;
 
         public EngineCore EngineCore { get { return _engine; } }
 
@@ -32,16 +34,18 @@ namespace WsiuEngine.Core
 
             _inputSystem = new InputSystem(_engine);
             InputSystem = _inputSystem;
+
+            _time = new Time();
+            Time = _time;
         }
 
         public void Update()
         {
+            _time.UpdateTime();
             _engine.BeginFrame();
             _inputSystem.Update();
             _engine.Tick();
             _engine.EndFrame();
-
-            
         }
 
         public UInt64 EditorWindowCreate(string title) => _engine.EditorWindowCreate(title);
