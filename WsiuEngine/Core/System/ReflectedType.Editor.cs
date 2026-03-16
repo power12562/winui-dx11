@@ -7,51 +7,40 @@ namespace WsiuEngine.Core.System
         {
             foreach (var field in Fields)
             {
+                bool isReadOnly = field.Set == null;
+                if (isReadOnly)
+                {
+                    context.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
+                }
+
                 if (field.Type == typeof(double))
                 {
                     if (field.Get(target) is double f)
                     {
-                        if (field.Set == null)
+                        context.DragDouble(field.Name, f, (val) =>
                         {
-                            context.BeginDisabled();
-                            context.DragDouble(field.Name, f, (val) => { });
-                            context.EndDisabled();
-
-                        }
-                        else
-                        {
-                            context.DragDouble(field.Name, f, (val) =>
-                            {
-                                field.Set(target, val);
-                            });
-
-                        }
+                            field.Set?.Invoke(target, val);
+                        });
                     }
                 }
                 else if (field.Type == typeof(float))
                 {
                     if (field.Get(target) is float f)
                     {
-                        if (field.Set == null)
+                        context.DragFloat(field.Name, f, (val) =>
                         {
-
-                            context.BeginDisabled();
-                            context.DragFloat(field.Name, f, (val) => { });
-                            context.EndDisabled();
-
-                        }
-                        else
-                        {
-                            context.DragFloat(field.Name, f, (val) =>
-                            {
-                                field.Set(target, val);
-                            });
-                        }
+                            field.Set?.Invoke(target, val);
+                        });
                     }
                 }
                 else
                 {
                     context.Text($"{field.Name}: {field.Get(target)}");
+                }
+
+                if (isReadOnly)
+                {
+                    context.PopStyleVar();
                 }
             }
         }
