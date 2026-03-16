@@ -1,18 +1,5 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
@@ -48,12 +35,33 @@ namespace WsiuEditor
             _engine.Update();
         }
 
-        
         private void TimeDraw()
         {
-            foreach(var field in ReflectedType<Time>.Fields)
+            _timeDebugUI.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
+            foreach (var field in ReflectedType<Time>.Fields)
             {
-                _timeDebugUI.Text($"{field.Name}: {field.Get(Engine.Time)}");
+                if(field.Type == typeof(double))
+                {
+                    if (field.Set == null)
+                    {                       
+                        if (field.Get(Engine.Time) is double f)
+                        {
+                            _timeDebugUI.BeginDisabled();
+                            _timeDebugUI.DragDouble(field.Name, f, (val) => {});
+                            _timeDebugUI.EndDisabled();
+                        }
+                    }
+                    else
+                    {
+                        if (field.Get(Engine.Time) is double f)
+                        {                      
+                            _timeDebugUI.DragDouble(field.Name, f, (val) =>
+                            {
+                                field.Set(Engine.Time, val);
+                            });
+                        }
+                    }
+                }            
             }                    
         }
     }

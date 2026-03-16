@@ -23,6 +23,8 @@ namespace WsiuRenderer
         void SetTitle(String newTitle);
         void PushID(UInt32 id);
         void PopID();
+        void BeginDisabled();
+        void EndDisabled();
         void Text(String text); 
         void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
         void DragFloat(String label, Single val, FloatChangedCallback handle);
