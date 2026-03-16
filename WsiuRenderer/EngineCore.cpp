@@ -118,7 +118,7 @@ namespace winrt::WsiuRenderer::implementation
 
             if (isDown != wasDown)
             {
-                ImGuiKey imguiKey = VirtualKeyToImGuiKey(i);
+                ImGuiKey imguiKey = ImGuiHelper::VirtualKeyToImGuiKey(i);
                 if (imguiKey != ImGuiKey_None)
                 {
                     io.AddKeyEvent(imguiKey, isDown);
