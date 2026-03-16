@@ -13,7 +13,7 @@ namespace WsiuEngine.Core.System
     [AttributeUsage(AttributeTargets.Method)]
     public class SerializeMethodAttribute : Attribute { }
 
-    public static class ReflectedType<T>
+    public static partial class ReflectedType<T>
     {
         public class Field
         {

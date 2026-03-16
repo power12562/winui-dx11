@@ -37,32 +37,9 @@ namespace WsiuEditor
 
         private void TimeDraw()
         {
+            _timeDebugUI.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             _timeDebugUI.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            foreach (var field in ReflectedType<Time>.Fields)
-            {
-                if(field.Type == typeof(double))
-                {
-                    if (field.Set == null)
-                    {                       
-                        if (field.Get(Engine.Time) is double f)
-                        {
-                            _timeDebugUI.BeginDisabled();
-                            _timeDebugUI.DragDouble(field.Name, f, (val) => {});
-                            _timeDebugUI.EndDisabled();
-                        }
-                    }
-                    else
-                    {
-                        if (field.Get(Engine.Time) is double f)
-                        {                      
-                            _timeDebugUI.DragDouble(field.Name, f, (val) =>
-                            {
-                                field.Set(Engine.Time, val);
-                            });
-                        }
-                    }
-                }            
-            }                    
+            ReflectedType<Time>.DragFields(_timeDebugUI, Engine.Time);                  
         }
     }
 }
