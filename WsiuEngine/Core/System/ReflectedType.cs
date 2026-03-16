@@ -20,7 +20,7 @@ namespace WsiuEngine.Core.System
             public string Name { get; init; } = null!;
             public Type Type { get; init; } = null!;
             public Func<T, object?> Get { get; init; } = null!;
-            public Action<T, object?> Set { get; init; } = null!;
+            public Action<T, object?>? Set { get; init; }
         }
 
         public class Method
@@ -49,16 +49,16 @@ namespace WsiuEngine.Core.System
                 }
             }
 
-            foreach (var field in typeof(T).GetProperties(flags))
+            foreach (var property in typeof(T).GetProperties(flags))
             {
-                if(field.GetCustomAttribute<SerializeFieldAttribute>() != null)
+                if(property.GetCustomAttribute<SerializeFieldAttribute>() != null)
                 {
                     list.Add(new Field
                     {
-                        Name = field.Name,
-                        Type = field.PropertyType,
-                        Get = (obj) => field.GetValue(obj),
-                        Set = (obj, value) => field.SetValue(obj, value)
+                        Name = property.Name,
+                        Type = property.PropertyType,
+                        Get = (obj) => property.GetValue(obj),
+                        Set = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null
                     });
                 }
             }
