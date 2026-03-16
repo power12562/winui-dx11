@@ -45,7 +45,7 @@ namespace WsiuEngine.Core.System
         }
 
         [SerializeField]
-        public double DeltaTimeAsDouble { get; private set; }
+        public double DeltaTimeAsDouble => _deltaTimeAsDouble;
 
         /// <summary>
         /// 델타 타임입니다.
@@ -54,7 +54,7 @@ namespace WsiuEngine.Core.System
         public float DeltaTime => (float)DeltaTimeAsDouble;
 
         [SerializeField]
-        public double UnscaleDeltaTimeAsDouble { get; private set; }
+        public double UnscaleDeltaTimeAsDouble => _unscaleDeltaTimeAsDouble;
 
         /// <summary>
         /// 타임 스케일이 적용되지 않는 델타타임입니다.
@@ -88,6 +88,8 @@ namespace WsiuEngine.Core.System
         long _currentTicks = 0;
         private long _lastTicks = 0;
         private double _timeScale = 1.0;
+        private double _unscaleDeltaTimeAsDouble = 0.0;
+        private double _deltaTimeAsDouble = 0.0;
         private TimeSpan _totalTime;
         private ulong _frameCount = 0;
         private ulong _fpsLastframeCount = 0;
@@ -95,9 +97,9 @@ namespace WsiuEngine.Core.System
         private ulong _fps = 0;
 
         private void UpdateDT()
-        {   
-            UnscaleDeltaTimeAsDouble = (double)(_currentTicks - _lastTicks) / Stopwatch.Frequency;
-            DeltaTimeAsDouble = UnscaleDeltaTimeAsDouble * TimeScaleAsDouble;
+        {
+            _unscaleDeltaTimeAsDouble = (double)(_currentTicks - _lastTicks) / Stopwatch.Frequency;
+            _deltaTimeAsDouble = UnscaleDeltaTimeAsDouble * TimeScaleAsDouble;
         }
 
         private void UpdateTotalTime()
