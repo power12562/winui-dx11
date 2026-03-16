@@ -13,6 +13,9 @@ namespace winrt::WsiuRenderer::implementation
         void InitializeWindow(hstring const& title);
         uint64_t GetWindowID() const { return _windowID; }
         void SetTitle(hstring const& title) const;
+
+        void PushID(uint32_t id);
+        void PopID();
         void Text(hstring const& text);
 
     protected:

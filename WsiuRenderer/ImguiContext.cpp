@@ -39,7 +39,17 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::SetTitle(hstring const& title) const 
     { 
-        _engineCore.EditorWindowChangeTitle(_windowID, title);
+        _engineCore.EditorWindowChangeTitle(_windowID, title); }
+
+    void ImguiContext::PushID(uint32_t id) 
+    { 
+        auto pushID = [=]{ ImGui::PushID(id); };
+        _beginCommands.push_back(pushID);
+    }
+
+    void ImguiContext::PopID()
+    { 
+       _endCommands.push_back(ImGui::PopID);
     }
 
     void ImguiContext::Text(hstring const& text)

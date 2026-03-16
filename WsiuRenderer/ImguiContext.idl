@@ -10,6 +10,8 @@ namespace WsiuRenderer
         void InitializeWindow(String title);
         UInt64 GetWindowID();
         void SetTitle(String newTitle);
+        void PushID(UInt32 id);
+        void PopID();
         void Text(String text); 
     }
 }
