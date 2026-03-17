@@ -28,6 +28,8 @@ namespace winrt::WsiuRenderer::implementation
         InputSystem::KeyboardInputState InputKeyboardState() const;
        
         uint64_t EditorWindowCreate(const hstring& title);
+        uint64_t EditorWindowClosableCreate(hstring const& title);
+        void     EditorWindowSetActive(uint64_t id, bool active);
         void     EditorWindowDestroy(uint64_t id);
         void     EditorWindowChangeTitle(uint64_t id, hstring const& newTitle);
         void     EditorWindowBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);

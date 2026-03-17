@@ -6,6 +6,7 @@
 #endif
 #include "imguicommons.h"
 #include "EditorWindow.h"
+#include "EditorWindowClosable.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
@@ -210,6 +211,21 @@ namespace winrt::WsiuRenderer::implementation
         newEditor.reset(new EditorWindow(title));
         newEditor->OnCreate();
         return id;
+    }
+
+    uint64_t EngineCore::EditorWindowClosableCreate(hstring const& title) 
+    { 
+        uint64_t id = _editorWindows.create();
+        auto&    newEditor = _editorWindows.at(id);
+        newEditor.reset(new EditorWindowClosable(title));
+        newEditor->OnCreate();
+        return id; 
+    }
+
+    void EngineCore::EditorWindowSetActive(uint64_t id, bool active) 
+    {
+         auto& editor = _editorWindows.at(id);
+         editor->SetActive(active);
     }
 
     void EngineCore::EditorWindowDestroy(uint64_t id)
