@@ -2,7 +2,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
+using WsiuEngine.Extensions;
 using WsiuRenderer;
+using System.Numerics;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -23,9 +25,7 @@ namespace WsiuEditor
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(hwnd, EnginePanel);
 
-            _timeDebugUI = new(_engine.EngineCore);
-            _timeDebugUI.InitializeWindow("Time");
-
+            _timeDebugUI = ImguiContextExtensions.CreateImguiContext(_engine.EngineCore, "Time", ContextType.Closable);
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
         }
 
@@ -35,11 +35,25 @@ namespace WsiuEditor
             _engine.Update();
         }
 
+        private TestVectorDraw test = new();
         private void TimeDraw()
         {
-            _timeDebugUI.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            _timeDebugUI.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            ReflectedType<Time>.DragFields(_timeDebugUI, Engine.Time);                  
+            ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
+            ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
+            ReflectedType<Time>.DragFields(_timeDebugUI, Engine.Time);
+            ReflectedType<TestVectorDraw>.DragFields(_timeDebugUI, test);
+        }
+
+        class TestVectorDraw
+        {
+            [SerializeField]
+            public Vector2 Vector2;
+
+            [SerializeField]
+            public Vector3 Vector3;
+
+            [SerializeField]
+            public Vector4 Vector4;
         }
     }
 }
