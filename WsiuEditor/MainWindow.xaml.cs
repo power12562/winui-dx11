@@ -25,7 +25,7 @@ namespace WsiuEditor
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(hwnd, EnginePanel);
 
-            _timeDebugUI = ImguiContextExtensions.CreateImguiContext(_engine.EngineCore, "Time", ContextType.Closable);
+            _timeDebugUI = ImguiContextExtensions.CreateImguiContext(_engine.EngineCore, "Time", ContextType.Default);
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
         }
 
@@ -47,13 +47,13 @@ namespace WsiuEditor
         class TestVectorDraw
         {
             [SerializeField]
-            public Vector2 Vector2;
+            public Vector2 Vector2 = new();
 
             [SerializeField]
-            public Vector3 Vector3;
+            public Vector3 Vector3 = new();
 
             [SerializeField]
-            public Vector4 Vector4;
+            public Vector4 Vector4 = new();
         }
     }
 }
