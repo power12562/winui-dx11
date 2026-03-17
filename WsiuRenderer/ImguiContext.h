@@ -42,10 +42,14 @@ namespace winrt::WsiuRenderer::implementation
         void SettingFloat(float speed, float min, float max, hstring const& format,
                           winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
         void DragFloat(hstring const& label, float val, winrt::WsiuRenderer::FloatChangedCallback const& handle);
+        void DragFloatN(hstring const& label, array_view<float const> val,
+                        winrt::WsiuRenderer::FloatNChangedCallback const& handle);
 
         void SettingDouble(float speed, double min, double max, hstring const& format,
                            winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
         void DragDouble(hstring const& label, double val, winrt::WsiuRenderer::DoubleChangedCallback const& handle);
+        void DragDoubleN(hstring const& label, array_view<double const> val,
+                         winrt::WsiuRenderer::DoubleNChangedCallback const& handle);
     protected:
         EngineCore _engineCore;
 

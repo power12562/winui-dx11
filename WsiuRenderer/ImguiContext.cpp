@@ -103,10 +103,27 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragFloat(hstring const& label, float val,
                                  winrt::WsiuRenderer::FloatChangedCallback const& handle)
     {
-        auto& setting   = _floatSetting;
-        auto  dragFloat = [=]() mutable
+        auto dragFloat = [label, val, handle, setting = _floatSetting]() mutable
         {
-            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, 1, &val, setting.Speed,
+            ImGuiHelper::DragScalaWithCallback(winrt::to_string(label).c_str(), handle, &val, setting.Speed,
+                                                &setting.Min, &setting.Max, setting.Format.c_str(),
+                                                static_cast<::ImGuiSliderFlags>(setting.Flags));
+        };
+        _commands.emplace_back(dragFloat);
+    }
+
+    void ImguiContext::DragFloatN(hstring const& label, array_view<float const> val,
+                                  winrt::WsiuRenderer::FloatNChangedCallback const& handle)
+    {
+        if (4 < val.size())
+            return;
+
+        std::array<float, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto dragFloat = [label, temp, size = val.size(), handle, setting = _floatSetting]() mutable
+        {
+            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, size, temp.data(),
+                                                setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
@@ -127,15 +144,30 @@ namespace winrt::WsiuRenderer::implementation
                                   winrt::WsiuRenderer::DoubleChangedCallback const& handle)
     {
         auto& setting    = _doubleSetting;
-        auto  dragDouble = [=]() mutable
+        auto  dragDouble = [label, val, handle, setting = _doubleSetting]() mutable
         {
-            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, 1, &val, setting.Speed,
+            ImGuiHelper::DragScalaWithCallback(winrt::to_string(label).c_str(), handle, &val, setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
         _commands.emplace_back(dragDouble);
     }
 
+    void ImguiContext::DragDoubleN(hstring const& label, array_view<double const> val,
+                                   winrt::WsiuRenderer::DoubleNChangedCallback const& handle)
+    {
+        if (4 < val.size())
+            return;
 
-   
+        std::array<double, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto dragDouble = [label, temp, size = val.size(), handle, setting = _doubleSetting]() mutable
+        {
+            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, size, temp.data(),
+                                                setting.Speed, &setting.Min, &setting.Max, setting.Format.c_str(),
+                                                static_cast<::ImGuiSliderFlags>(setting.Flags));
+        };
+        _commands.emplace_back(dragDouble);
+    }
+
 } // namespace winrt::WsiuRenderer::implementation
