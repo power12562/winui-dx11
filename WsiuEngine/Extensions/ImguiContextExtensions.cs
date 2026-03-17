@@ -4,8 +4,29 @@ using WsiuRenderer;
 
 namespace WsiuEngine.Extensions
 {
+    public enum ContextType
+    {
+        Default,
+        Closable
+    }
+
     public static class ImguiContextExtensions
     {
+        public static ImguiContext CreateImguiContext(EngineCore core, string name, ContextType type = ContextType.Default)
+        {
+            ImguiContext context = new(core);
+            switch (type)
+            {
+                case ContextType.Default:
+                    context.InitializeWindow(name);
+                    break;
+                case ContextType.Closable:
+                    context.InitializeWindowClosable(name);
+                    break;
+            }
+            return context;
+        }
+
         public static void DragVector2(this ImguiContext context, string label, in Vector2 value, Action<Vector2> callback)
         {
             float[] vector2 = [value.X, value.Y];
