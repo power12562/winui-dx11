@@ -24,6 +24,12 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorWindowDrawCallback(_windowID, [this] { DrawCommands(); });
     }
 
+    void ImguiContext::InitializeWindowClosable(hstring const& title) 
+    {
+        _windowID = _engineCore.EditorWindowClosableCreate(title);
+        _engineCore.EditorWindowDrawCallback(_windowID, [this] { DrawCommands(); });
+    }
+
     void ImguiContext::DrawCommands() 
     {
         for (auto& func : _commands)
@@ -31,6 +37,11 @@ namespace winrt::WsiuRenderer::implementation
             func();
         }
         _commands.clear();
+    }
+
+    void ImguiContext::SetActive(bool active) 
+    { 
+        _engineCore.EditorWindowSetActive(_windowID, active);
     }
 
     void ImguiContext::SetTitle(hstring const& title) const 
@@ -143,7 +154,6 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragDouble(hstring const& label, double val,
                                   winrt::WsiuRenderer::DoubleChangedCallback const& handle)
     {
-        auto& setting    = _doubleSetting;
         auto  dragDouble = [label, val, handle, setting = _doubleSetting]() mutable
         {
             ImGuiHelper::DragScalaWithCallback(winrt::to_string(label).c_str(), handle, &val, setting.Speed,
