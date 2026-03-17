@@ -82,6 +82,9 @@
     <ClCompile Include="EditorWindow.cpp">
       <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClCompile>
+    <ClCompile Include="EditorWindowClosable.cpp">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -124,6 +127,9 @@
       <Filter>Core\WsiuGUI</Filter>
     </ClInclude>
     <ClInclude Include="EditorWindow.h">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorWindowClosable.h">
       <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClInclude>
   </ItemGroup>
