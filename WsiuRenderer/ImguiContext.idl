@@ -23,6 +23,8 @@ namespace WsiuRenderer
         void PopID();
         void BeginDisabled();
         void EndDisabled();
+        void TreeNodeEx(String label, ImGuiTreeNodeFlags flags);
+        void TreePop();
         void PushStyleVar(ImGuiStyleVar style, Single x);
         void PushStyleVar(ImGuiStyleVar style, Single x, Single y);
         void PopStyleVar();
