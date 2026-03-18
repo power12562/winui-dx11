@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
 namespace WsiuEngine.Core.System
@@ -8,8 +9,7 @@ namespace WsiuEngine.Core.System
     public static partial class ReflectedObject
     {
         private static HashSet<object> AlreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
-
-        public static void DragFields(ImguiContext context, object target, bool isRoot = true)
+        public static void DrawFields(ImguiContext context, object target, bool isRoot = true)
         {
             if (target.GetType().IsClass == false)
                 return;
@@ -37,7 +37,7 @@ namespace WsiuEngine.Core.System
                 if (type.IsClass && type.Namespace != null && type.Namespace.StartsWith("System") == false)
                 {
                     context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
-                    DragFields(context, value, false);
+                    DrawFields(context, value, false);
                     context.TreePop();
                     continue;
                 }
@@ -78,6 +78,33 @@ namespace WsiuEngine.Core.System
                 if (isReadOnly)
                 {
                     context.PopStyleVar();
+                }
+            }
+        }
+
+        public static void DrawMethods(ImguiContext context, object target)
+        {
+            if (target.GetType().IsClass == false)
+                return;
+
+            IReadOnlyList<Method> methods = GetMethods(target);
+            foreach (Method method in methods)
+            {
+                List<ParameterInfo> parameters = method.Parameters;
+                string name = method.Name;
+                if (parameters.Count == 0)
+                {
+                    context.PushStyleVar(ImGuiStyleVar.FrameRounding, 4f);
+                    context.PushStyleVar(ImGuiStyleVar.FramePadding, 10f, 5f);
+                    context.Button(name, -1, 0,() =>
+                    {
+                        method.Invoker(target, null);
+                    });
+                    context.PopStyleVar(2);
+                }
+                else
+                {
+
                 }
             }
         }
