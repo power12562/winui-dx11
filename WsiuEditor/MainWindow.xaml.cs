@@ -40,8 +40,8 @@ namespace WsiuEditor
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            ReflectedType<Time>.DragFields(_timeDebugUI, Engine.Time);
-            ReflectedType<TestVectorDraw>.DragFields(_timeDebugUI, test);
+            ReflectedObject.DragFields(_timeDebugUI, Engine.Time);
+            ReflectedObject.DragFields(_timeDebugUI, test);
         }
 
         class TestVectorDraw
