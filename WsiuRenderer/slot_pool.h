@@ -239,7 +239,7 @@ public:
     }
     value_type& at(size_t index)
     {
-        if (index < _elements.size() == false)
+        if (index < _elements.size() == false)       
             throw std::out_of_range("out of index!");
 
         auto& [value, isValid] = _elements[index];
