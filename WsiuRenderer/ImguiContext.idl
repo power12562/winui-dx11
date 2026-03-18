@@ -3,6 +3,8 @@ import "ImguiEnums.idl";
 
 namespace WsiuRenderer
 {
+    delegate void ButtonCallback();
+
     delegate void FloatChangedCallback(Single x);
     delegate void FloatNChangedCallback(Single[] val);
 
@@ -30,6 +32,8 @@ namespace WsiuRenderer
         void PopStyleVar();
         void PopStyleVar(Int32 count);
         void Text(String text); 
+        void Button(String label, ButtonCallback handle);
+        void Button(String label, Single x, Single y, ButtonCallback handle);
         static void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
         void DragFloat(String label, Single val, FloatChangedCallback handle);
         void DragFloatN(String label, Single[] val, FloatNChangedCallback handle);

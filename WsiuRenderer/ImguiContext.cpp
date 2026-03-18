@@ -151,6 +151,23 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::Button(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle) 
+    {
+        Button(label, 0, 0, handle);
+    }
+
+    void ImguiContext::Button(hstring const& label, float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle)
+    {
+        auto command = [label = winrt::to_string(label), x, y, handle]
+        {
+            if (ImGui::Button(label.c_str(), {x, y}))
+            {
+                handle();
+            }
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::SettingFloat(float speed, float min, float max, hstring const& format,
                                     winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
     {

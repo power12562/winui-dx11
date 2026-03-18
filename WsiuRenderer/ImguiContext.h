@@ -45,6 +45,8 @@ namespace winrt::WsiuRenderer::implementation
         void PopStyleVar(int count);
 
         void Text(hstring const& text);
+        void Button(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle);
+        void Button(hstring const& label, float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle);
 
         static void SettingFloat(float speed, float min, float max, hstring const& format,
                           winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
