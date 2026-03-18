@@ -18,6 +18,7 @@ namespace WsiuEditor
     {
         private readonly Engine _engine;
         private readonly ImguiContext _timeDebugUI;
+        private readonly ImguiContext _testDebugUI;
 
         public MainWindow()
         {
@@ -26,25 +27,30 @@ namespace WsiuEditor
             _engine = new Engine(hwnd, EnginePanel);
 
             _timeDebugUI = ImguiContextExtensions.CreateImguiContext(_engine.EngineCore, "Time", ContextType.Default);
+            _testDebugUI = ImguiContextExtensions.CreateImguiContext(_engine.EngineCore, "Debug", ContextType.Default);
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
         }
 
         private void EditorLoop()
         {
             TimeDraw();
+            TestDraw();
             _engine.Update();
         }
 
-        private TestClassDraw test = new();
         private void TimeDraw()
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ReflectedObject.DragFields(_timeDebugUI, Engine.Time);
+        }
 
-            _timeDebugUI.TreeNodeEx("TestClassDraw", ImGuiTreeNodeFlags.None);
-            ReflectedObject.DragFields(_timeDebugUI, test);
-            _timeDebugUI.TreePop();
+        private TestClassDraw test = new();
+        void TestDraw()
+        {
+            _testDebugUI.TreeNodeEx("TestClassDraw", ImGuiTreeNodeFlags.None);
+            ReflectedObject.DragFields(_testDebugUI, test);
+            _testDebugUI.TreePop();
         }
 
         class TestVectorDraw
