@@ -36,6 +36,9 @@ namespace winrt::WsiuRenderer::implementation
         void BeginDisabled();
         void EndDisabled();
 
+        void TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags);
+        void TreePop();
+
         void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x);
         void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x, float y);
         void PopStyleVar();
@@ -54,14 +57,29 @@ namespace winrt::WsiuRenderer::implementation
         void DragDouble(hstring const& label, double val, winrt::WsiuRenderer::DoubleChangedCallback const& handle);
         void DragDoubleN(hstring const& label, array_view<double const> val,
                          winrt::WsiuRenderer::DoubleNChangedCallback const& handle);
-    protected:
-        EngineCore _engineCore;
 
     private:
-        void DrawCommands();
-
+        using Commands = std::vector<std::function<void()>>;
+        using CommandsStack = std::vector<Commands>;
+        using CommandsStackIter = std::vector<std::pair<Commands::iterator, Commands::iterator>>;
+        EngineCore _engineCore;
         uint64_t _windowID = (std::numeric_limits<uint64_t>::max)();
-        std::vector<std::function<void()>> _commands;
+        CommandsStackIter _commandsStackIter;
+        size_t _iterIndex = 0;
+        CommandsStack _commandsStack;
+
+        void DrawCommands();
+        void PushCommandsStack() { ++_iterIndex; }
+        void PopCommandStack() { --_iterIndex; }
+        template<typename _command> 
+        void PushCommand(_command&& command)
+        {
+            if (_commandsStack.size() <= _iterIndex)
+            {
+                _commandsStack.emplace_back();
+            }
+            return _commandsStack[_iterIndex].push_back(std::forward<_command>(command));
+        }
     };
 }
 

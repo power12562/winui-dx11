@@ -11,8 +11,10 @@ namespace winrt::WsiuRenderer::implementation
 {
     ImguiContext::ImguiContext(EngineCore const& engineCore) 
         : 
-        _engineCore(engineCore)
-    {}
+        _engineCore(engineCore) 
+    { 
+        _commandsStack.emplace_back();
+    }
 
     ImguiContext::~ImguiContext() 
     { 
@@ -30,13 +32,36 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorWindowDrawCallback(_windowID, [this] { DrawCommands(); });
     }
 
-    void ImguiContext::DrawCommands() 
+    void ImguiContext::DrawCommands()
     {
-        for (auto& func : _commands)
+        if (0 < _iterIndex)
+            throw winrt::hresult_error(E_FAIL, L"Command Stack Index is Invalid.");
+
+        _commandsStackIter.resize(_commandsStack.size());
+        for (size_t i = 0; i < _commandsStack.size(); ++i)
         {
+            auto& commands     = _commandsStack[i];
+            auto& [begin, end] = _commandsStackIter[i];
+
+            begin = commands.begin();
+            end   = commands.end();
+        }
+           
+        CommandsStackIter& iters = _commandsStackIter;
+        while (iters[_iterIndex].first != iters[_iterIndex].second)
+        {      
+            auto& [curr, end] = iters[_iterIndex];
+            auto& func = *curr;
+            ++curr;
             func();
         }
-        _commands.clear();
+
+        if (0 < _iterIndex)
+            throw winrt::hresult_error(E_FAIL, L"Command Stack Index is Invalid.");
+
+        _iterIndex = 0;
+        _commandsStack.resize(1);
+        _commandsStack.front().clear();
     }
 
     void ImguiContext::SetActive(bool active) 
@@ -46,67 +71,93 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::SetTitle(hstring const& title) const 
     { 
-        _engineCore.EditorWindowChangeTitle(_windowID, title); }
+        _engineCore.EditorWindowChangeTitle(_windowID, title); 
+    }
 
     void ImguiContext::PushID(uint32_t id) 
     { 
-        auto pushID = [=]{ ImGui::PushID(id); };
-        _commands.emplace_back(pushID);
+        auto command = [id] { ImGui::PushID(id); };
+        PushCommand(command);
     }
 
     void ImguiContext::PopID()
     { 
-       _commands.emplace_back(ImGui::PopID); 
+       PushCommand(ImGui::PopID); 
     }
 
     void ImguiContext::BeginDisabled() 
     {
-        auto disable = [] { ImGui::BeginDisabled(); };
-        _commands.emplace_back(disable);
+        auto command = [] { ImGui::BeginDisabled(); };
+        PushCommand(command);   
     }
 
     void ImguiContext::EndDisabled()  
     {
-        auto disable = [] { ImGui::EndDisabled(); };
-        _commands.emplace_back(disable);
+        auto command = [] { ImGui::EndDisabled(); };
+        PushCommand(command);
+    }
+
+    void ImguiContext::TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags) 
+    {
+        auto command = [this, string = winrt::to_string(label), flags] 
+        {
+            if (ImGui::TreeNodeEx(string.c_str(), static_cast<ImGuiTreeNodeFlags_>(flags)))
+            {
+                PushCommandsStack();
+            }
+        };
+        PushCommand(command);
+        PushCommandsStack();
+    }
+
+    void ImguiContext::TreePop() 
+    {   
+        auto command = [this] 
+        { 
+            ImGui::TreePop(); 
+            ImGui::Separator();
+            PopCommandStack();
+        };  
+        PushCommand(command);
+        PopCommandStack();
     }
 
     void ImguiContext::PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x)
     {
-        auto command = [=] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x}); };
-        _commands.emplace_back(command);
+        auto command = [style, x] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x}); };
+        PushCommand(command);
     }
 
     void ImguiContext::PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x, float y) 
     {
-        auto command = [=] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x, y}); };
-        _commands.emplace_back(command);
+        auto command = [style, x, y] { ImGui::PushStyleVar(static_cast<ImGuiStyleVar_>(style), {x, y}); };
+        PushCommand(command);
     }   
 
     void ImguiContext::PopStyleVar() 
     { 
         auto command = [] { ImGui::PopStyleVar(); };
-        _commands.emplace_back(command);
+        PushCommand(command);
     }
 
     void ImguiContext::PopStyleVar(int count) 
     {
         auto command = [count] { ImGui::PopStyleVar(count); };
-        _commands.emplace_back(command);
+        PushCommand(command);
     }
 
     void ImguiContext::Text(hstring const& text)
     {
-        auto textDraw = [text] { ImGui::Text(winrt::to_string(text).c_str()); };
-        _commands.emplace_back(textDraw);
+        auto command = [text = winrt::to_string(text)] { ImGui::Text(text.c_str()); };
+        PushCommand(command);
     }
 
     void ImguiContext::SettingFloat(float speed, float min, float max, hstring const& format,
                                     winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
     {
-        _floatSetting.Speed = speed;
-        _floatSetting.Min   = min;
-        _floatSetting.Max   = max;
+        _floatSetting.Speed  = speed;
+        _floatSetting.Min    = min;
+        _floatSetting.Max    = max;
         _floatSetting.Format = winrt::to_string(format);
         _floatSetting.Flags  = flags;
     }
@@ -114,13 +165,13 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragFloat(hstring const& label, float val,
                                  winrt::WsiuRenderer::FloatChangedCallback const& handle)
     {
-        auto dragFloat = [label, val, handle, setting = _floatSetting]() mutable
+        auto command = [label = winrt::to_string(label), val, handle, setting = _floatSetting]() mutable
         {
-            ImGuiHelper::DragScalaWithCallback(winrt::to_string(label).c_str(), handle, &val, setting.Speed,
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _commands.emplace_back(dragFloat);
+        PushCommand(command);
     }
 
     void ImguiContext::DragFloatN(hstring const& label, array_view<float const> val,
@@ -131,14 +182,14 @@ namespace winrt::WsiuRenderer::implementation
 
         std::array<float, 4> temp{};
         std::copy(val.begin(), val.end(), temp.data());
-        auto dragFloat = [label, temp, size = val.size(), handle, setting = _floatSetting]() mutable
+        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, setting = _floatSetting]() mutable
         {
-            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, size, temp.data(),
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(),
                                                 setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _commands.emplace_back(dragFloat);
+        PushCommand(command);
     }
 
     void ImguiContext::SettingDouble(float speed, double min, double max, hstring const& format,
@@ -154,13 +205,13 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragDouble(hstring const& label, double val,
                                   winrt::WsiuRenderer::DoubleChangedCallback const& handle)
     {
-        auto  dragDouble = [label, val, handle, setting = _doubleSetting]() mutable
+        auto command = [label = winrt::to_string(label), val, handle, setting = _doubleSetting]() mutable
         {
-            ImGuiHelper::DragScalaWithCallback(winrt::to_string(label).c_str(), handle, &val, setting.Speed,
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _commands.emplace_back(dragDouble);
+        PushCommand(command);
     }
 
     void ImguiContext::DragDoubleN(hstring const& label, array_view<double const> val,
@@ -171,13 +222,13 @@ namespace winrt::WsiuRenderer::implementation
 
         std::array<double, 4> temp{};
         std::copy(val.begin(), val.end(), temp.data());
-        auto dragDouble = [label, temp, size = val.size(), handle, setting = _doubleSetting]() mutable
+        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, setting = _doubleSetting]() mutable
         {
-            ImGuiHelper::DragScalaNWithCallback(winrt::to_string(label).c_str(), handle, size, temp.data(),
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(),
                                                 setting.Speed, &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
         };
-        _commands.emplace_back(dragDouble);
+        PushCommand(command);
     }
 
 } // namespace winrt::WsiuRenderer::implementation
