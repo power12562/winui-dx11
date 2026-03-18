@@ -16,6 +16,8 @@ namespace WsiuEngine.Core.System
 
     public static partial class ReflectedObject
     {
+        public delegate object? MethodInvoker(object target, object[]? args);
+
         public class Field
         {
             public string Name { get; init; } = null!;
@@ -26,10 +28,10 @@ namespace WsiuEngine.Core.System
         public class Method
         {
             public string Name { get; init; } = null!;
-            public Action<object, object?[]> Invoker { get; init; } = null!;
+            public MethodInvoker Invoker { get; init; } = null!;
             public List<ParameterInfo> Parameters = null!;
         }
-        public class Data(Type type)
+        public class Member(Type type)
         {
             public IReadOnlyList<Field> Fields => fields;
             private readonly List<Field> fields = CreateSerializeFields(type);
@@ -38,13 +40,13 @@ namespace WsiuEngine.Core.System
             private readonly List<Method> methods = CreateSerializeMethods(type);
         }
 
-        private static readonly Dictionary<Type, Data> _reflectDataBase = [];
+        private static readonly Dictionary<Type, Member> _reflectDataBase = [];
         public static IReadOnlyList<Field> GetFields(object obj)
         {
             if (obj == null) return [];
 
             Type type = obj.GetType();
-            Data data = TryInsert(type);
+            Member data = TryInsert(type);
             return data.Fields;
         }
         public static IReadOnlyList<Method> GetMethods(object obj)
@@ -52,15 +54,15 @@ namespace WsiuEngine.Core.System
             if (obj == null) return [];
 
             Type type = obj.GetType();
-            Data data = TryInsert(type);
+            Member data = TryInsert(type);
             return data.Methods;
         }
 
-        private static Data TryInsert(Type type)
+        private static Member TryInsert(Type type)
         {
-            if (_reflectDataBase.TryGetValue(type, out Data? data) == false)
+            if (_reflectDataBase.TryGetValue(type, out Member? data) == false)
             {
-                data = new Data(type);
+                data = new Member(type);
                 _reflectDataBase[type] = data;
             }
             return data;
