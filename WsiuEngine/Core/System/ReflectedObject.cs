@@ -27,6 +27,7 @@ namespace WsiuEngine.Core.System
         {
             public string Name { get; init; } = null!;
             public Action<object, object?[]> Invoker { get; init; } = null!;
+            public List<ParameterInfo> Parameters = null!;
         }
         public class Data(Type type)
         {
@@ -95,7 +96,7 @@ namespace WsiuEngine.Core.System
                         Name = property.Name,
                         Type = property.PropertyType,
                         Get = (obj) => property.GetValue(obj),
-                        Set = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null
+                        Set = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null,
                     });
                 }
             }
@@ -114,7 +115,8 @@ namespace WsiuEngine.Core.System
                     list.Add(new Method
                     {
                         Name = method.Name,
-                        Invoker = (obj, args) => method.Invoke(obj, args)
+                        Invoker = (obj, args) => method.Invoke(obj, args),
+                        Parameters = [.. method.GetParameters()],
                     });
                 }
             }
