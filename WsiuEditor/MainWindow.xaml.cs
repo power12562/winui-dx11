@@ -35,13 +35,16 @@ namespace WsiuEditor
             _engine.Update();
         }
 
-        private TestVectorDraw test = new();
+        private TestClassDraw test = new();
         private void TimeDraw()
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ReflectedObject.DragFields(_timeDebugUI, Engine.Time);
+
+            _timeDebugUI.TreeNodeEx("TestClassDraw", ImGuiTreeNodeFlags.None);
             ReflectedObject.DragFields(_timeDebugUI, test);
+            _timeDebugUI.TreePop();
         }
 
         class TestVectorDraw
@@ -54,6 +57,20 @@ namespace WsiuEditor
 
             [SerializeField]
             public Vector4 Vector4 = new();
+        }
+
+        class TestClassDraw
+        {
+            public TestClassDraw()
+            {
+                _testVector = new();
+            }
+
+            [SerializeField]
+            private readonly TestVectorDraw _testVector;
+
+            [SerializeField]
+            public float TestFloat = 1.1f;
         }
     }
 }
