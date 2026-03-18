@@ -13,7 +13,7 @@ namespace winrt::WsiuRenderer::implementation
         : 
         _engineCore(engineCore) 
     { 
-        _commandsStack.emplace_back();
+        
     }
 
     ImguiContext::~ImguiContext() 
@@ -34,34 +34,54 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::DrawCommands()
     {
-        if (0 < _iterIndex)
+        if (0 < _stackDepth)
             throw winrt::hresult_error(E_FAIL, L"Command Stack Index is Invalid.");
 
-        _commandsStackIter.resize(_commandsStack.size());
-        for (size_t i = 0; i < _commandsStack.size(); ++i)
+        for (auto iter = _commands.begin(); iter != _commands.end(); ++iter)
         {
-            auto& commands     = _commandsStack[i];
-            auto& [begin, end] = _commandsStackIter[i];
-
-            begin = commands.begin();
-            end   = commands.end();
+            auto& command = *iter;
+            command();
+            
+            if (0 < _skipCommandCount)
+            {
+                iter += _skipCommandCount;
+                _skipCommandCount = 0;
+            }
         }
-           
-        CommandsStackIter& iters = _commandsStackIter;
-        while (iters[_iterIndex].first != iters[_iterIndex].second)
-        {      
-            auto& [curr, end] = iters[_iterIndex];
-            auto& func = *curr;
-            ++curr;
-            func();
+        ClearCommandsStack();
+    }
+
+    void ImguiContext::ClearCommandsStack() 
+    { 
+        _counterIndex = -1;
+        _counterBegin = -1;
+        _counterEnd   = 0;
+        _stackDepth   = 0;
+        _commandsStackCounter.clear();
+        _commands.clear();
+    }
+
+    void ImguiContext::PushCommandsStack() 
+    {
+        ++_stackDepth;
+        ++_counterIndex;
+        if (_commandsStackCounter.size() == (size_t)_counterIndex)
+        {
+            _commandsStackCounter.emplace_back();
+            _counterEnd = _counterIndex;
         }
+    }
 
-        if (0 < _iterIndex)
-            throw winrt::hresult_error(E_FAIL, L"Command Stack Index is Invalid.");
-
-        _iterIndex = 0;
-        _commandsStack.resize(1);
-        _commandsStack.front().clear();
+    void ImguiContext::PopCommandStack() 
+    { 
+        --_stackDepth;
+        --_counterIndex;
+        if (_counterIndex == _counterBegin)
+        {
+            _counterIndex = _counterEnd;
+            _counterBegin = _counterEnd;
+            ++_counterEnd;
+        }
     }
 
     void ImguiContext::SetActive(bool active) 
@@ -99,11 +119,11 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags) 
     {
-        auto command = [this, string = winrt::to_string(label), flags] 
+        auto command = [this, string = winrt::to_string(label), flags, counterID = StackCounterIndex()] 
         {
-            if (ImGui::TreeNodeEx(string.c_str(), static_cast<ImGuiTreeNodeFlags_>(flags)))
+            if (ImGui::TreeNodeEx(string.c_str(), static_cast<ImGuiTreeNodeFlags_>(flags)) == false)
             {
-                PushCommandsStack();
+                _skipCommandCount = _commandsStackCounter[counterID];
             }
         };
         PushCommand(command);
@@ -114,8 +134,7 @@ namespace winrt::WsiuRenderer::implementation
     {   
         auto command = [this] 
         { 
-            ImGui::TreePop(); 
-            PopCommandStack();
+            ImGui::TreePop();         
         };  
         PushCommand(command);
         PopCommandStack();

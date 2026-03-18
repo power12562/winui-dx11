@@ -62,25 +62,36 @@ namespace winrt::WsiuRenderer::implementation
 
     private:
         using Commands = std::vector<std::function<void()>>;
-        using CommandsStack = std::vector<Commands>;
-        using CommandsStackIter = std::vector<std::pair<Commands::iterator, Commands::iterator>>;
+        using CommandsStack = std::vector<size_t>;
         EngineCore _engineCore;
-        uint64_t _windowID = (std::numeric_limits<uint64_t>::max)();
-        CommandsStackIter _commandsStackIter;
-        size_t _iterIndex = 0;
-        CommandsStack _commandsStack;
+        uint64_t _windowID   = (std::numeric_limits<uint64_t>::max)();
+        int64_t _counterIndex = -1;
+        int64_t _counterBegin = -1;
+        int64_t _counterEnd   = 0;
+        size_t  _stackDepth   = 0;
+        CommandsStack _commandsStackCounter;
+        Commands _commands;
+        size_t _skipCommandCount = 0;
 
         void DrawCommands();
-        void PushCommandsStack() { ++_iterIndex; }
-        void PopCommandStack() { --_iterIndex; }
+        void ClearCommandsStack();
+        void PushCommandsStack();
+        void PopCommandStack();
+        size_t StackCounterIndex() { return _commandsStackCounter.size(); }
         template<typename _command> 
         void PushCommand(_command&& command)
         {
-            if (_commandsStack.size() <= _iterIndex)
+            if ((size_t)_counterIndex < _commandsStackCounter.size())
             {
-                _commandsStack.emplace_back();
+                if (_counterBegin < _counterIndex && _counterIndex <= _counterEnd)
+                {
+                    for (int64_t i = _counterBegin + 1; i <= _counterIndex; ++i)
+                    {
+                        ++_commandsStackCounter[i];
+                    }
+                }
             }
-            return _commandsStack[_iterIndex].push_back(std::forward<_command>(command));
+            return _commands.push_back(std::forward<_command>(command));
         }
     };
 }
