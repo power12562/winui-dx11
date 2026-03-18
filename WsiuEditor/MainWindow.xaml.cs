@@ -42,19 +42,24 @@ namespace WsiuEditor
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            ReflectedObject.DragFields(_timeDebugUI, Engine.Time);
+            ReflectedObject.DrawFields(_timeDebugUI, Engine.Time);
         }
 
         private TestClassDraw test = new();
         void TestDraw()
         {
-            _testDebugUI.TreeNodeEx("TestClassDraw", ImGuiTreeNodeFlags.None);
-            ReflectedObject.DragFields(_testDebugUI, test);
+            _testDebugUI.TreeNodeEx("Test Methods", ImGuiTreeNodeFlags.None);
+            ReflectedObject.DrawMethods(_testDebugUI, test.TestVector);
             _testDebugUI.TreePop();
+
+            ReflectedObject.DrawFields(_testDebugUI, test);
         }
 
-        class TestVectorDraw
+        class TestVectorDraw(TestClassDraw refer)
         {
+            [SerializeField]
+            TestClassDraw testField = refer;
+
             [SerializeField]
             public Vector2 Vector2 = new();
 
@@ -63,17 +68,31 @@ namespace WsiuEditor
 
             [SerializeField]
             public Vector4 Vector4 = new();
+
+            [SerializeMethod]
+            public Vector2 AddVector2()
+            {
+                Vector2 += new Vector2(1, 1);
+                return Vector2;
+            }
+
+            [SerializeMethod]
+            public Vector2 AddVector2(Vector2 target)
+            {
+                Vector2 += target;
+                return Vector2;
+            }
         }
 
         class TestClassDraw
         {
             public TestClassDraw()
             {
-                _testVector = new();
+                TestVector = new(this);
             }
 
             [SerializeField]
-            private readonly TestVectorDraw _testVector;
+            public readonly TestVectorDraw TestVector;
 
             [SerializeField]
             public float TestFloat = 1.1f;
