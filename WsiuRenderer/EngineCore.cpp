@@ -37,17 +37,17 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::Initialize(uint64_t windowHandle, winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel const& panel)
     {
-        if (SetHWND(windowHandle) == false)
-            throw std::runtime_error("Set HWND Failed.");
+        if (SetHWND(windowHandle) == false)      
+            throw winrt::hresult_error(E_FAIL, L"Set HWND Failed.");
 
         if (CreateDevice() == false)
-            throw std::runtime_error("Create Device Failed.");
+            throw winrt::hresult_error(E_FAIL, L"Create Device Failed.");
 
         if (CreateSwapChain(panel) == false)
-            throw std::runtime_error("Create Device Failed.");
+            throw winrt::hresult_error(E_FAIL, L"Create Device Failed.");
 
         if (InputSystem.RawInputRegister(_hwnd) == false)
-            throw std::runtime_error("Register RawInput Failed.");
+            throw winrt::hresult_error(E_FAIL, L"Register RawInput Failed.");
     }
 
     void EngineCore::BeginFrame()
