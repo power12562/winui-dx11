@@ -7,10 +7,24 @@ namespace WsiuEngine.Core.System
 {
     public static partial class ReflectedObject
     {
-        public static void DragFields(ImguiContext context, object target)
+        private static HashSet<object> AlreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
+
+        public static void DragFields(ImguiContext context, object target, bool isRoot = true)
         {
             if (target.GetType().IsClass == false)
                 return;
+
+            if (isRoot)
+                AlreadyDrawnObjects.Clear();
+
+            if (AlreadyDrawnObjects.Contains(target))
+            {
+                context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                context.Text($"(Shared Reference: {target})");
+                context.PopStyleVar();
+                return;
+            }
+            AlreadyDrawnObjects.Add(target);
 
             IReadOnlyList<Field> fields = GetFields(target);
             foreach (var field in fields)
@@ -20,9 +34,11 @@ namespace WsiuEngine.Core.System
                     continue;
 
                 Type type = field.Type;
-                if (type.IsClass && type.Namespace != null && type.Namespace.StartsWith("WsiuEngine"))
+                if (type.IsClass && type.Namespace != null && type.Namespace.StartsWith("System") == false)
                 {
-                    DragFields(context, value);
+                    context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
+                    DragFields(context, value, false);
+                    context.TreePop();
                     continue;
                 }
 
