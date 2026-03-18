@@ -115,7 +115,6 @@ namespace winrt::WsiuRenderer::implementation
         auto command = [this] 
         { 
             ImGui::TreePop(); 
-            ImGui::Separator();
             PopCommandStack();
         };  
         PushCommand(command);
