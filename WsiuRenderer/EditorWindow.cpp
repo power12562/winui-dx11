@@ -2,73 +2,26 @@
 #include "EditorWindow.h"
 #include "imguicommons.h"
 
-EditorWindow::EditorWindow(const winrt::hstring& title) 
-{ 
-	_title = winrt::to_string(title);
-}
-
-EditorWindow::~EditorWindow() = default;
-
-void EditorWindow::OnCreate() 
-{
-
-}
-
 void EditorWindow::OnDraw() 
 { 
-	if (_beginFuntion)
-        _beginFuntion();
+	if (_beginFunction)
+        _beginFunction();
 
     if (_active)
     {
         ImGuiBegin();
 
-        if (_drawFuntion)
-            _drawFuntion();
+        if (_drawFunction)
+            _drawFunction();
 
         ImGui::End();
     }
   
-    if (_endFuntion)
-        _endFuntion();
-}
-
-void EditorWindow::OnDestroy() 
-{
-
+    if (_endFunction)
+        _endFunction();
 }
 
 void EditorWindow::ImGuiBegin() 
 {
     ImGui::Begin(_title.c_str());
-}
-
-void EditorWindow::SetTitle(const winrt::hstring& title) 
-{ 
-	_title = winrt::to_string(title); 
-}
-
-void EditorWindow::SetActive(bool active) 
-{ 
-    _active = active;
-}
-
-bool EditorWindow::GetActive() const 
-{
-    return _active; 
-}
-
-void EditorWindow::BeginCallback(const std::function<void()>& begin) 
-{ 
-	_beginFuntion = begin; 
-}
-
-void EditorWindow::DrawCallback(const std::function<void()>& draw) 
-{ 
-	_drawFuntion = draw; 
-}
-
-void EditorWindow::EndCallback(const std::function<void()>& end) 
-{
-	_endFuntion = end;
 }
