@@ -1,10 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
+using System;
+using System.Numerics;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
-using System.Numerics;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -60,25 +61,18 @@ namespace WsiuEditor
         class TestVectorDraw(TestClassDraw refer)
         {
             [SerializeField]
-            TestClassDraw testField = refer;
+            private TestClassDraw testField = refer;
 
-            [SerializeField]
             public Vector2 Vector2 = new();
-
-            [SerializeField]
             public Vector3 Vector3 = new();
-
-            [SerializeField]
             public Vector4 Vector4 = new();
 
-            [SerializeMethod]
             public Vector2 AddVector2()
             {
                 Vector2 += new Vector2(1, 1);
                 return Vector2;
             }
 
-            [SerializeMethod]
             public Vector2 AddVector2(Vector2 target)
             {
                 Vector2 += target;
@@ -100,11 +94,14 @@ namespace WsiuEditor
                 TestVector = new(this);
             }
 
-            [SerializeField]
             public readonly TestVectorDraw TestVector;
-
-            [SerializeField]
             public float TestFloat = 1.1f;
+            public Int16 TestInt16 = -16;
+            public Int32 TestInt32 = -32;
+            public Int64 TestInt64 = -64;
+            public UInt16 TestUInt16 = 16;
+            public UInt32 TestUInt32 = 32;
+            public UInt64 TestUInt64 = 64;
         }
     }
 }

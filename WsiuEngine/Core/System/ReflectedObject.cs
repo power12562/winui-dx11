@@ -77,7 +77,7 @@ namespace WsiuEngine.Core.System
 
             foreach (var field in type.GetFields(flags))
             {
-                if (field.GetCustomAttribute<SerializeFieldAttribute>() != null)
+                if (field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null)
                 {
                     list.Add(new Field
                     {
@@ -93,14 +93,27 @@ namespace WsiuEngine.Core.System
             {
                 if (property.GetIndexParameters().Length > 0) continue;
 
-                if (property.GetCustomAttribute<SerializeFieldAttribute>() != null)
+                bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
+                bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
+                bool isAttribute = property.GetCustomAttribute<SerializeFieldAttribute>() != null;
+                if (isPublicRead || isAttribute)
                 {
+                    Action<object, object?>? setter;
+                    if(isAttribute)
+                    {
+                        setter = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                    }
+                    else
+                    {
+                        setter = isPublicWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                    }
+
                     list.Add(new Field
                     {
                         Name = property.Name,
                         Type = property.PropertyType,
                         Get = (obj) => property.GetValue(obj),
-                        Set = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null,
+                        Set = setter,
                     });
                 }
             }
@@ -114,7 +127,7 @@ namespace WsiuEngine.Core.System
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             foreach (var method in type.GetMethods(flags))
             {
-                if (method.GetCustomAttribute<SerializeMethodAttribute>() != null)
+                if (method.IsPublic || method.GetCustomAttribute<SerializeMethodAttribute>() != null)
                 {
                     string name = method.Name;
                     Type returnType = method.ReturnType;
