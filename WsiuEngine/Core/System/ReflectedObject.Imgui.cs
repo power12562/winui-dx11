@@ -15,6 +15,12 @@ namespace WsiuEngine.Core.System
         {
             [typeof(float)] = (ctx, name, val, cb) => ctx.DragFloat(name, (float)val, v => cb(v)),
             [typeof(double)] = (ctx, name, val, cb) => ctx.DragDouble(name, (double)val, v => cb(v)),
+            [typeof(Int16)] = (ctx, name, val, cb) => ctx.DragInt16(name, (Int16)val, v => cb(v)),
+            [typeof(Int32)] = (ctx, name, val, cb) => ctx.DragInt32(name, (Int32)val, v => cb(v)),
+            [typeof(Int64)] = (ctx, name, val, cb) => ctx.DragInt64(name, (Int64)val, v => cb(v)),
+            [typeof(UInt16)] = (ctx, name, val, cb) => ctx.DragUInt16(name, (UInt16)val, v => cb(v)),
+            [typeof(UInt32)] = (ctx, name, val, cb) => ctx.DragUInt32(name, (UInt32)val, v => cb(v)),
+            [typeof(UInt64)] = (ctx, name, val, cb) => ctx.DragUInt64(name, (UInt64)val, v => cb(v)),
             [typeof(Vector2)] = (ctx, name, val, cb) => ctx.DragVector2(name, (Vector2)val, v => cb(v)),
             [typeof(Vector3)] = (ctx, name, val, cb) => ctx.DragVector3(name, (Vector3)val, v => cb(v)),
             [typeof(Vector4)] = (ctx, name, val, cb) => ctx.DragVector4(name, (Vector4)val, v => cb(v)),
@@ -28,7 +34,7 @@ namespace WsiuEngine.Core.System
             }
             else
             {
-                context.Text($"{name}: {value} (Unsupported)");
+                context.Text($"{name}: {value} ({type.Name})");
             }
         }
 
