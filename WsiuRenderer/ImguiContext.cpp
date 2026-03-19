@@ -18,7 +18,8 @@ namespace winrt::WsiuRenderer::implementation
 
     ImguiContext::~ImguiContext() 
     { 
-        _engineCore.EditorDestroy(_windowID); }
+        _engineCore.EditorDestroy(_windowID); 
+    }
 
     void ImguiContext::InitializeCommands(hstring const& title)
     { 
