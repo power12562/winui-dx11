@@ -286,7 +286,7 @@ namespace winrt::WsiuRenderer::implementation
     void EngineCore::EditorDisableCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
     {
         auto& editor = _editorCommands.at(id);
-        editor->EndCallback(handler);
+        editor->DisableCallback(handler);
     }
 
     void EngineCore::Quit() 

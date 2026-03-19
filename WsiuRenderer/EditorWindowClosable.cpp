@@ -4,5 +4,10 @@
 
 void EditorWindowClosable::ImGuiBegin() 
 {
-	ImGui::Begin(_title.c_str(), &_active);
+    bool active = _active;
+    ImGui::Begin(_title.c_str(), &active);
+    if (active != _active)
+    {
+        SetActive(active);
+    }
 }
