@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ImguiContext.g.h"
+#include "slot_pool.h"
 
 namespace winrt::WsiuRenderer::implementation
 {
@@ -44,7 +45,7 @@ namespace winrt::WsiuRenderer::implementation
         void PopStyleVar();
         void PopStyleVar(int count);
 
-        void PushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float x, float y, float z, float w);
+        void PushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float r, float g, float b, float a);
         void PopStyleColor(int32_t count);
         void PopStyleColor();
 
@@ -71,33 +72,26 @@ namespace winrt::WsiuRenderer::implementation
     private:
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;
+        using CommandsStackCounter = slot_pool<size_t>;
         EngineCore _engineCore;
         uint64_t _windowID   = (std::numeric_limits<uint64_t>::max)();
-        int64_t _counterIndex = -1;
-        int64_t _counterBegin = -1;
-        int64_t _counterEnd   = 0;
         size_t  _stackDepth   = 0;
-        CommandsStack _commandsStackCounter;
         Commands _commands;
+        CommandsStack _commandsStack;
+        CommandsStackCounter _commandsStackCounter;
         size_t _skipCommandCount = 0;
 
         void DrawCommands();
         void ClearCommandsStack();
-        void PushCommandsStack();
-        void PopCommandStack();
-        size_t StackCounterIndex() { return _commandsStackCounter.size(); }
+        void PushCommandsStack(size_t counterId);
+        void PopCommandStack();    
         template<typename _command> 
         void PushCommand(_command&& command)
         {
-            if ((size_t)_counterIndex < _commandsStackCounter.size())
+            for (auto& counterID : _commandsStack)
             {
-                if (_counterBegin < _counterIndex && _counterIndex <= _counterEnd)
-                {
-                    for (int64_t i = _counterBegin + 1; i <= _counterIndex; ++i)
-                    {
-                        ++_commandsStackCounter[i];
-                    }
-                }
+                auto& count = _commandsStackCounter.at(counterID);
+                ++count;
             }
             return _commands.push_back(std::forward<_command>(command));
         }

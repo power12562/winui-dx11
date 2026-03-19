@@ -31,7 +31,7 @@ namespace WsiuRenderer
         void PushStyleVar(ImGuiStyleVar style, Single x, Single y);
         void PopStyleVar();
         void PopStyleVar(Int32 count);
-        void PushStyleColor(ImGuiCol col, Single x, Single y, Single z, Single w);
+        void PushStyleColor(ImGuiCol col, Single r, Single g, Single b, Single a);
         void PopStyleColor(Int32 count);
         void PopStyleColor();
         void Text(String text);
