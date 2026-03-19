@@ -28,6 +28,8 @@ namespace WsiuEngine.Core.System
         public class Method
         {
             public string Name { get; init; } = null!;
+            public string DisplayName = null!;
+            public Type ReturnType = null!;
             public MethodInvoker Invoker { get; init; } = null!;
             public List<ParameterInfo> Parameters = null!;
         }
@@ -114,12 +116,20 @@ namespace WsiuEngine.Core.System
             {
                 if (method.GetCustomAttribute<SerializeMethodAttribute>() != null)
                 {
+                    string name = method.Name;
+                    Type returnType = method.ReturnType;
+                    object? methodInvoker(object obj, object[]? args) => method.Invoke(obj, args);
+                    List<ParameterInfo> parameters = [.. method.GetParameters()];
+                    string parametersDisplay = string.Join(", ", parameters.Select(p => $"{p.ParameterType.Name} {p.Name}"));
+                    string displayName = $"{returnType.Name} {name}({parametersDisplay})";
                     list.Add(new Method
                     {
-                        Name = method.Name,
-                        Invoker = (obj, args) => method.Invoke(obj, args),
-                        Parameters = [.. method.GetParameters()],
-                    });
+                        Name = name,
+                        DisplayName = displayName,
+                        ReturnType = returnType,
+                        Invoker = methodInvoker,
+                        Parameters = parameters,
+                    });             
                 }
             }
             return list;

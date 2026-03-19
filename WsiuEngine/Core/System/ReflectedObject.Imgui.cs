@@ -8,7 +8,7 @@ namespace WsiuEngine.Core.System
 {
     public static partial class ReflectedObject
     {
-        private static HashSet<object> AlreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
+        private static readonly HashSet<object> AlreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
         public static void DrawFields(ImguiContext context, object target, bool isRoot = true)
         {
             if (target.GetType().IsClass == false)
@@ -92,11 +92,12 @@ namespace WsiuEngine.Core.System
             {
                 List<ParameterInfo> parameters = method.Parameters;
                 string name = method.Name;
+                Type returnType = method.ReturnType;
                 if (parameters.Count == 0)
                 {
                     context.PushStyleVar(ImGuiStyleVar.FrameRounding, 4f);
                     context.PushStyleVar(ImGuiStyleVar.FramePadding, 10f, 5f);
-                    context.Button(name, -1, 0,() =>
+                    context.Selectable(method.DisplayName, false, ImGuiSelectableFlags.None, () =>
                     {
                         method.Invoker(target, null);
                     });
