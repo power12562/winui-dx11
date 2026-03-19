@@ -6,12 +6,24 @@ using WsiuRenderer;
 
 namespace WsiuEditor.System
 {
-    internal partial class EditorManager(Engine engine)
+    internal partial class EditorManager
     {
-        private readonly Engine _engine = engine;
-        private readonly ImguiContext _imguiContext = new(engine.EngineCore);
+        public EditorManager(Engine engine)
+        {
+            _engine = engine;
+            _imguiContext = new(engine.EngineCore);
+            _imguiContext.InitializeCommands("Editor Manager Commands");
+        }
+
+        private readonly Engine _engine;
+        private readonly ImguiContext _imguiContext;
         private readonly List<IEditor> _editors = [];
         private readonly Dictionary<Type, UInt64> _editorIdCounter = [];
+        private bool _cleanupEditors = false;
+        private void CleanUpEditors() 
+        { 
+            _cleanupEditors = true; 
+        }
 
         public void CreateEditor<T>() where T : IEditor
         {
@@ -21,6 +33,7 @@ namespace WsiuEditor.System
                 if (iEditor is T editor)
                 {
                     _editors.Add(editor);
+                    editor.SetDisableCallback(CleanUpEditors);
                 }
             }
         }
@@ -31,15 +44,34 @@ namespace WsiuEditor.System
             {
                 IEditor iEditor = func(_engine, AddEditorId(type));
                 _editors.Add(iEditor);
+                iEditor.SetDisableCallback(CleanUpEditors);
             }
         }
 
-        internal void DrawEditors()
+        internal void Draw()
+        {
+            DrawMainMenuBar();
+            DrawEditors();
+        }
+
+        private void DrawEditors()
         {
             foreach (IEditor editor in _editors)
             {
-                DrawMainMenuBar();
                 editor.Draw();
+            }
+
+            if (_cleanupEditors)
+            {
+                for (int i = _editors.Count - 1; i >= 0; i--)
+                {
+                    IEditor editor = _editors[i];
+                    if(editor.Active == false)
+                    {
+                        _editors.RemoveAt(i);
+                    }
+                }
+                _cleanupEditors = false;
             }
         }
 
