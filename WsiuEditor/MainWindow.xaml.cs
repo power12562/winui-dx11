@@ -2,6 +2,7 @@ using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using WsiuEngine.Core;
+using WsiuEditor.System;
 using WsiuEditor.Editor;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -22,7 +23,11 @@ namespace WsiuEditor
             InitializeComponent();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(hwnd, EnginePanel);
+
+            EditorManager.RegisterEditors();
             _editorManager = new(_engine);
+            _editorManager.CreateEditor<TestEditor>(_engine);
+            _editorManager.CreateEditor<TimeEditor>(_engine);
 
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
         }
