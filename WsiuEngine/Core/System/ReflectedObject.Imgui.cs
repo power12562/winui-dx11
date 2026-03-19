@@ -50,7 +50,7 @@ namespace WsiuEngine.Core.System
             if (alreadyDrawnObjects.Contains(target))
             {
                 context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                context.Text($"(Shared Reference: {target})");
+                context.Text($"(Shared Reference: {target.GetType().Name})");
                 context.PopStyleVar();
                 return;
             }
