@@ -47,9 +47,5 @@ namespace WsiuEngine.Core
             _engine.Tick();
             _engine.EndFrame();
         }
-
-        public UInt64 EditorWindowCreate(string title) => _engine.EditorWindowCreate(title);
-        public void EditorWindowDestroy(UInt64 id) => _engine.EditorWindowDestroy(id);
-        public void EditorWindowChangeTitle(UInt64 id, string title) => _engine.EditorWindowChangeTitle(id, title);
     }
 }
