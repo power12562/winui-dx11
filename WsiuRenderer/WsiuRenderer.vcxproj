@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="default_cleaner.h" />
     <ClInclude Include="dx11commons.h" />
+    <ClInclude Include="EditorCommands.h" />
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="EditorWindowClosable.h" />
     <ClInclude Include="imguicommons.h" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="default_cleaner.cpp" />
+    <ClCompile Include="EditorCommands.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="EditorWindowClosable.cpp" />
     <ClCompile Include="ImguiContext.cpp">

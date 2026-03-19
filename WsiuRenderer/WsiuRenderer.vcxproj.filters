@@ -74,7 +74,6 @@
     <ClCompile Include="thirdparty\imgui\imgui_widgets.cpp">
       <Filter>thirdparty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="default_cleaner.cpp" />
     <ClCompile Include="imgui_helper.cpp" />
     <ClCompile Include="InputSystem.cpp">
       <Filter>Core\InputSystem</Filter>
@@ -84,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="EditorWindowClosable.cpp">
       <Filter>Core\EditorSystem\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorCommands.cpp">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="default_cleaner.cpp">
+      <Filter>Common\slot_pool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +135,9 @@
       <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClInclude>
     <ClInclude Include="EditorWindowClosable.h">
+      <Filter>Core\EditorSystem\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorCommands.h">
       <Filter>Core\EditorSystem\EditorWindow</Filter>
     </ClInclude>
   </ItemGroup>
