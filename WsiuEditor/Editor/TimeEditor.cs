@@ -9,7 +9,7 @@ namespace WsiuEditor.Editor
     {
         public TimeEditor(Engine engine, UInt64 id) : base(engine, id) 
         {       
-            _imguiContext.InitializeWindow("Time");
+            _imguiContext.InitializeWindowClosable("Time");
             Name = "Time";
         }
 

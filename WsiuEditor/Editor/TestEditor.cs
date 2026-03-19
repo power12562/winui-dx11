@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ABI.WsiuRenderer;
+using System;
 using System.Numerics;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
@@ -10,7 +11,7 @@ namespace WsiuEditor.Editor
     {
         public TestEditor(Engine engine, UInt64 id) : base(engine, id)
         {
-            _imguiContext.InitializeWindow("Test");
+            _imguiContext.InitializeWindowClosable("Test");
             Name = "Test";
         }
 
