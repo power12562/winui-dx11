@@ -3,23 +3,28 @@
 #include <vector>
 #include "default_cleaner.h"
 
-template <typename _value_type, typename _cleaner_type> 
+template <typename _value_type, typename _cleaner_type = default_cleaner> 
 class slot_pool
 {
     using value_type   = _value_type;
     using cleaner_type = _cleaner_type;
     using element_type = std::pair<value_type, bool>;
+    static constexpr bool USE_CLEANER = std::is_same_v<default_cleaner, _cleaner_type> == false;
 public:
     slot_pool() = default;
+
     slot_pool(const cleaner_type& cleaner) : _cleaner(cleaner) {};
     slot_pool(const cleaner_type&& cleaner) noexcept : _cleaner(std::move(cleaner)) {};
     ~slot_pool() 
     {
-        for (auto& [value, valid] : _elements)
+        if constexpr (USE_CLEANER)
         {
-            if (valid)
+            for (auto& [value, valid] : _elements)
             {
-                _cleaner(value);
+                if (valid)
+                {
+                    _cleaner(value);
+                }
             }
         }
         _elements.clear();
@@ -188,7 +193,9 @@ public:
             auto& [value, isValid] = _elements[index];
             if (isValid)
             {
-                _cleaner(value);
+                if constexpr (USE_CLEANER)
+                    _cleaner(value);
+
                 isValid = false;
                 _freeIndices.push_back(index);
                 --_size;
@@ -228,7 +235,9 @@ public:
             auto& [value, valid] = _elements[i];
             if (valid)
             {
-                _cleaner(value);
+                if constexpr (USE_CLEANER)
+                    _cleaner(value);
+
                 valid = false;
                 _freeIndices.push_back(i);
             }

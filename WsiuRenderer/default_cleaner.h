@@ -1,5 +1,10 @@
 #pragma once
 
+struct default_cleaner
+{
+    void operator()() = delete;
+};
+
 template<typename _value_type>
 struct ComPtrCleaner
 {
