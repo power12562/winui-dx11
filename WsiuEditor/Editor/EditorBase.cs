@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Documents;
+using System;
 using WsiuEngine.Core;
 using WsiuRenderer;
 
@@ -35,10 +36,17 @@ namespace WsiuEditor.Editor
 
         public abstract void Draw();
 
+        public void SetDisableCallback(Action callback)
+        {
+            _engineCore.EditorDisableCallback(_imguiContext.GetWindowID(), () => callback());
+        }
+
         protected readonly ImguiContext _imguiContext;
+        protected readonly EngineCore _engineCore;
         protected EditorBase(Engine engine, UInt64 id)
         {
-            _imguiContext = new(engine.EngineCore);
+            _engineCore = engine.EngineCore;
+            _imguiContext = new(_engineCore);
             _id = id;
         }
     }
