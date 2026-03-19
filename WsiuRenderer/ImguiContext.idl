@@ -72,5 +72,14 @@ namespace WsiuRenderer
         static void SettingUInt64(Single speed, UInt64 min, UInt64 max, String format, ImGuiSliderFlags flags);
         void DragUInt64(String label, UInt64 val, UInt64ChangedCallback handle);
         void DragUInt64N(String label, UInt64[] val, UInt64NChangedCallback handle);
+        static void SettingInt16(Single speed, Int16 min, Int16 max, String format, ImGuiSliderFlags flags);
+        void DragInt16(String label, Int16 val, Int16ChangedCallback handle);
+        void DragInt16N(String label, Int16[] val, Int16NChangedCallback handle);
+        static void SettingInt32(Single speed, Int32 min, Int32 max, String format, ImGuiSliderFlags flags);
+        void DragInt32(String label, Int32 val, Int32ChangedCallback handle);
+        void DragInt32N(String label, Int32[] val, Int32NChangedCallback handle);
+        static void SettingInt64(Single speed, Int64 min, Int64 max, String format, ImGuiSliderFlags flags);
+        void DragInt64(String label, Int64 val, Int64ChangedCallback handle);
+        void DragInt64N(String label, Int64[] val, Int64NChangedCallback handle);
     } 
 }

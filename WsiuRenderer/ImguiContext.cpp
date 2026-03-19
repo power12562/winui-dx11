@@ -405,5 +405,116 @@ namespace winrt::WsiuRenderer::implementation
         };
         PushCommand(command);
     }
+
+    void ImguiContext::SettingInt16(float speed, int16_t min, int16_t max, hstring const& format,
+                                    winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _int64Setting.Speed  = speed;
+        _int64Setting.Min    = min;
+        _int64Setting.Max    = max;
+        _int64Setting.Format = winrt::to_string(format);
+        _int64Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragInt16(hstring const& label, int16_t val,
+                                 winrt::WsiuRenderer::Int16ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {
+            auto& setting = _int16Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragInt16N(hstring const& label, array_view<int16_t const> val,
+                                  winrt::WsiuRenderer::Int16NChangedCallback const& handle)
+    {
+        std::array<int16_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _int16Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
  
+
+    void ImguiContext::SettingInt32(float speed, int32_t min, int32_t max, hstring const& format,
+                                    winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _int32Setting.Speed  = speed;
+        _int32Setting.Min    = min;
+        _int32Setting.Max    = max;
+        _int32Setting.Format = winrt::to_string(format);
+        _int32Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragInt32(hstring const& label, int32_t val,
+                                 winrt::WsiuRenderer::Int32ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {
+            auto& setting = _int32Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragInt32N(hstring const& label, array_view<int32_t const> val,
+                                  winrt::WsiuRenderer::Int32NChangedCallback const& handle)
+    {
+        std::array<int32_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _int32Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::SettingInt64(float speed, int64_t min, int64_t max, hstring const& format,
+                                    winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _int64Setting.Speed  = speed;
+        _int64Setting.Min    = min;
+        _int64Setting.Max    = max;
+        _int64Setting.Format = winrt::to_string(format);
+        _int64Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragInt64(hstring const& label, int64_t val,
+                                 winrt::WsiuRenderer::Int64ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {
+            auto& setting = _int64Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragInt64N(hstring const& label, array_view<int64_t const> val,
+                                  winrt::WsiuRenderer::Int64NChangedCallback const& handle)
+    {
+        std::array<int64_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _int64Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
 } // namespace winrt::WsiuRenderer::implementation
