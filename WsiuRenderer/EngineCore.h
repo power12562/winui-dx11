@@ -29,6 +29,7 @@ namespace winrt::WsiuRenderer::implementation
        
         uint64_t EditorWindowCreate(const hstring& title);
         uint64_t EditorWindowClosableCreate(hstring const& title);
+        bool     EditorWindowGetActive(uint64_t id) const;
         void     EditorWindowSetActive(uint64_t id, bool active);
         void     EditorWindowDestroy(uint64_t id);
         void     EditorWindowChangeTitle(uint64_t id, hstring const& newTitle);

@@ -222,6 +222,12 @@ namespace winrt::WsiuRenderer::implementation
         return id; 
     }
 
+    bool EngineCore::EditorWindowGetActive(uint64_t id) const 
+    {
+        auto& newEditor = _editorWindows.at(id);
+        return newEditor->GetActive(); 
+    }
+
     void EngineCore::EditorWindowSetActive(uint64_t id, bool active) 
     {
          auto& editor = _editorWindows.at(id);

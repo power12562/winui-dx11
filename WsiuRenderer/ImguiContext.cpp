@@ -70,6 +70,11 @@ namespace winrt::WsiuRenderer::implementation
         _commandsStack.pop_back();
     }
 
+    bool ImguiContext::GetActive() const 
+    { 
+        return _engineCore.EditorWindowGetActive(_windowID);
+    }
+
     void ImguiContext::SetActive(bool active) 
     { 
         _engineCore.EditorWindowSetActive(_windowID, active);

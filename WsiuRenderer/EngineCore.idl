@@ -16,6 +16,7 @@ namespace WsiuRenderer
 
         UInt64 EditorWindowCreate(String title);
         UInt64 EditorWindowClosableCreate(String title);
+        Boolean EditorWindowGetActive(UInt64 id);
         void EditorWindowSetActive(UInt64 id, Boolean active);
         void EditorWindowDestroy(UInt64 id);
         void EditorWindowChangeTitle(UInt64 id, String newTitle);

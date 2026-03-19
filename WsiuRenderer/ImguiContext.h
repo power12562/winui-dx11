@@ -43,6 +43,7 @@ namespace winrt::WsiuRenderer::implementation
         void InitializeWindow(hstring const& title);
         void InitializeWindowClosable(hstring const& title);
         uint64_t GetWindowID() const { return _windowID; }
+        bool GetActive() const;
         void SetActive(bool active);
         void SetTitle(hstring const& title) const;
 

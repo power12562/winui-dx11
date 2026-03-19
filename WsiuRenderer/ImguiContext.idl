@@ -37,6 +37,7 @@ namespace WsiuRenderer
         void InitializeWindow(String title);
         void InitializeWindowClosable(String title);
         UInt64 GetWindowID();
+        Boolean GetActive();
         void SetActive(Boolean active);
         void SetTitle(String newTitle);
         void PushID(UInt32 id);
