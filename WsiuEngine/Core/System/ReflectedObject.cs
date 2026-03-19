@@ -127,7 +127,7 @@ namespace WsiuEngine.Core.System
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             foreach (var method in type.GetMethods(flags))
             {
-                if (method.IsPublic || method.GetCustomAttribute<SerializeMethodAttribute>() != null)
+                if (method.GetCustomAttribute<SerializeMethodAttribute>() != null)
                 {
                     string name = method.Name;
                     Type returnType = method.ReturnType;
