@@ -2,29 +2,53 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
 namespace WsiuEngine.Core.System
 {
     public static partial class ReflectedObject
     {
-        private static readonly HashSet<object> AlreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
+        private delegate void DrawHandler(ImguiContext ctx, string name, object value, Action<object> callback);
+        private static readonly Dictionary<Type, DrawHandler> drawFieldHandler = new(ReferenceEqualityComparer.Instance)
+        {
+            [typeof(float)] = (ctx, name, val, cb) => ctx.DragFloat(name, (float)val, v => cb(v)),
+            [typeof(double)] = (ctx, name, val, cb) => ctx.DragDouble(name, (double)val, v => cb(v)),
+            [typeof(Vector2)] = (ctx, name, val, cb) => ctx.DragVector2(name, (Vector2)val, v => cb(v)),
+            [typeof(Vector3)] = (ctx, name, val, cb) => ctx.DragVector3(name, (Vector3)val, v => cb(v)),
+            [typeof(Vector4)] = (ctx, name, val, cb) => ctx.DragVector4(name, (Vector4)val, v => cb(v)),
+        };
+
+        public static void DrawField(ImguiContext context, Type type, string name, object value, Action<object> callback)
+        {
+            if (drawFieldHandler.TryGetValue(type, out var handle))
+            {
+                handle(context, name, value, callback);
+            }
+            else
+            {
+                context.Text($"{name}: {value} (Unsupported)");
+            }
+        }
+
+        private static readonly HashSet<object> alreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
         public static void DrawFields(ImguiContext context, object target, bool isRoot = true)
         {
             if (target.GetType().IsClass == false)
                 return;
 
             if (isRoot)
-                AlreadyDrawnObjects.Clear();
+                alreadyDrawnObjects.Clear();
 
-            if (AlreadyDrawnObjects.Contains(target))
+            if (alreadyDrawnObjects.Contains(target))
             {
                 context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 context.Text($"(Shared Reference: {target})");
                 context.PopStyleVar();
                 return;
             }
-            AlreadyDrawnObjects.Add(target);
+            alreadyDrawnObjects.Add(target);
 
             IReadOnlyList<Field> fields = GetFields(target);
             foreach (var field in fields)
@@ -49,31 +73,10 @@ namespace WsiuEngine.Core.System
                     context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 }
 
-                Action drawAction = type switch
+                DrawField(context, type, name, value, (v) =>
                 {
-                    var t when t == typeof(double) => () => context.DragDouble(name, (double)value, (v) =>
-                    {
-                        field.Set?.Invoke(target, v);
-                    }),
-                    var t when t == typeof(float) => () => context.DragFloat(name, (float)value, (v) =>
-                    {
-                        field.Set?.Invoke(target, v);
-                    }),
-                    var t when t == typeof(Vector2) => () => context.DragVector2(name, (Vector2)value, (v) =>
-                    {
-                        field.Set?.Invoke(target, v);
-                    }),
-                    var t when t == typeof(Vector3) => () => context.DragVector3(name, (Vector3)value, (v) =>
-                    {
-                        field.Set?.Invoke(target, v);
-                    }),
-                    var t when t == typeof(Vector4) => () => context.DragVector4(name, (Vector4)value, (v) =>
-                    {
-                        field.Set?.Invoke(target, v);
-                    }),
-                    _ => () => context.Text($"{name}: {value}")
-                };
-                drawAction.Invoke();
+                    field.Set?.Invoke(target, v);
+                });          
 
                 if (isReadOnly)
                 {
@@ -91,23 +94,80 @@ namespace WsiuEngine.Core.System
             foreach (Method method in methods)
             {
                 List<ParameterInfo> parameters = method.Parameters;
-                string name = method.Name;
-                Type returnType = method.ReturnType;
                 if (parameters.Count == 0)
                 {
-                    context.PushStyleVar(ImGuiStyleVar.FrameRounding, 4f);
-                    context.PushStyleVar(ImGuiStyleVar.FramePadding, 10f, 5f);
                     context.Selectable(method.DisplayName, false, ImGuiSelectableFlags.None, () =>
                     {
                         method.Invoker(target, null);
                     });
-                    context.PopStyleVar(2);
                 }
                 else
                 {
-
+                    context.TreeNodeEx(method.DisplayName, ImGuiTreeNodeFlags.None);
+                    object[] buffer = GetMethodParametersBuffer(target, method);
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        ParameterInfo info = parameters[i];
+                        Type parameterType = info.ParameterType;
+                        string parameterName = string.Empty;
+                        if (info.Name != null)
+                        {
+                            parameterName = info.Name;
+                        }
+                        int index = i;
+                        DrawField(context, parameterType, parameterName, buffer[index], (v) =>
+                        {
+                            buffer[index] = v;
+                        });
+                    }               
+                    context.Button("call", () =>
+                    {
+                        method.Invoker(target, buffer);
+                    });
+                    context.TreePop();
                 }
             }
+        }
+
+        private static readonly ConditionalWeakTable<object, Dictionary<Method, object[]>> inputTable = [];
+        private static object[] GetMethodParametersBuffer(object obj, Method method)
+        {
+            if (method.Parameters.Count == 0)
+                return [];
+
+            if (inputTable.TryGetValue(obj, out var dictionary) == false)
+            {
+                dictionary = new(ReferenceEqualityComparer.Instance);
+                inputTable.Add(obj, dictionary);
+            }
+
+            if (dictionary.TryGetValue(method, out var parametersBuffer) == false)
+            {
+                int parametersCount = method.Parameters.Count;
+                parametersBuffer = [parametersCount];
+                for (int i = 0; i < parametersCount; i++)
+                {
+                    ParameterInfo info = method.Parameters[i];
+                    Type pType = info.ParameterType;             
+                    if (info.HasDefaultValue)
+                    {
+                        if (info.DefaultValue != null)
+                            parametersBuffer[i] = info.DefaultValue;
+                    }
+                    else if (pType.IsValueType)
+                    {
+                        object? value = Activator.CreateInstance(pType);
+                        if (value != null)
+                            parametersBuffer[i] = value;
+                    }
+                    else if (pType == typeof(string))
+                    {
+                        parametersBuffer[i] = string.Empty;
+                    }
+                }
+                dictionary.Add(method, parametersBuffer);
+            }
+            return parametersBuffer;
         }
     }
 }
