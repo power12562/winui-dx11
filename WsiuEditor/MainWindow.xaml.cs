@@ -26,8 +26,6 @@ namespace WsiuEditor
 
             EditorManager.RegisterEditors();
             _editorManager = new(_engine);
-            _editorManager.CreateEditor<TestEditor>();
-            _editorManager.CreateEditor<TimeEditor>();
 
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
         }
