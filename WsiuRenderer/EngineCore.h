@@ -38,6 +38,7 @@ namespace winrt::WsiuRenderer::implementation
         void     EditorBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
         void     EditorDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
         void     EditorEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        void     EditorDisableCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
     public:
         InputSystem InputSystem;
 

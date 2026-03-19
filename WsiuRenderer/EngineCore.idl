@@ -25,6 +25,7 @@ namespace WsiuRenderer
         void EditorBeginCallback(UInt64 id, EditorWindowCallback handler);
         void EditorDrawCallback(UInt64 id, EditorWindowCallback handler);
         void EditorEndCallback(UInt64 id, EditorWindowCallback handler);
+        void EditorDisableCallback(UInt64 id, EditorWindowCallback handler);
 
         Boolean VSync;
 
