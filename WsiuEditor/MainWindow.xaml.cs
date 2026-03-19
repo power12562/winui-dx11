@@ -49,7 +49,9 @@ namespace WsiuEditor
         void TestDraw()
         {
             _testDebugUI.TreeNodeEx("Test Methods", ImGuiTreeNodeFlags.None);
+            _testDebugUI.PushStyleColor(ImGuiCol.Text, 0.4f, 0.7f, 1.0f, 1.0f);
             ReflectedObject.DrawMethods(_testDebugUI, test.TestVector);
+            _testDebugUI.PopStyleColor();
             _testDebugUI.TreePop();
 
             ReflectedObject.DrawFields(_testDebugUI, test);
@@ -80,6 +82,13 @@ namespace WsiuEditor
             public Vector2 AddVector2(Vector2 target)
             {
                 Vector2 += target;
+                return Vector2;
+            }
+
+            [SerializeMethod]
+            private Vector2 subVector2(Vector2 target)
+            {
+                Vector2 -= target;
                 return Vector2;
             }
         }
