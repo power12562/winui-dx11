@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <stdint.h>
 #include <imgui.h>
 namespace ImGuiHelper
@@ -12,7 +12,7 @@ namespace ImGuiHelper
         if constexpr (std::is_same_v<T, float>)
             return "%.3f";
         else if constexpr (std::is_same_v<T, double>)
-            return "%.6lf";
+            return "%.3lf";
 
         // 8비트 정수 (char / byte)
         else if constexpr (std::is_same_v<T, char>)
@@ -41,6 +41,22 @@ namespace ImGuiHelper
         else
             static_assert(false, "Unsupported type.");
     }
+    constexpr const char* format_float     = GetImguiOutputFormat<float>();
+    constexpr const char* format_double    = GetImguiOutputFormat<double>();
+    constexpr const char* format_char      = GetImguiOutputFormat<char>();
+    constexpr const char* format_uchar     = GetImguiOutputFormat<unsigned char>();
+    constexpr const char* format_short     = GetImguiOutputFormat<short>();
+    constexpr const char* format_ushort    = GetImguiOutputFormat<unsigned short>();
+    constexpr const char* format_int       = GetImguiOutputFormat<int>();
+    constexpr const char* format_uint      = GetImguiOutputFormat<unsigned int>();
+    constexpr const char* format_longlong  = GetImguiOutputFormat<long long>();
+    constexpr const char* format_ulonglong = GetImguiOutputFormat<unsigned long long>();
+    constexpr const char* format_int16     = GetImguiOutputFormat<int16_t>();
+    constexpr const char* format_uint16    = GetImguiOutputFormat<uint16_t>();
+    constexpr const char* format_int32     = GetImguiOutputFormat<int32_t>();
+    constexpr const char* format_uint32    = GetImguiOutputFormat<uint32_t>();
+    constexpr const char* format_int64     = GetImguiOutputFormat<int64_t>();
+    constexpr const char* format_uint64    = GetImguiOutputFormat<uint64_t>();
 
     template <typename _scala_type> 
     constexpr ImGuiDataType GetImGuiDataType()
