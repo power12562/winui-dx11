@@ -34,6 +34,7 @@ namespace WsiuRenderer
     runtimeclass ImguiContext 
     {
         ImguiContext(EngineCore engineCore);
+        void InitializeCommands(String title);
         void InitializeWindow(String title);
         void InitializeWindowClosable(String title);
         UInt64 GetWindowID();
