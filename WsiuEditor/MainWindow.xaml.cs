@@ -32,7 +32,7 @@ namespace WsiuEditor
 
         private void EditorLoop()
         {
-            _editorManager.DrawEditors();
+            _editorManager.Draw();
             _engine.Update();
         }
     }
