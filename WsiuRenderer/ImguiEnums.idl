@@ -95,4 +95,91 @@ namespace WsiuRenderer
         SpanTextWidth        = SpanLabelWidth,        // Renamed in 1.90.7
         //AllowItemOverlap   = AllowOverlap,          // Renamed in 1.89.7
     };
+
+    enum ImGuiSelectableFlags
+    {
+        None               = 0,
+        NoAutoClosePopups  = 1 << 0,   // Clicking this doesn't close parent popup window (overrides ImGuiItemFlags_AutoClosePopups)
+        SpanAllColumns     = 1 << 1,   // Frame will span all columns of its container table (text will still fit in current column)
+        AllowDoubleClick   = 1 << 2,   // Generate press events on double clicks too
+        Disabled           = 1 << 3,   // Cannot be selected, display grayed out text
+        AllowOverlap       = 1 << 4,   // (WIP) Hit testing to allow subsequent widgets to overlap this one
+        Highlight          = 1 << 5,   // Make the item be displayed as if it is hovered
+        SelectOnNav        = 1 << 6,   // Auto-select when moved into, unless Ctrl is held. Automatic when in a BeginMultiSelect() block.
+    
+        DontClosePopups    = NoAutoClosePopups,   // Renamed in 1.91.0
+        //AllowItemOverlap = AllowOverlap,        // Renamed in 1.89.7
+    };
+
+    enum ImGuiCol
+    {
+        Text,
+        TextDisabled,
+        WindowBg, // Background of normal windows
+        ChildBg,  // Background of child windows
+        PopupBg,  // Background of popups, menus, tooltips windows
+        Border,
+        BorderShadow,
+        FrameBg, // Background of checkbox, radio button, plot, slider, text input
+        FrameBgHovered,
+        FrameBgActive,
+        TitleBg,          // Title bar
+        TitleBgActive,    // Title bar when focused
+        TitleBgCollapsed, // Title bar when collapsed
+        MenuBarBg,
+        ScrollbarBg,
+        ScrollbarGrab,
+        ScrollbarGrabHovered,
+        ScrollbarGrabActive,
+        CheckMark, // Checkbox tick and RadioButton circle
+        SliderGrab,
+        SliderGrabActive,
+        Button,
+        ButtonHovered,
+        ButtonActive,
+        Header, // Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
+        HeaderHovered,
+        HeaderActive,
+        Separator,
+        SeparatorHovered,
+        SeparatorActive,
+        ResizeGrip,                // Resize grip in lower-right and lower-left corners of windows.
+        ResizeGripHovered,
+        ResizeGripActive,
+        InputTextCursor,           // InputText cursor/caret
+        TabHovered,                // Tab background, when hovered
+        Tab,                       // Tab background, when tab-bar is focused & tab is unselected
+        TabSelected,               // Tab background, when tab-bar is focused & tab is selected
+        TabSelectedOverline,       // Tab horizontal overline, when tab-bar is focused & tab is selected
+        TabDimmed,                 // Tab background, when tab-bar is unfocused & tab is unselected
+        TabDimmedSelected,         // Tab background, when tab-bar is unfocused & tab is selected
+        TabDimmedSelectedOverline, //..horizontal overline, when tab-bar is unfocused & tab is selected
+        DockingPreview,            // Preview overlay color when about to docking something
+        DockingEmptyBg,            // Background color for empty node (e.g. CentralNode with no window docked into it)
+        PlotLines,
+        PlotLinesHovered,
+        PlotHistogram,
+        PlotHistogramHovered,
+        TableHeaderBg,         // Table header background
+        TableBorderStrong,     // Table outer and header borders (prefer using Alpha=1.0 here)
+        TableBorderLight,      // Table inner borders (prefer using Alpha=1.0 here)
+        TableRowBg,            // Table row background (even rows)
+        TableRowBgAlt,         // Table row background (odd rows)
+        TextLink,              // Hyperlink color
+        TextSelectedBg,        // Selected text inside an InputText
+        TreeLines,             // Tree node hierarchy outlines when using ImGuiTreeNodeFlags_DrawLines
+        DragDropTarget,        // Rectangle border highlighting a drop target
+        DragDropTargetBg,      // Rectangle background highlighting a drop target
+        UnsavedMarker,         // Unsaved Document marker (in window title and tabs)
+        NavCursor,             // Color of keyboard/gamepad navigation cursor/rectangle, when visible
+        NavWindowingHighlight, // Highlight window when using Ctrl+Tab
+        NavWindowingDimBg,     // Darken/colorize entire screen behind the Ctrl+Tab window list, when active
+        ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
+        COUNT,
+
+        TabActive          = TabSelected,       // [renamed in 1.90.9]
+        TabUnfocused       = TabDimmed,         // [renamed in 1.90.9]
+        TabUnfocusedActive = TabDimmedSelected, // [renamed in 1.90.9]
+        NavHighlight       = NavCursor,         // [renamed in 1.91.4]
+    };
 }

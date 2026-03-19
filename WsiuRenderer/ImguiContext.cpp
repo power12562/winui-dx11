@@ -12,9 +12,7 @@ namespace winrt::WsiuRenderer::implementation
     ImguiContext::ImguiContext(EngineCore const& engineCore) 
         : 
         _engineCore(engineCore) 
-    { 
-        
-    }
+    {}
 
     ImguiContext::~ImguiContext() 
     { 
@@ -164,6 +162,21 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::PushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float x, float y, float z, float w) 
+    {
+    
+    }
+
+    void ImguiContext::PopStyleColor(int32_t count) 
+    {
+    
+    }
+
+    void ImguiContext::PopStyleColor() 
+    {
+    
+    }
+
     void ImguiContext::Text(hstring const& text)
     {
         auto command = [text = winrt::to_string(text)] { ImGui::Text(text.c_str()); };
@@ -178,8 +191,29 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::Button(hstring const& label, float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle)
     {
         auto command = [label = winrt::to_string(label), x, y, handle]
-        {
+        {          
             if (ImGui::Button(label.c_str(), {x, y}))
+            {
+                handle();
+            }
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::Selectable(hstring const& label, bool selected,
+                                  winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,
+                                  winrt::WsiuRenderer::ButtonCallback const& handle)
+    {
+        Selectable(label, selected, flags, 0, 0, handle);
+    }
+
+    void ImguiContext::Selectable(hstring const& label, bool selected,
+                                  winrt::WsiuRenderer::ImGuiSelectableFlags const& flags, float x, float y,
+                                  winrt::WsiuRenderer::ButtonCallback const& handle)
+    {
+        auto command = [label = winrt::to_string(label), selected, flags, handle, x, y] () mutable
+        {
+            if(ImGui::Selectable(label.c_str(), selected, static_cast<ImGuiSelectableFlags_>(flags), {x, y}))
             {
                 handle();
             }

@@ -44,9 +44,17 @@ namespace winrt::WsiuRenderer::implementation
         void PopStyleVar();
         void PopStyleVar(int count);
 
+        void PushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float x, float y, float z, float w);
+        void PopStyleColor(int32_t count);
+        void PopStyleColor();
+
         void Text(hstring const& text);
         void Button(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle);
         void Button(hstring const& label, float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle);
+        void Selectable(hstring const& label, bool selected, winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,
+                        winrt::WsiuRenderer::ButtonCallback const& handle);
+        void Selectable(hstring const& label, bool selected, winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,
+                        float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle);
 
         static void SettingFloat(float speed, float min, float max, hstring const& format,
                           winrt::WsiuRenderer::ImGuiSliderFlags const& flags);

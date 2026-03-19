@@ -31,7 +31,12 @@ namespace WsiuRenderer
         void PushStyleVar(ImGuiStyleVar style, Single x, Single y);
         void PopStyleVar();
         void PopStyleVar(Int32 count);
-        void Text(String text); 
+        void PushStyleColor(ImGuiCol col, Single x, Single y, Single z, Single w);
+        void PopStyleColor(Int32 count);
+        void PopStyleColor();
+        void Text(String text);
+        void Selectable(String label, Boolean selected, ImGuiSelectableFlags flags, ButtonCallback handle);
+        void Selectable(String label, Boolean selected, ImGuiSelectableFlags flags, Single x, Single y, ButtonCallback handle);
         void Button(String label, ButtonCallback handle);
         void Button(String label, Single x, Single y, ButtonCallback handle);
         static void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
