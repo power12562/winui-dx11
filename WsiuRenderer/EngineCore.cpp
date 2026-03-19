@@ -154,12 +154,8 @@ namespace winrt::WsiuRenderer::implementation
     }
 
     void EngineCore::Render()
-    {
-        for (auto& gui : _editorWindows)
-        {
-            if (gui)
-                gui->OnDraw();
-        }
+    { 
+        EditorWindowsRender();
     }
 
     void EngineCore::EndImgui() 
@@ -172,7 +168,21 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::Flip() 
     {
-        _swapChain->Present(_vSync ? 1 : 0, 0);
+        _swapChain->Present(_vSync ? 1 : 0, 0); }
+
+    void EngineCore::EditorWindowsRender() 
+    {
+        _editorCycleQueue.reserve(_editorWindows.size());
+        for (auto& gui : _editorWindows)
+        {
+            if (gui)
+                _editorCycleQueue.push_back(gui.get());
+        }
+        for (auto& gui : _editorCycleQueue)
+        {
+            gui->OnDraw();
+        }
+        _editorCycleQueue.clear();
     }
 
     void EngineCore::Finalize() 

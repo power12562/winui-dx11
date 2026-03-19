@@ -12,6 +12,7 @@ namespace winrt::WsiuRenderer::implementation
         using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
         using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
         using EditorWindows_t = slot_pool<std::unique_ptr<EditorWindow>, UniquePtrCleaner<EditorWindow>>;
+        using EditorsCycle_t = std::vector<EditorWindow*>;
 
         //idl funtions begin
         EngineCore() = default;
@@ -55,6 +56,7 @@ namespace winrt::WsiuRenderer::implementation
         void Render();
         void EndImgui();
         void Flip();
+        void EditorWindowsRender();
 
         HWND                           _hwnd            = NULL;
         bool                           _isRun           = true;
@@ -67,6 +69,7 @@ namespace winrt::WsiuRenderer::implementation
         rtv_pool_t _randerTargetViews;    
 
         EditorWindows_t _editorWindows;
+        EditorsCycle_t  _editorCycleQueue;
     };
 
 } // namespace winrt::WsiuRenderer::implementation
