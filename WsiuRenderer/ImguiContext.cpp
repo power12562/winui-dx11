@@ -52,7 +52,7 @@ namespace winrt::WsiuRenderer::implementation
     }
 
     void ImguiContext::ClearCommandsStack() 
-    { 
+    {     
         _stackDepth = 0;
         _commandsStackCounter.clear();
         _commands.clear();
@@ -106,6 +106,21 @@ namespace winrt::WsiuRenderer::implementation
     {
         auto command = [] { ImGui::EndDisabled(); };
         PushCommand(command);
+    }
+
+    void ImguiContext::BeginMainMenuBar() 
+    {
+        size_t counterID = _commandsStackCounter.create();
+        auto command = [this, counterID] { ImGui::BeginMainMenuBar(); };
+        PushCommand(command);
+        PushCommandsStack(counterID);
+    }
+
+    void ImguiContext::EndMainMenuBar() 
+    {
+        auto command = [] { ImGui::EndMainMenuBar(); };
+        PushCommand(command);
+        PopCommandStack();
     }
 
     void ImguiContext::TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags) 

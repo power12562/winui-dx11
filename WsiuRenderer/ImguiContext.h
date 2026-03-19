@@ -53,6 +53,9 @@ namespace winrt::WsiuRenderer::implementation
         void BeginDisabled();
         void EndDisabled();
 
+        void BeginMainMenuBar();
+        void EndMainMenuBar();
+
         void TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags);
         void TreePop();
 
