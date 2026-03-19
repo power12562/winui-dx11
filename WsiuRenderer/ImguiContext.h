@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "ImguiContext.g.h"
 #include "slot_pool.h"
+#include "imgui_helper.h"
 
 namespace winrt::WsiuRenderer::implementation
 {
@@ -10,17 +11,25 @@ namespace winrt::WsiuRenderer::implementation
         template<typename _scala_type>
         struct ScalaSetting
         {
+            ScalaSetting(const char* format) : Format(format) {}
+
             using scala_type = _scala_type;
             float Speed = 1.0f;
             scala_type Min{};
             scala_type Max{};
-            std::string Format = "%.3f";
+            std::string Format;
             winrt::WsiuRenderer::ImGuiSliderFlags Flags = winrt::WsiuRenderer::ImGuiSliderFlags::None;
         };
         using FloatSetting = ScalaSetting<float>;
         using DoubleSetting = ScalaSetting<double>;
-        inline static FloatSetting  _floatSetting;
-        inline static DoubleSetting _doubleSetting;
+        using UInt16Setting = ScalaSetting<uint16_t>;
+        using UInt32Setting = ScalaSetting<uint32_t>;
+        using UInt64Setting = ScalaSetting<uint64_t>;
+        inline static FloatSetting  _floatSetting{ImGuiHelper::format_float};
+        inline static DoubleSetting _doubleSetting{ImGuiHelper::format_double};
+        inline static UInt16Setting _uint16Setting{ImGuiHelper::format_uint16};
+        inline static UInt32Setting _uint32Setting{ImGuiHelper::format_uint32};
+        inline static UInt64Setting _uint64Setting{ImGuiHelper::format_uint64};
     public:
         ImguiContext(EngineCore const& engineCore);
         ~ImguiContext() override;
@@ -69,6 +78,23 @@ namespace winrt::WsiuRenderer::implementation
         void DragDoubleN(hstring const& label, array_view<double const> val,
                          winrt::WsiuRenderer::DoubleNChangedCallback const& handle);
 
+        static void SettingUInt16(float speed, uint16_t min, uint16_t max, hstring const& format,
+                                  winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
+        void DragUInt16(hstring const& label, uint16_t val, winrt::WsiuRenderer::UInt16ChangedCallback const& handle);
+        void DragUInt16N(hstring const& label, array_view<uint16_t const> val,
+                         winrt::WsiuRenderer::UInt16NChangedCallback const& handle);
+
+        static void SettingUInt32(float speed, uint32_t min, uint32_t max, hstring const& format,
+                                  winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
+        void DragUInt32(hstring const& label, uint32_t val, winrt::WsiuRenderer::UInt32ChangedCallback const& handle);
+        void DragUInt32N(hstring const& label, array_view<uint32_t const> val,
+                         winrt::WsiuRenderer::UInt32NChangedCallback const& handle);
+
+        static void SettingUInt64(float speed, uint64_t min, uint64_t max, hstring const& format,
+                                  winrt::WsiuRenderer::ImGuiSliderFlags const& flags);
+        void DragUInt64(hstring const& label, uint64_t val, winrt::WsiuRenderer::UInt64ChangedCallback const& handle);
+        void DragUInt64N(hstring const& label, array_view<uint64_t const> val,
+                         winrt::WsiuRenderer::UInt64NChangedCallback const& handle);
     private:
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;

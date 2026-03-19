@@ -11,6 +11,24 @@ namespace WsiuRenderer
     delegate void DoubleChangedCallback(Double x);
     delegate void DoubleNChangedCallback(Double[] val);
 
+    delegate void UInt16ChangedCallback(UInt16 v);
+    delegate void UInt16NChangedCallback(UInt16[] v);
+
+    delegate void UInt32ChangedCallback(UInt32 v);
+    delegate void UInt32NChangedCallback(UInt32[] v);
+
+    delegate void UInt64ChangedCallback(UInt64 v);
+    delegate void UInt64NChangedCallback(UInt64[] v);
+
+    delegate void Int16ChangedCallback(Int16 v);
+    delegate void Int16NChangedCallback(Int16[] v);
+
+    delegate void Int32ChangedCallback(Int32 v);
+    delegate void Int32NChangedCallback(Int32[] v);
+
+    delegate void Int64ChangedCallback(Int64 v);
+    delegate void Int64NChangedCallback(Int64[] v);
+
     [bindable]
     [default_interface] 
     runtimeclass ImguiContext 
@@ -45,5 +63,14 @@ namespace WsiuRenderer
         static void SettingDouble(Single speed, Double min, Double max, String format, ImGuiSliderFlags flags);
         void DragDouble(String label, Double val, DoubleChangedCallback handle);
         void DragDoubleN(String label, Double[] val, DoubleNChangedCallback handle);
+        static void SettingUInt16(Single speed, UInt16 min, UInt16 max, String format, ImGuiSliderFlags flags);
+        void DragUInt16(String label, UInt16 val, UInt16ChangedCallback handle);
+        void DragUInt16N(String label, UInt16[] val, UInt16NChangedCallback handle);
+        static void SettingUInt32(Single speed, UInt32 min, UInt32 max, String format, ImGuiSliderFlags flags);
+        void DragUInt32(String label, UInt32 val, UInt32ChangedCallback handle);
+        void DragUInt32N(String label, UInt32[] val, UInt32NChangedCallback handle);
+        static void SettingUInt64(Single speed, UInt64 min, UInt64 max, String format, ImGuiSliderFlags flags);
+        void DragUInt64(String label, UInt64 val, UInt64ChangedCallback handle);
+        void DragUInt64N(String label, UInt64[] val, UInt64NChangedCallback handle);
     } 
 }

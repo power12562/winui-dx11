@@ -12,7 +12,9 @@ namespace winrt::WsiuRenderer::implementation
     ImguiContext::ImguiContext(EngineCore const& engineCore) 
         : 
         _engineCore(engineCore) 
-    {}
+    {
+        
+    }
 
     ImguiContext::~ImguiContext() 
     { 
@@ -224,8 +226,9 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragFloat(hstring const& label, float val,
                                  winrt::WsiuRenderer::FloatChangedCallback const& handle)
     {
-        auto command = [label = winrt::to_string(label), val, handle, setting = _floatSetting]() mutable
+        auto command = [label = winrt::to_string(label), val, handle, this]() mutable
         {
+            auto& setting = _floatSetting;
             ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
@@ -241,8 +244,9 @@ namespace winrt::WsiuRenderer::implementation
 
         std::array<float, 4> temp{};
         std::copy(val.begin(), val.end(), temp.data());
-        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, setting = _floatSetting]() mutable
+        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, this]() mutable
         {
+            auto& setting = _floatSetting;
             ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(),
                                                 setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
@@ -264,8 +268,9 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DragDouble(hstring const& label, double val,
                                   winrt::WsiuRenderer::DoubleChangedCallback const& handle)
     {
-        auto command = [label = winrt::to_string(label), val, handle, setting = _doubleSetting]() mutable
+        auto command = [label = winrt::to_string(label), val, handle, this]() mutable
         {
+            auto& setting = _doubleSetting;
             ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed,
                                                 &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
@@ -281,8 +286,9 @@ namespace winrt::WsiuRenderer::implementation
 
         std::array<double, 4> temp{};
         std::copy(val.begin(), val.end(), temp.data());
-        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, setting = _doubleSetting]() mutable
+        auto command = [label = winrt::to_string(label), temp, size = val.size(), handle, this]() mutable
         {
+            auto& setting = _doubleSetting;
             ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(),
                                                 setting.Speed, &setting.Min, &setting.Max, setting.Format.c_str(),
                                                 static_cast<::ImGuiSliderFlags>(setting.Flags));
@@ -290,4 +296,114 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::SettingUInt16(float speed, uint16_t min, uint16_t max, hstring const& format,
+        winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _uint16Setting.Speed  = speed;
+        _uint16Setting.Min    = min;
+        _uint16Setting.Max    = max;
+        _uint16Setting.Format = winrt::to_string(format);
+        _uint16Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragUInt16(hstring const& label, uint16_t val, winrt::WsiuRenderer::UInt16ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {
+            auto& setting = _uint16Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragUInt16N(hstring const& label, array_view<uint16_t const> val,
+        winrt::WsiuRenderer::UInt16NChangedCallback const& handle)
+    {
+        std::array<uint16_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _uint16Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::SettingUInt32(float speed, uint32_t min, uint32_t max, hstring const& format,
+                                     winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _uint32Setting.Speed  = speed;
+        _uint32Setting.Min    = min;
+        _uint32Setting.Max    = max;
+        _uint32Setting.Format = winrt::to_string(format);
+        _uint32Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragUInt32(hstring const& label, uint32_t val,
+                                  winrt::WsiuRenderer::UInt32ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {
+            auto& setting = _uint32Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragUInt32N(hstring const& label, array_view<uint32_t const> val,
+                                   winrt::WsiuRenderer::UInt32NChangedCallback const& handle)
+    {
+        std::array<uint32_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _uint32Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::SettingUInt64(float speed, uint64_t min, uint64_t max, hstring const& format,
+        winrt::WsiuRenderer::ImGuiSliderFlags const& flags)
+    {
+        _uint64Setting.Speed  = speed;
+        _uint64Setting.Min    = min;
+        _uint64Setting.Max    = max;
+        _uint64Setting.Format = winrt::to_string(format);
+        _uint64Setting.Flags  = flags;
+    }
+
+    void ImguiContext::DragUInt64(hstring const& label, uint64_t val,
+                                  winrt::WsiuRenderer::UInt64ChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val, handle]() mutable
+        {         
+            auto& setting = _uint64Setting;
+            ImGuiHelper::DragScalaWithCallback(label.c_str(), handle, &val, setting.Speed, &setting.Min, &setting.Max,
+                                               setting.Format.c_str(), static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::DragUInt64N(hstring const& label, array_view<uint64_t const> val,
+                                   winrt::WsiuRenderer::UInt64NChangedCallback const& handle)
+    {
+        std::array<uint64_t, 4> temp{};
+        std::copy(val.begin(), val.end(), temp.data());
+        auto command = [this, label = winrt::to_string(label), size = val.size(), handle, temp]() mutable
+        {
+            auto& setting = _uint64Setting;
+            ImGuiHelper::DragScalaNWithCallback(label.c_str(), handle, size, temp.data(), setting.Speed, &setting.Min,
+                                                &setting.Max, setting.Format.c_str(),
+                                                static_cast<ImGuiSliderFlags_>(setting.Flags));
+        };
+        PushCommand(command);
+    }
+ 
 } // namespace winrt::WsiuRenderer::implementation
