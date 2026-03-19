@@ -18,18 +18,24 @@ namespace winrt::WsiuRenderer::implementation
 
     ImguiContext::~ImguiContext() 
     { 
-        _engineCore.EditorWindowDestroy(_windowID); }
+        _engineCore.EditorDestroy(_windowID); }
+
+    void ImguiContext::InitializeCommands(hstring const& title)
+    { 
+        _windowID = _engineCore.EditorCommandsCreate(title);
+        _engineCore.EditorDrawCallback(_windowID, [this] { DrawCommands(); });
+    }
 
     void ImguiContext::InitializeWindow(hstring const& title) 
     {
         _windowID = _engineCore.EditorWindowCreate(title);
-        _engineCore.EditorWindowDrawCallback(_windowID, [this] { DrawCommands(); });
+        _engineCore.EditorDrawCallback(_windowID, [this] { DrawCommands(); });
     }
 
     void ImguiContext::InitializeWindowClosable(hstring const& title) 
     {
         _windowID = _engineCore.EditorWindowClosableCreate(title);
-        _engineCore.EditorWindowDrawCallback(_windowID, [this] { DrawCommands(); });
+        _engineCore.EditorDrawCallback(_windowID, [this] { DrawCommands(); });
     }
 
     void ImguiContext::DrawCommands()
@@ -78,17 +84,17 @@ namespace winrt::WsiuRenderer::implementation
 
     bool ImguiContext::GetActive() const 
     { 
-        return _engineCore.EditorWindowGetActive(_windowID);
+        return _engineCore.EditorGetActive(_windowID);
     }
 
     void ImguiContext::SetActive(bool active) 
     { 
-        _engineCore.EditorWindowSetActive(_windowID, active);
+        _engineCore.EditorSetActive(_windowID, active);
     }
 
     void ImguiContext::SetTitle(hstring const& title) const 
     { 
-        _engineCore.EditorWindowChangeTitle(_windowID, title); 
+        _engineCore.EditorChangeTitle(_windowID, title); 
     }
 
     void ImguiContext::PushID(uint32_t id) 
