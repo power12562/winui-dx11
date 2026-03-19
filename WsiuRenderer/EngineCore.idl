@@ -13,16 +13,18 @@ namespace WsiuRenderer
         void Tick();
         void EndFrame();
         void Quit();
-
+     
+        UInt64 EditorCommandsCreate(String title);
         UInt64 EditorWindowCreate(String title);
         UInt64 EditorWindowClosableCreate(String title);
-        Boolean EditorWindowGetActive(UInt64 id);
-        void EditorWindowSetActive(UInt64 id, Boolean active);
-        void EditorWindowDestroy(UInt64 id);
-        void EditorWindowChangeTitle(UInt64 id, String newTitle);
-        void EditorWindowBeginCallback(UInt64 id, EditorWindowCallback handler);
-        void EditorWindowDrawCallback(UInt64 id, EditorWindowCallback handler);
-        void EditorWindowEndCallback(UInt64 id, EditorWindowCallback handler);
+
+        Boolean EditorGetActive(UInt64 id);
+        void EditorSetActive(UInt64 id, Boolean active);
+        void EditorDestroy(UInt64 id);
+        void EditorChangeTitle(UInt64 id, String newTitle);
+        void EditorBeginCallback(UInt64 id, EditorWindowCallback handler);
+        void EditorDrawCallback(UInt64 id, EditorWindowCallback handler);
+        void EditorEndCallback(UInt64 id, EditorWindowCallback handler);
 
         Boolean VSync;
 

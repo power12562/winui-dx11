@@ -11,8 +11,8 @@ namespace winrt::WsiuRenderer::implementation
     public:
         using rtv_pool_t = slot_pool<ComPtr<ID3D11RenderTargetView>, ComPtrCleaner<ID3D11RenderTargetView>>;
         using SwapChainPanel = winrt::Microsoft::UI::Xaml::Controls::SwapChainPanel;
-        using EditorWindows_t = slot_pool<std::unique_ptr<EditorWindow>, UniquePtrCleaner<EditorWindow>>;
-        using EditorsCycle_t = std::vector<EditorWindow*>;
+        using EditorWindows_t = slot_pool<std::unique_ptr<EditorCommands>, UniquePtrCleaner<EditorCommands>>;
+        using EditorsCycle_t = std::vector<EditorCommands*>;
 
         //idl funtions begin
         EngineCore() = default;
@@ -27,16 +27,17 @@ namespace winrt::WsiuRenderer::implementation
 
         InputSystem::MouseInputState    InputMouseState() const;
         InputSystem::KeyboardInputState InputKeyboardState() const;
-       
+
+        uint64_t EditorCommandsCreate(const hstring& title);
         uint64_t EditorWindowCreate(const hstring& title);
         uint64_t EditorWindowClosableCreate(hstring const& title);
-        bool     EditorWindowGetActive(uint64_t id) const;
-        void     EditorWindowSetActive(uint64_t id, bool active);
-        void     EditorWindowDestroy(uint64_t id);
-        void     EditorWindowChangeTitle(uint64_t id, hstring const& newTitle);
-        void     EditorWindowBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
-        void     EditorWindowDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
-        void     EditorWindowEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        bool     EditorGetActive(uint64_t id) const;
+        void     EditorSetActive(uint64_t id, bool active);
+        void     EditorDestroy(uint64_t id);
+        void     EditorChangeTitle(uint64_t id, hstring const& newTitle);
+        void     EditorBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        void     EditorDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
+        void     EditorEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler);
     public:
         InputSystem InputSystem;
 
@@ -68,7 +69,7 @@ namespace winrt::WsiuRenderer::implementation
         size_t     _rtvBackBufferID = (std::numeric_limits<size_t>::max)();
         rtv_pool_t _randerTargetViews;    
 
-        EditorWindows_t _editorWindows;
+        EditorWindows_t _editorCommands;
         EditorsCycle_t  _editorCycleQueue;
     };
 

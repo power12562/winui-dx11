@@ -5,7 +5,6 @@
 #include "EngineCore.g.cpp"
 #endif
 #include "imguicommons.h"
-#include "EditorWindow.h"
 #include "EditorWindowClosable.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
@@ -172,8 +171,8 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::EditorWindowsRender() 
     {
-        _editorCycleQueue.reserve(_editorWindows.size());
-        for (auto& gui : _editorWindows)
+        _editorCycleQueue.reserve(_editorCommands.size());
+        for (auto& gui : _editorCommands)
         {
             if (gui)
                 _editorCycleQueue.push_back(gui.get());
@@ -214,10 +213,19 @@ namespace winrt::WsiuRenderer::implementation
     {
        return InputSystem.KeyboardState; }
 
+    uint64_t EngineCore::EditorCommandsCreate(const hstring& title) 
+    { 
+        uint64_t id        = _editorCommands.create();
+        auto&    newEditor = _editorCommands.at(id);
+        newEditor.reset(new EditorCommands(title));
+        newEditor->OnCreate();
+        return id;
+    }
+
     uint64_t EngineCore::EditorWindowCreate(const hstring& title)
     {
-        uint64_t id        = _editorWindows.create();
-        auto&    newEditor = _editorWindows.at(id);
+        uint64_t id        = _editorCommands.create();
+        auto&    newEditor = _editorCommands.at(id);
         newEditor.reset(new EditorWindow(title));
         newEditor->OnCreate();
         return id;
@@ -225,53 +233,53 @@ namespace winrt::WsiuRenderer::implementation
 
     uint64_t EngineCore::EditorWindowClosableCreate(hstring const& title) 
     { 
-        uint64_t id = _editorWindows.create();
-        auto&    newEditor = _editorWindows.at(id);
+        uint64_t id = _editorCommands.create();
+        auto&    newEditor = _editorCommands.at(id);
         newEditor.reset(new EditorWindowClosable(title));
         newEditor->OnCreate();
         return id; 
     }
 
-    bool EngineCore::EditorWindowGetActive(uint64_t id) const 
+    bool EngineCore::EditorGetActive(uint64_t id) const 
     {
-        auto& newEditor = _editorWindows.at(id);
+        auto& newEditor = _editorCommands.at(id);
         return newEditor->GetActive(); 
     }
 
-    void EngineCore::EditorWindowSetActive(uint64_t id, bool active) 
+    void EngineCore::EditorSetActive(uint64_t id, bool active) 
     {
-         auto& editor = _editorWindows.at(id);
+         auto& editor = _editorCommands.at(id);
          editor->SetActive(active);
     }
 
-    void EngineCore::EditorWindowDestroy(uint64_t id)
+    void EngineCore::EditorDestroy(uint64_t id)
     {
-        auto& editor = _editorWindows.at(id);
+        auto& editor = _editorCommands.at(id);
         editor->OnDestroy();
-        _editorWindows.erase(id);
+        _editorCommands.erase(id);
     }
 
-    void EngineCore::EditorWindowChangeTitle(uint64_t id, hstring const& newTitle) 
+    void EngineCore::EditorChangeTitle(uint64_t id, hstring const& newTitle) 
     {
-        auto& editor = _editorWindows.at(id);
+        auto& editor = _editorCommands.at(id);
         editor->SetTitle(newTitle);
     }
 
-    void EngineCore::EditorWindowBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    void EngineCore::EditorBeginCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
     {
-        auto& editor = _editorWindows.at(id);
+        auto& editor = _editorCommands.at(id);
         editor->BeginCallback(handler);
     }
 
-    void EngineCore::EditorWindowDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    void EngineCore::EditorDrawCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
     {
-        auto& editor = _editorWindows.at(id);
+        auto& editor = _editorCommands.at(id);
         editor->DrawCallback(handler);
     }
 
-    void EngineCore::EditorWindowEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
+    void EngineCore::EditorEndCallback(uint64_t id, winrt::WsiuRenderer::EditorWindowCallback const& handler) 
     {
-        auto& editor = _editorWindows.at(id);
+        auto& editor = _editorCommands.at(id);
         editor->EndCallback(handler);
     }
 
