@@ -56,6 +56,14 @@ namespace winrt::WsiuRenderer::implementation
         void BeginMainMenuBar();
         void EndMainMenuBar();
 
+        void BeginMenu(hstring const& label);
+        void BeginMenu(hstring const& label, bool enabled);
+        void EndMenu();
+
+        void MenuItem(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle);
+        void MenuItem(hstring const& label, bool selected, winrt::WsiuRenderer::ButtonCallback const& handle);
+        void MenuItem(hstring const& label, bool selected, bool enabled, winrt::WsiuRenderer::ButtonCallback const& handle);
+
         void TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags);
         void TreePop();
 
@@ -137,7 +145,8 @@ namespace winrt::WsiuRenderer::implementation
 
         void DrawCommands();
         void ClearCommandsStack();
-        void PushCommandsStack(size_t counterId);
+        void SkipCommand(size_t counterId);
+        void PushCommandStack(size_t counterId);
         void PopCommandStack();    
         template<typename _command> 
         void PushCommand(_command&& command)

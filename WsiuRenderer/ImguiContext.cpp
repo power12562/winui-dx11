@@ -58,7 +58,13 @@ namespace winrt::WsiuRenderer::implementation
         _commands.clear();
     }
 
-    void ImguiContext::PushCommandsStack(size_t counterId) 
+    void ImguiContext::SkipCommand(size_t counterId)
+    {
+        size_t count = _commandsStackCounter.at(counterId);
+        _skipCommandCount = count;
+    }
+
+    void ImguiContext::PushCommandStack(size_t counterId) 
     {
         ++_stackDepth;
         _commandsStack.push_back(counterId);
@@ -111,9 +117,15 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::BeginMainMenuBar() 
     {
         size_t counterID = _commandsStackCounter.create();
-        auto command = [this, counterID] { ImGui::BeginMainMenuBar(); };
+        auto command = [this, counterID] 
+        { 
+            if (ImGui::BeginMainMenuBar() == false)
+            {
+                SkipCommand(counterID);
+            }
+        };
         PushCommand(command);
-        PushCommandsStack(counterID);
+        PushCommandStack(counterID);
     }
 
     void ImguiContext::EndMainMenuBar() 
@@ -123,6 +135,57 @@ namespace winrt::WsiuRenderer::implementation
         PopCommandStack();
     }
 
+    void ImguiContext::BeginMenu(hstring const& label) 
+    {
+        BeginMenu(label, true);
+    }
+
+    void ImguiContext::BeginMenu(hstring const& label, bool enabled) 
+    {
+        size_t counterID = _commandsStackCounter.create();
+        auto command = [this, label = winrt::to_string(label), enabled, counterID]
+        { 
+            if (ImGui::BeginMenu(label.c_str(), enabled) == false)
+            {
+                SkipCommand(counterID);
+            }
+        };
+        PushCommand(command);
+        PushCommandStack(counterID);
+    }
+
+    void ImguiContext::EndMenu() 
+    {
+        auto command = []
+        {
+            ImGui::EndMenu();
+        };
+        PushCommand(command);
+        PopCommandStack();
+    }
+
+    void ImguiContext::MenuItem(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle) 
+    {
+        MenuItem(label, false, true, handle);
+    }
+
+    void ImguiContext::MenuItem(hstring const& label, bool selected, winrt::WsiuRenderer::ButtonCallback const& handle)
+    {
+        MenuItem(label, selected, true, handle);
+    }
+
+    void ImguiContext::MenuItem(hstring const& label, bool selected, bool enabled, winrt::WsiuRenderer::ButtonCallback const& handle) 
+    {
+        auto command = [label = winrt::to_string(label), selected, enabled, handle]
+        {
+            if (ImGui::MenuItem(label.c_str(), nullptr, selected, enabled))
+            {
+                handle();
+            }
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags) 
     {
         size_t counterID = _commandsStackCounter.create();
@@ -130,11 +193,11 @@ namespace winrt::WsiuRenderer::implementation
         {
             if (ImGui::TreeNodeEx(string.c_str(), static_cast<ImGuiTreeNodeFlags_>(flags)) == false)
             {
-                _skipCommandCount = _commandsStackCounter.at(counterID);
+                SkipCommand(counterID);
             }
         };
         PushCommand(command);
-        PushCommandsStack(counterID);
+        PushCommandStack(counterID);
     }
 
     void ImguiContext::TreePop() 
