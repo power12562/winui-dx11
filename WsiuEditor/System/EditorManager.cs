@@ -6,7 +6,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.System
 {
-    internal partial class EditorManager
+    public partial class EditorManager
     {
         public EditorManager(Engine engine)
         {
@@ -17,7 +17,9 @@ namespace WsiuEditor.System
 
         private readonly Engine _engine;
         private readonly ImguiContext _imguiContext;
-        private readonly List<IEditor> _editors = [];
+        private readonly List<IEditor> _transientEditors = [];
+        private readonly List<IEditor> _singletonEditors = [];
+        private readonly Dictionary<Type, IEditor> _singletonEditorInstance = [];
         private readonly Dictionary<Type, UInt64> _editorIdCounter = [];
         private bool _cleanupEditors = false;
         private void CleanUpEditors() 
@@ -25,26 +27,41 @@ namespace WsiuEditor.System
             _cleanupEditors = true; 
         }
 
-        public void CreateEditor<T>() where T : IEditor
+        public void CreateTransientEditor<T>() where T : IEditor
         {
-            if (editorProvider.TryGetValue(typeof(T), out var func))
+            Type type = typeof(T);
+            CreateTransientEditor(type);
+        }
+
+        public void CreateTransientEditor(Type type)
+        {
+            if (EditorManager.transientProvider.TryGetValue(type, out var provider))
             {
-                IEditor iEditor = func(_engine, AddEditorId(typeof(T)));
-                if (iEditor is T editor)
-                {
-                    _editors.Add(editor);
-                    editor.SetDisableCallback(CleanUpEditors);
-                }
+                IEditor iEditor = provider(_engine, AddEditorId(type));
+                _transientEditors.Add(iEditor);
+                iEditor.SetDisableCallback(CleanUpEditors);
             }
         }
 
-        public void CreateEditor(Type type)
+        public void ActiveStaticEditor<T>() where T : IEditor
         {
-            if (editorProvider.TryGetValue(type, out var func))
+            Type type = typeof(T);
+            ActiveSingletonEditor(type);
+        }
+
+        public void ActiveSingletonEditor(Type type) 
+        {
+            if (_singletonEditorInstance.TryGetValue(type, out var singletonEditor))
             {
-                IEditor iEditor = func(_engine, AddEditorId(type));
-                _editors.Add(iEditor);
-                iEditor.SetDisableCallback(CleanUpEditors);
+                singletonEditor.Active = true; 
+                return;
+            }
+
+            if (EditorManager.singletonProvider.TryGetValue(type, out var provider))
+            {
+                IEditor iEditor = provider(_engine);
+                _singletonEditors.Add(iEditor);
+                _singletonEditorInstance.Add(type, iEditor);
             }
         }
 
@@ -56,19 +73,24 @@ namespace WsiuEditor.System
 
         private void DrawEditors()
         {
-            foreach (IEditor editor in _editors)
+            foreach (IEditor editor in _singletonEditors)
+            {
+                editor.Draw();
+            }
+
+            foreach (IEditor editor in _transientEditors)
             {
                 editor.Draw();
             }
 
             if (_cleanupEditors)
             {
-                for (int i = _editors.Count - 1; i >= 0; i--)
+                for (int i = _transientEditors.Count - 1; i >= 0; i--)
                 {
-                    IEditor editor = _editors[i];
+                    IEditor editor = _transientEditors[i];
                     if(editor.Active == false)
                     {
-                        _editors.RemoveAt(i);
+                        _transientEditors.RemoveAt(i);
                     }
                 }
                 _cleanupEditors = false;

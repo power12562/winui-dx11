@@ -1,13 +1,9 @@
-﻿using ABI.WsiuRenderer;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using WsiuEditor.Editor;
-using WsiuEngine.Core;
-using WsiuRenderer;
 
 namespace WsiuEditor.System
 {
-    internal partial class EditorManager
+    public partial class EditorManager
     {
         private void DrawMainMenuBar()
         {
@@ -25,16 +21,50 @@ namespace WsiuEditor.System
 
         private void DrawCreateEditorMenuItems()
         {
-            foreach (var editorType in editorProvider)
+            static string GetDisplayName(Type editorType)
             {
-                Type type = editorType.Key;
-                ActionCreateEditor createEditor = editorType.Value;
-                _imguiContext.MenuItem(type.Name, () =>
+                const string suffix = "Editor";
+                string displayName = editorType.Name;
+                if (displayName.EndsWith(suffix) == true)
                 {
-                    IEditor editor = createEditor(_engine, AddEditorId(type));
-                    editor.SetDisableCallback(CleanUpEditors);
-                    _editors.Add(editor);                
-                });
+                    displayName = displayName[..^suffix.Length];
+                }
+                return displayName;
+            }
+
+            if (0 < EditorManager.transientProvider.Count)
+            {
+                _imguiContext.SeparatorText("Transient");
+                foreach (Type key in EditorManager.transientProvider.Keys)
+                {
+                    Type type = key;
+                    _imguiContext.MenuItem(GetDisplayName(type), () =>
+                    {
+                        CreateTransientEditor(type);
+                    });
+                }
+            }
+
+            if (0 < EditorManager.singletonProvider.Count)
+            {
+                _imguiContext.SeparatorText("Singleton");
+                foreach (Type key in EditorManager.singletonProvider.Keys)
+                {
+                    Type type = key;
+                    bool isActive = false;
+                    if (_singletonEditorInstance.TryGetValue(type, out IEditor? editor))
+                    {
+                        isActive = editor.Active;
+                    }
+
+                    _imguiContext.MenuItem(GetDisplayName(type), isActive, () =>
+                    {
+                        if (isActive == false)
+                        {
+                            ActiveSingletonEditor(type);
+                        }
+                    });
+                }
             }
         }
     }
