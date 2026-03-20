@@ -5,7 +5,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    internal abstract class EditorBase : IEditor
+    internal abstract class ImguiEditorBase : IEditor
     {
         public UInt64 ID 
         {
@@ -43,7 +43,7 @@ namespace WsiuEditor.Editor
 
         protected readonly ImguiContext _imguiContext;
         protected readonly EngineCore _engineCore;
-        protected EditorBase(Engine engine, UInt64 id)
+        protected ImguiEditorBase(Engine engine, UInt64 id)
         {
             _engineCore = engine.EngineCore;
             _imguiContext = new(_engineCore);

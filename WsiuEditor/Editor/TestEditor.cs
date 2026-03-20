@@ -7,7 +7,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    internal class TestEditor : EditorBase
+    internal class TestEditor : ImguiEditorBase
     {
         public TestEditor(Engine engine, UInt64 id) : base(engine, id)
         {

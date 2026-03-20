@@ -5,7 +5,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    internal class TimeEditor : EditorBase
+    internal class TimeEditor : ImguiEditorBase
     {
         public TimeEditor(Engine engine, UInt64 id) : base(engine, id) 
         {       
