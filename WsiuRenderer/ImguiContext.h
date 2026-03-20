@@ -40,6 +40,9 @@ namespace winrt::WsiuRenderer::implementation
         ImguiContext(EngineCore const& engineCore);
         ~ImguiContext() override;
 
+        static hstring SaveIniSettingsToMemory();
+        static void LoadIniSettingsFromMemory(hstring const& data);
+
         void InitializeCommands(hstring const& title);
         void InitializeWindow(hstring const& title);
         void InitializeWindowClosable(hstring const& title);

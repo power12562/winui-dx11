@@ -34,6 +34,8 @@ namespace WsiuRenderer
     runtimeclass ImguiContext 
     {
         ImguiContext(EngineCore engineCore);
+        static String SaveIniSettingsToMemory();
+        static void LoadIniSettingsFromMemory(String data);
         void InitializeCommands(String title);
         void InitializeWindow(String title);
         void InitializeWindowClosable(String title);

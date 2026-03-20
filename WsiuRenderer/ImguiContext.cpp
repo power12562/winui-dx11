@@ -18,6 +18,18 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorDestroy(_windowID);
     }
 
+    hstring ImguiContext::SaveIniSettingsToMemory()
+    {
+        const char* settings = ImGui::SaveIniSettingsToMemory();
+        return winrt::to_hstring(settings);
+    }
+
+    void ImguiContext::LoadIniSettingsFromMemory(hstring const& data)
+    {
+        std::string settings = winrt::to_string(data);
+        ImGui::LoadIniSettingsFromMemory(settings.c_str(), settings.size());
+    }
+
     void ImguiContext::InitializeCommands(hstring const& title)
     {
         _windowID = _engineCore.EditorCommandsCreate(title);
@@ -64,7 +76,7 @@ namespace winrt::WsiuRenderer::implementation
                 _skipCommandCount = 0;
             }
         }
-        ClearCommandsStack();
+        ClearCommandsStack();   
     }
 
     void ImguiContext::ClearCommandsStack()
