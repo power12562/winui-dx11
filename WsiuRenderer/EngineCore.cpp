@@ -171,17 +171,21 @@ namespace winrt::WsiuRenderer::implementation
 
     void EngineCore::EditorWindowsRender() 
     {
-        _editorCycleQueue.reserve(_editorCommands.size());
+        size_t commandSize = _editorCommands.size();
+        if (_editorCycleQueue.capacity() < commandSize)
+            _editorCycleQueue.reserve(commandSize);
+        _editorCycleQueue.clear();
+
         for (auto& gui : _editorCommands)
         {
             if (gui)
                 _editorCycleQueue.push_back(gui.get());
         }
+
         for (auto& gui : _editorCycleQueue)
         {
             gui->OnDraw();
         }
-        _editorCycleQueue.clear();
     }
 
     void EngineCore::Finalize() 
