@@ -1,6 +1,9 @@
 ﻿using System;
 namespace WsiuEditor.Editor
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class StaticEditorAttribute : Attribute {}
+
     public interface IEditor
     {
         UInt64 ID { get; }

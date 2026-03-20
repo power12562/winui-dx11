@@ -41,6 +41,8 @@ namespace WsiuRenderer
         Boolean GetActive();
         void SetActive(Boolean active);
         void SetTitle(String newTitle);
+        void Separator();
+        void SeparatorText(String text);
         void PushID(UInt32 id);
         void PopID();
         void BeginDisabled();

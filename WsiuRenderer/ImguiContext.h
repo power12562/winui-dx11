@@ -49,6 +49,9 @@ namespace winrt::WsiuRenderer::implementation
         void SetActive(bool active);
         void SetTitle(hstring const& title) const;
 
+        void Separator();
+        void SeparatorText(hstring const& text);
+
         void PushID(uint32_t id);
         void PopID();
 
