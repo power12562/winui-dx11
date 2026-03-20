@@ -1,7 +1,7 @@
 ﻿using System;
 namespace WsiuEditor.Editor
 {
-    internal interface IEditor
+    public interface IEditor
     {
         UInt64 ID { get; }
         string Name { get; set; }

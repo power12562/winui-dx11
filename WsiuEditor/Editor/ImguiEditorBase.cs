@@ -5,7 +5,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    internal abstract class ImguiEditorBase : IEditor
+    public abstract class ImguiEditorBase : IEditor
     {
         public UInt64 ID 
         {
