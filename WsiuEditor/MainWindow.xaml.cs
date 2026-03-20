@@ -3,8 +3,9 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Windows.Graphics;
-using WsiuEditor.Editor;
 using WsiuEditor.System;
 using WsiuEngine.Core;
 
@@ -33,14 +34,43 @@ namespace WsiuEditor
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
             if (Content is FrameworkElement frameworkElement)
             {
-                frameworkElement.Loaded += (obj, eventArgs) => SetWindowToFullWorkArea();
-            }    
+                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened();
+                frameworkElement.Loaded += async (obj, eventArgs) => await EditorManager.LoadImguiLayoutAsync();        
+            }
+            AppWindow.Closing += async (sender, args) => await OnWindowClosingAsync(args);
         }
-
+         
         private void EditorLoop()
         {
             _editorManager.Draw();
             _engine.Update();
+        }
+
+        private void OnWindowOpened()
+        {
+            SetWindowToFullWorkArea();
+        }
+
+        bool _isSaveLayout = false;
+        private async Task OnWindowClosingAsync(AppWindowClosingEventArgs args)
+        {
+            if (_isSaveLayout == false)
+            {
+                args.Cancel = true;
+                try
+                {
+                    await EditorManager.SaveImguiLayoutAsync();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Error] 레이아웃 저장 실패: {ex.Message}");
+                }
+                finally
+                {
+                    _isSaveLayout = true;
+                    Close();
+                }
+            }      
         }
 
         private void SetWindowToFullWorkArea()
