@@ -1,22 +1,29 @@
 Language: Cpp
 BasedOnStyle: LLVM
 
-# 1. 들여쓰기 및 줄 바꿈
+# 1. 들여쓰기 및 줄 바꿈 (기본 레이아웃)
 IndentWidth: 4
 ColumnLimit: 120
 UseTab: Never
 AccessModifierOffset: -4
 EmptyLineBeforeAccessModifier: Always
 
-# 2. 중괄호 스타일 
+# [중요] 디버깅 가독성을 위해 단일 행 구문을 절대 허용하지 않음 (Allman Style과 한 쌍)
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+
+# 2. 중괄호 스타일 (Allman)
 BreakBeforeBraces: Allman
 
-# 3. 네임스페이스 설정 
-NamespaceIndentation: All    
-CompactNamespaces: true     
-FixNamespaceComments: true   
+# 3. 네임스페이스 설정
+NamespaceIndentation: All
+CompactNamespaces: true
+FixNamespaceComments: true
 
-# 4. 헤더 정렬 및 PCH 최상단 고정 
+# 4. 헤더 정렬 및 PCH 최상단 고정
 SortIncludes: true
 IncludeCategories:
   - Regex:           '^"pch\.h"'
@@ -28,7 +35,18 @@ IncludeCategories:
   - Regex:           '.*'
     Priority:        4
 
-# 5. 기타 정렬
-PointerAlignment: Left      
+# 5. 연속 정렬 및 포인터 설정 (시각적 편안함)
+PointerAlignment: Left
+
+# 대입 연산자(=)와 변수 선언문의 세로 줄을 맞춤
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+
+# 6. 디버깅 시 조사식(Watch) 가독성 강화
+# 함수 호출/정의 시 인자가 많으면 한 줄에 하나씩 배치하여 값을 확인하기 쉽게 함
+BinPackArguments: false
+BinPackParameters: false
+
+# 제어문(if, for, while) 괄호 앞 공백 추가하여 시인성 확보
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
