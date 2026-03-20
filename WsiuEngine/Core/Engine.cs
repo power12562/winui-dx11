@@ -13,7 +13,7 @@ namespace WsiuEngine.Core
 {
     public class Engine
     {
-        private static Engine Instance { get; set; } = null!;
+        private static Engine instance { get; set; } = null!;
         public static InputSystem InputSystem { get; private set; } = null!;
         public static Time Time { get; private set; } = null!;
 
@@ -25,9 +25,9 @@ namespace WsiuEngine.Core
 
         public Engine(nint hwnd, SwapChainPanel enginePanel)
         {     
-            if (Instance != null) throw new InvalidOperationException("Engine is already initialized!");
+            if (instance != null) throw new InvalidOperationException("Engine is already initialized!");
 
-            Instance = this;
+            instance = this;
 
             _engine = new EngineCore();
             _engine.Initialize((ulong)hwnd, enginePanel);

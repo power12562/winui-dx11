@@ -5,37 +5,38 @@ namespace ImGuiHelper
 {
     ImGuiKey VirtualKeyToImGuiKey(WPARAM wParam);
 
-    template <typename T>
+    template <typename _format_type>
     constexpr const char* GetImguiOutputFormat()
     {
+        using format_type = _format_type;
         // 부동 소수점
-        if constexpr (std::is_same_v<T, float>)
+        if constexpr (std::is_same_v<format_type, float>)
             return "%.3f";
-        else if constexpr (std::is_same_v<T, double>)
+        else if constexpr (std::is_same_v<format_type, double>)
             return "%.3lf";
 
         // 8비트 정수 (char / byte)
-        else if constexpr (std::is_same_v<T, char>)
+        else if constexpr (std::is_same_v<format_type, char>)
             return "%d";
-        else if constexpr (std::is_same_v<T, unsigned char>)
+        else if constexpr (std::is_same_v<format_type, unsigned char>)
             return "%u";
 
         // 16비트 정수 (short)
-        else if constexpr (std::is_same_v<T, short>)
+        else if constexpr (std::is_same_v<format_type, short>)
             return "%hd";
-        else if constexpr (std::is_same_v<T, unsigned short>)
+        else if constexpr (std::is_same_v<format_type, unsigned short>)
             return "%hu";
 
         // 32비트 정수 (int)
-        else if constexpr (std::is_same_v<T, int>)
+        else if constexpr (std::is_same_v<format_type, int>)
             return "%d";
-        else if constexpr (std::is_same_v<T, unsigned int>)
+        else if constexpr (std::is_same_v<format_type, unsigned int>)
             return "%u";
 
         // 64비트 정수 (long long)
-        else if constexpr (std::is_same_v<T, long long>)
+        else if constexpr (std::is_same_v<format_type, long long>)
             return "%lld";
-        else if constexpr (std::is_same_v<T, unsigned long long>)
+        else if constexpr (std::is_same_v<format_type, unsigned long long>)
             return "%llu";
 
         else

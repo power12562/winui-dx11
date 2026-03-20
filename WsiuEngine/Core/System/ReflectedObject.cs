@@ -42,7 +42,7 @@ namespace WsiuEngine.Core.System
             private readonly List<Method> methods = CreateSerializeMethods(type);
         }
 
-        private static readonly Dictionary<Type, Member> _reflectDataBase = [];
+        private static readonly Dictionary<Type, Member> reflectDataBase = [];
         public static IReadOnlyList<Field> GetFields(object obj)
         {
             if (obj == null) return [];
@@ -62,10 +62,10 @@ namespace WsiuEngine.Core.System
 
         private static Member TryInsert(Type type)
         {
-            if (_reflectDataBase.TryGetValue(type, out Member? data) == false)
+            if (reflectDataBase.TryGetValue(type, out Member? data) == false)
             {
                 data = new Member(type);
-                _reflectDataBase[type] = data;
+                reflectDataBase[type] = data;
             }
             return data;
         }
