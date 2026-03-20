@@ -32,7 +32,8 @@ namespace WsiuEditor.Editor
             get => _imguiContext.GetActive();
             set => _imguiContext.SetActive(value);
         }
-        protected string GetImguiTitle() { return $"{_name}##{ID}"; }
+        private readonly string _typeName;
+        protected string GetImguiTitle() { return $"{_name}###{_typeName}{ID}"; }
 
         public abstract void Draw();
 
@@ -47,6 +48,7 @@ namespace WsiuEditor.Editor
         {
             _engineCore = engine.EngineCore;
             _imguiContext = new(_engineCore);
+            _typeName = GetType().Name;
             _id = id;
         }
     }
