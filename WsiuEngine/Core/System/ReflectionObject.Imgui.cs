@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,33 +11,60 @@ namespace WsiuEngine.Core.System
 {
     public static partial class ReflectionObject
     {
-        private delegate void DrawHandler(ImguiContext ctx, string name, object value, Action<object> callback);
+        private delegate void DrawHandler(ImguiContext ctx, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback);
         private static readonly Dictionary<Type, DrawHandler> drawFieldHandler = new(ReferenceEqualityComparer.Instance)
         {
-            [typeof(string)] = (ctx, name, val, cb) => ctx.InputText(name, (string)val, v => cb(v)),
-            [typeof(float)] = (ctx, name, val, cb) => ctx.DragFloat(name, (float)val, v => cb(v)),
-            [typeof(double)] = (ctx, name, val, cb) => ctx.DragDouble(name, (double)val, v => cb(v)),
-            [typeof(Int16)] = (ctx, name, val, cb) => ctx.DragInt16(name, (Int16)val, v => cb(v)),
-            [typeof(Int32)] = (ctx, name, val, cb) => ctx.DragInt32(name, (Int32)val, v => cb(v)),
-            [typeof(Int64)] = (ctx, name, val, cb) => ctx.DragInt64(name, (Int64)val, v => cb(v)),
-            [typeof(UInt16)] = (ctx, name, val, cb) => ctx.DragUInt16(name, (UInt16)val, v => cb(v)),
-            [typeof(UInt32)] = (ctx, name, val, cb) => ctx.DragUInt32(name, (UInt32)val, v => cb(v)),
-            [typeof(UInt64)] = (ctx, name, val, cb) => ctx.DragUInt64(name, (UInt64)val, v => cb(v)),
-            [typeof(Vector2)] = (ctx, name, val, cb) => ctx.DragVector2(name, (Vector2)val, v => cb(v)),
-            [typeof(Vector3)] = (ctx, name, val, cb) => ctx.DragVector3(name, (Vector3)val, v => cb(v)),
-            [typeof(Vector4)] = (ctx, name, val, cb) => ctx.DragVector4(name, (Vector4)val, v => cb(v)),
+            [typeof(string)] = (ctx, n, v, atts, cb) =>
+            {
+                string value = (string)v;
+                if (atts == null || atts.Count == 0)
+                {
+                    ctx.InputText(n, value, v => cb(v));
+                }
+                else
+                {
+                    if (Member.HasAttribute<FieldReadOnlyAttribute>(atts))
+                    {
+                        ctx.TextUnformatted(value);
+                    }
+                    else if (Member.GetAttribute<StringMultilineAttribute>(atts) is { } attr)
+                    {
+                        ctx.InputTextMultiline(n, value, attr.Width, attr.Height, v => cb(v));
+                    }
+                    else
+                    {
+                        ctx.InputText(n, value, v => cb(v));
+                    }
+                }
+            },
+            [typeof(float)] = (ctx, n, v, atts, cb) => ctx.DragFloat(n, (float)v, v => cb(v)),
+            [typeof(double)] = (ctx, n, v, atts, cb) => ctx.DragDouble(n, (double)v, v => cb(v)),
+            [typeof(Int16)] = (ctx, n, v, atts, cb) => ctx.DragInt16(n, (Int16)v, v => cb(v)),
+            [typeof(Int32)] = (ctx, n, v, atts, cb) => ctx.DragInt32(n, (Int32)v, v => cb(v)),
+            [typeof(Int64)] = (ctx, n, v, atts, cb) => ctx.DragInt64(n, (Int64)v, v => cb(v)),
+            [typeof(UInt16)] = (ctx, n, v, atts, cb) => ctx.DragUInt16(n, (UInt16)v, v => cb(v)),
+            [typeof(UInt32)] = (ctx, n, v, atts, cb) => ctx.DragUInt32(n, (UInt32)v, v => cb(v)),
+            [typeof(UInt64)] = (ctx, n, v, atts, cb) => ctx.DragUInt64(n, (UInt64)v, v => cb(v)),
+            [typeof(Vector2)] = (ctx, n, v, atts, cb) => ctx.DragVector2(n, (Vector2)v, v => cb(v)),
+            [typeof(Vector3)] = (ctx, n, v, atts, cb) => ctx.DragVector3(n, (Vector3)v, v => cb(v)),
+            [typeof(Vector4)] = (ctx, n, v, atts, cb) => ctx.DragVector4(n, (Vector4)v, v => cb(v)),
         };
 
-        public static void DrawField(ImguiContext context, Type type, string name, object value, Action<object> callback)
+        public static void DrawField(ImguiContext context, Type type, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
         {
             if (drawFieldHandler.TryGetValue(type, out var handle))
             {
-                handle(context, name, value, callback);
+                handle(context, name, value, attributes, callback);
             }
             else
             {
                 context.Text($"{name}: {value} ({type.Name})");
             }
+        }
+
+        public static void DrawField(ImguiContext context, Type type, string name, object value, Action<object> callback)
+        {
+            DrawField(context, type, name, value, null, callback);
         }
 
         private static readonly HashSet<object> alreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
@@ -80,10 +108,10 @@ namespace WsiuEngine.Core.System
                     context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 }
 
-                DrawField(context, type, name, value, (v) =>
+                DrawField(context, type, name, value, field.CustomAttributes,(v) =>
                 {
                     field.Set?.Invoke(target, v);
-                });          
+                });
 
                 if (isReadOnly)
                 {
@@ -122,11 +150,12 @@ namespace WsiuEngine.Core.System
                             parameterName = info.Name;
                         }
                         int index = i;
+
                         DrawField(context, parameterType, parameterName, buffer[index], (v) =>
                         {
                             buffer[index] = v;
                         });
-                    }               
+                    }
                     context.Button("call", () =>
                     {
                         method.Invoker(target, buffer);
@@ -155,7 +184,7 @@ namespace WsiuEngine.Core.System
                 for (int i = 0; i < parametersCount; i++)
                 {
                     ParameterInfo info = method.Parameters[i];
-                    Type pType = info.ParameterType;             
+                    Type pType = info.ParameterType;
                     if (info.HasDefaultValue)
                     {
                         if (info.DefaultValue != null)

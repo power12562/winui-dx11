@@ -33,29 +33,6 @@ namespace WsiuEngine.Core.System
             public Action<object, object?>? Set { get; init; }
 
             public IReadOnlyDictionary<Type, Attribute> CustomAttributes { get; init; } = null!;
-            public bool HasAttribute<TAttribute>() where TAttribute : Attribute
-            {
-                return CustomAttributes.ContainsKey(typeof(TAttribute));
-            }
-
-            public TAttribute? GetAttribute<TAttribute>() where TAttribute : Attribute 
-            {
-                CustomAttributes.TryGetValue(typeof(TAttribute), out var attribute);
-                return (TAttribute?)attribute;             
-            }
-
-            public static Dictionary<Type, Attribute> CreateCustomAttributes(MemberInfo info)
-            {
-                var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
-                Dictionary<Type, Attribute> dictionary = [];
-                foreach(var attribute in attributes)
-                {
-                    Type type = attribute.GetType();
-                    dictionary[type] = attribute;
-                }
-                return dictionary;
-            }
-
         }
         public class Method
         {
@@ -72,6 +49,29 @@ namespace WsiuEngine.Core.System
 
             public IReadOnlyList<Method> Methods => methods;
             private readonly List<Method> methods = CreateSerializeMethods(type);
+
+            public static bool HasAttribute<TAttribute>(IReadOnlyDictionary<Type, Attribute> attributes) where TAttribute : Attribute
+            {
+                return attributes.ContainsKey(typeof(TAttribute));
+            }
+
+            public static TAttribute? GetAttribute<TAttribute>(IReadOnlyDictionary<Type, Attribute> attributes) where TAttribute : Attribute
+            {
+                attributes.TryGetValue(typeof(TAttribute), out var attribute);
+                return (TAttribute?)attribute;
+            }
+
+            public static Dictionary<Type, Attribute> CreateCustomAttributes(MemberInfo info)
+            {
+                var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
+                Dictionary<Type, Attribute> dictionary = [];
+                foreach (var attribute in attributes)
+                {
+                    Type type = attribute.GetType();
+                    dictionary[type] = attribute;
+                }
+                return dictionary;
+            }
         }
 
         public static bool IsSystemNamespace(Type type)
@@ -114,16 +114,17 @@ namespace WsiuEngine.Core.System
 
             foreach (FieldInfo field in type.GetFields(flags))
             {
-                Dictionary<Type, Attribute> attributes = Field.CreateCustomAttributes(field);
+                Dictionary<Type, Attribute> attributes = Member.CreateCustomAttributes(field);
                 Type fieldType = field.FieldType;
                 if (field.IsPublic || attributes.ContainsKey(typeof(SerializeFieldAttribute)))
                 {
+                    bool isReadOnly = Member.HasAttribute<FieldReadOnlyAttribute>(attributes);
                     list.Add(new Field
                     {
                         Name = field.Name,
                         Type = fieldType,
                         Get = (obj) => field.GetValue(obj),
-                        Set = (obj, value) => field.SetValue(obj, value),
+                        Set = isReadOnly ? null : (obj, value) => field.SetValue(obj, value),
                         CustomAttributes = attributes
                     });
                 }
@@ -133,21 +134,22 @@ namespace WsiuEngine.Core.System
             {
                 if (property.GetIndexParameters().Length > 0) continue;
 
-                Dictionary<Type, Attribute> attributes = Field.CreateCustomAttributes(property);
+                Dictionary<Type, Attribute> attributes = Member.CreateCustomAttributes(property);
                 Type propertyType = property.PropertyType;
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
                 bool isAttribute = attributes.ContainsKey(typeof(SerializeFieldAttribute));
+                bool isNotReadOnly = Member.HasAttribute<FieldReadOnlyAttribute>(attributes) == false;
                 if (isPublicRead || isAttribute)
                 {
                     Action<object, object?>? setter;
                     if(isAttribute)
                     {
-                        setter = property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                        setter = isNotReadOnly && property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null;
                     }
                     else
                     {
-                        setter = isPublicWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                        setter = isNotReadOnly && isPublicWrite ? (obj, value) => property.SetValue(obj, value) : null;
                     }
 
                     list.Add(new Field
