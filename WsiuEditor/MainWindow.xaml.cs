@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Graphics;
 using WsiuEditor.System;
@@ -34,10 +35,9 @@ namespace WsiuEditor
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
             if (Content is FrameworkElement frameworkElement)
             {
-                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened();
-                frameworkElement.Loaded += async (obj, eventArgs) => await EditorManager.LoadImguiLayoutAsync();        
+                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened(obj, eventArgs);      
             }
-            AppWindow.Closing += async (sender, args) => await OnWindowClosingAsync(args);
+            AppWindow.Closing += async (sender, args) => OnWindowClosing(sender, args);
         }
          
         private void EditorLoop()
@@ -46,31 +46,17 @@ namespace WsiuEditor
             _engine.Update();
         }
 
-        private void OnWindowOpened()
+        private void OnWindowOpened(object obj, RoutedEventArgs  args)
         {
             SetWindowToFullWorkArea();
+            EditorManager.LoadImguiLayout();
         }
 
-        bool _isSaveLayout = false;
-        private async Task OnWindowClosingAsync(AppWindowClosingEventArgs args)
+        private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
         {
-            if (_isSaveLayout == false)
-            {
-                args.Cancel = true;
-                try
-                {
-                    await EditorManager.SaveImguiLayoutAsync();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[Error] 레이아웃 저장 실패: {ex.Message}");
-                }
-                finally
-                {
-                    _isSaveLayout = true;
-                    Close();
-                }
-            }      
+            args.Cancel = true;
+            EditorManager.SaveImguiLayout();
+            Close();
         }
 
         private void SetWindowToFullWorkArea()
