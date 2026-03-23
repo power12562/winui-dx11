@@ -5,6 +5,8 @@ using System.Reflection;
 
 namespace WsiuEngine.Core.System
 {
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
+    public class HideInInspectorAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SerializeFieldAttribute : Attribute { }

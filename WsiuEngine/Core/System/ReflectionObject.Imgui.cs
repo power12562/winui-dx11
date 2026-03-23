@@ -97,6 +97,12 @@ namespace WsiuEngine.Core.System
                     continue;
                 }
 
+                var attributes = field.CustomAttributes;
+                if (Member.HasAttribute<HideInInspectorAttribute>(attributes))
+                {
+                    continue;
+                }
+
                 string name = field.Name;
                 bool isReadOnly = field.Set == null;
                 if (isReadOnly)
@@ -104,7 +110,7 @@ namespace WsiuEngine.Core.System
                     context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 }
 
-                DrawField(context, type, name, value, field.CustomAttributes,(v) =>
+                DrawField(context, type, name, value, attributes, (v) =>
                 {
                     field.Set?.Invoke(target, v);
                 });
