@@ -91,8 +91,12 @@ namespace winrt::WsiuRenderer::implementation
         void PopStyleColor();
 
         void Text(hstring const& text);
+       
         void Button(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle);
         void Button(hstring const& label, float x, float y, winrt::WsiuRenderer::ButtonCallback const& handle);
+
+        void IsItemDeactivatedAfterEdit(winrt::WsiuRenderer::DeactivatedCallback handle);
+
         void Selectable(hstring const& label, bool selected, winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,
                         winrt::WsiuRenderer::ButtonCallback const& handle);
         void Selectable(hstring const& label, bool selected, winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,

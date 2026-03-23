@@ -360,6 +360,18 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::IsItemDeactivatedAfterEdit(winrt::WsiuRenderer::DeactivatedCallback handle)
+    {
+        auto command = [handle]
+        {
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                handle();
+            }
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::Selectable(hstring const&                                   label,
                                   bool                                             selected,
                                   winrt::WsiuRenderer::ImGuiSelectableFlags const& flags,

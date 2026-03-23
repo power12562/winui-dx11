@@ -4,6 +4,7 @@ import "ImguiEnums.idl";
 namespace WsiuRenderer
 {
     delegate void ButtonCallback();
+    delegate void DeactivatedCallback();
     
     delegate void StringChangedCallback(String str);
 
@@ -73,6 +74,7 @@ namespace WsiuRenderer
         void Selectable(String label, Boolean selected, ImGuiSelectableFlags flags, Single x, Single y, ButtonCallback handle);
         void Button(String label, ButtonCallback handle);
         void Button(String label, Single x, Single y, ButtonCallback handle);
+        void IsItemDeactivatedAfterEdit(DeactivatedCallback handle);
         static void SettingFloat(Single speed, Single min, Single max, String format, ImGuiSliderFlags flags);
         void DragFloat(String label, Single val, FloatChangedCallback handle);
         void DragFloatN(String label, Single[] val, FloatNChangedCallback handle);
