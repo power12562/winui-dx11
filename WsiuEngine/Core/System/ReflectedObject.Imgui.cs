@@ -13,6 +13,7 @@ namespace WsiuEngine.Core.System
         private delegate void DrawHandler(ImguiContext ctx, string name, object value, Action<object> callback);
         private static readonly Dictionary<Type, DrawHandler> drawFieldHandler = new(ReferenceEqualityComparer.Instance)
         {
+            [typeof(string)] = (ctx, name, val, cb) => ctx.Text($"{val}"),
             [typeof(float)] = (ctx, name, val, cb) => ctx.DragFloat(name, (float)val, v => cb(v)),
             [typeof(double)] = (ctx, name, val, cb) => ctx.DragDouble(name, (double)val, v => cb(v)),
             [typeof(Int16)] = (ctx, name, val, cb) => ctx.DragInt16(name, (Int16)val, v => cb(v)),
@@ -64,7 +65,7 @@ namespace WsiuEngine.Core.System
                     continue;
 
                 Type type = field.Type;
-                if (type.IsClass && type.Namespace != null && type.Namespace.StartsWith("System") == false)
+                if (IsSystemNamespaceClass(type) == false)
                 {
                     context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
                     DrawFields(context, value, false);
