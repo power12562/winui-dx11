@@ -17,7 +17,7 @@ namespace WsiuEditor.Editor
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            ReflectedObject.DrawFields(_imguiContext, Engine.Time);
+            ReflectionObject.DrawFields(_imguiContext, Engine.Time);
         }
 
     }

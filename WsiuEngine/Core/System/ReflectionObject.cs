@@ -14,7 +14,7 @@ namespace WsiuEngine.Core.System
     [AttributeUsage(AttributeTargets.Method)]
     public class SerializeMethodAttribute : Attribute { }
 
-    public static partial class ReflectedObject
+    public static partial class ReflectionObject
     {
         public delegate object? MethodInvoker(object target, object[]? args);
 

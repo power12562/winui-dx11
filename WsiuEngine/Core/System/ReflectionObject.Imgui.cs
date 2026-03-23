@@ -8,7 +8,7 @@ using WsiuEngine.Extensions;
 using WsiuRenderer;
 namespace WsiuEngine.Core.System
 {
-    public static partial class ReflectedObject
+    public static partial class ReflectionObject
     {
         private delegate void DrawHandler(ImguiContext ctx, string name, object value, Action<object> callback);
         private static readonly Dictionary<Type, DrawHandler> drawFieldHandler = new(ReferenceEqualityComparer.Instance)

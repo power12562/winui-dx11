@@ -20,15 +20,15 @@ namespace WsiuEditor.Editor
         {
             _imguiContext.TreeNodeEx("TestVectorDraw Methods", ImGuiTreeNodeFlags.None);
             _imguiContext.PushStyleColor(ImGuiCol.Text, 0.4f, 0.7f, 1.0f, 1.0f);
-            ReflectedObject.DrawMethods(_imguiContext, _imguiContextClass.TestVector);
+            ReflectionObject.DrawMethods(_imguiContext, _imguiContextClass.TestVector);
             _imguiContext.PopStyleColor();
             _imguiContext.TreePop();
 
             _imguiContext.TreeNodeEx("TestClassDraw Fields##1", ImGuiTreeNodeFlags.None);
-            ReflectedObject.DrawFields(_imguiContext, _imguiContextClass);
+            ReflectionObject.DrawFields(_imguiContext, _imguiContextClass);
             _imguiContext.TreePop();
             _imguiContext.TreeNodeEx("TestClassDraw Fields##2", ImGuiTreeNodeFlags.None);
-            ReflectedObject.DrawFields(_imguiContext, _imguiContextClass);
+            ReflectionObject.DrawFields(_imguiContext, _imguiContextClass);
             _imguiContext.TreePop();
         }
 

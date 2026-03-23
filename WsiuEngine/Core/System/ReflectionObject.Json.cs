@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace WsiuEngine.Core.System
 {
-    public static partial class ReflectedObject
+    public static partial class ReflectionObject
     {
         public static partial class SerializedOption
         {
