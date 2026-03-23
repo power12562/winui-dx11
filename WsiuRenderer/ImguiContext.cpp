@@ -343,6 +343,15 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::TextUnformatted(hstring const& text)
+    {
+        auto command = [text = winrt::to_string(text)]
+        {
+            ImGui::TextUnformatted(text.c_str());
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::Button(hstring const& label, winrt::WsiuRenderer::ButtonCallback const& handle)
     {
         Button(label, 0, 0, handle);

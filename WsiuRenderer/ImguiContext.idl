@@ -70,6 +70,7 @@ namespace WsiuRenderer
         void PopStyleColor(Int32 count);
         void PopStyleColor();
         void Text(String text);
+        void TextUnformatted(String text);
         void Selectable(String label, Boolean selected, ImGuiSelectableFlags flags, ButtonCallback handle);
         void Selectable(String label, Boolean selected, ImGuiSelectableFlags flags, Single x, Single y, ButtonCallback handle);
         void Button(String label, ButtonCallback handle);
