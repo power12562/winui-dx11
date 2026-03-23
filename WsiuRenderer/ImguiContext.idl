@@ -4,6 +4,8 @@ import "ImguiEnums.idl";
 namespace WsiuRenderer
 {
     delegate void ButtonCallback();
+    
+    delegate void StringChangedCallback(String str);
 
     delegate void FloatChangedCallback(Single x);
     delegate void FloatNChangedCallback(Single[] val);
@@ -95,5 +97,7 @@ namespace WsiuRenderer
         static void SettingInt64(Single speed, Int64 min, Int64 max, String format, ImGuiSliderFlags flags);
         void DragInt64(String label, Int64 val, Int64ChangedCallback handle);
         void DragInt64N(String label, Int64[] val, Int64NChangedCallback handle);
+        static void SettingInput(ImGuiInputTextFlags textFlags);
+        void InputText(String label, String val, StringChangedCallback handle);
     } 
 }

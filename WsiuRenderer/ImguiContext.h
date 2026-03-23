@@ -12,7 +12,6 @@ namespace winrt::WsiuRenderer::implementation
         struct ScalaSetting
         {
             ScalaSetting(const char* format) : Format(format) {}
-
             using scala_type = _scala_type;
             float Speed = 1.0f;
             scala_type Min{};
@@ -36,6 +35,13 @@ namespace winrt::WsiuRenderer::implementation
         inline static Int16Setting _int16Setting{ImGuiHelper::format_int16};
         inline static Int32Setting _int32Setting{ImGuiHelper::format_int32};
         inline static Int64Setting _int64Setting{ImGuiHelper::format_int64};
+
+        struct InputSetting
+        {
+            ImGuiInputTextFlags_ TextFlags = ImGuiInputTextFlags_None;
+        };
+
+        inline static InputSetting _inputSetting;
     public:
         ImguiContext(EngineCore const& engineCore);
         ~ImguiContext() override;
@@ -139,6 +145,11 @@ namespace winrt::WsiuRenderer::implementation
         void DragInt64(hstring const& label, int64_t val, winrt::WsiuRenderer::Int64ChangedCallback const& handle);
         void DragInt64N(hstring const& label, array_view<int64_t const> val,
                         winrt::WsiuRenderer::Int64NChangedCallback const& handle);
+
+        static void SettingInput(winrt::WsiuRenderer::ImGuiInputTextFlags textFlags);
+        void InputText(hstring const& label,
+                       hstring const& val,
+                       winrt::WsiuRenderer::StringChangedCallback const& handle);
     private:
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;

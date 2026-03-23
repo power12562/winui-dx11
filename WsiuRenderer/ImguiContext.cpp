@@ -811,4 +811,25 @@ namespace winrt::WsiuRenderer::implementation
         };
         PushCommand(command);
     }
+
+    void ImguiContext::SettingInput(winrt::WsiuRenderer::ImGuiInputTextFlags textFlags)
+    {
+        _inputSetting.TextFlags = static_cast<ImGuiInputTextFlags_>(textFlags);
+    }
+
+    void ImguiContext::InputText(hstring const&                                    label,
+                                 hstring const&                                    val,
+                                 winrt::WsiuRenderer::StringChangedCallback const& handle)
+    {
+        auto command = [this, label = winrt::to_string(label), val = winrt::to_string(val), handle]() mutable
+        {
+            auto& settings = _inputSetting;
+            ImGui::InputText(label.c_str(), &val, settings.TextFlags);                        
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                handle(winrt::to_hstring(val));
+            }
+        };
+        PushCommand(command);
+    }
 } // namespace winrt::WsiuRenderer::implementation

@@ -33,11 +33,29 @@ namespace WsiuEditor.Editor
         }
 
         private readonly TestClassDraw _imguiContextClass = new();
+        class TestClassDraw
+        {
+            public TestClassDraw()
+            {
+                TestVector = new(this);
+            }
+
+            public readonly TestVectorDraw TestVector;
+            public float TestFloat = 1.1f;
+            public Int16 TestInt16 = -16;
+            public Int32 TestInt32 = -32;
+            public Int64 TestInt64 = -64;
+            public UInt16 TestUInt16 = 16;
+            public UInt32 TestUInt32 = 32;
+            public UInt64 TestUInt64 = 64;
+            public string TestSerialize = "";
+        }
+
         class TestVectorDraw(TestClassDraw refer)
         {
             [SerializeField]
             private readonly TestClassDraw testField = refer;
-
+           
             public Vector2 Vector2 = new();
             public Vector3 Vector3 = new();
             public Vector4 Vector4 = new();
@@ -62,23 +80,6 @@ namespace WsiuEditor.Editor
                 Vector2 -= target;
                 return Vector2;
             }
-        }
-
-        class TestClassDraw
-        {
-            public TestClassDraw()
-            {
-                TestVector = new(this);
-            }
-
-            public readonly TestVectorDraw TestVector;
-            public float TestFloat = 1.1f;
-            public Int16 TestInt16 = -16;
-            public Int32 TestInt32 = -32;
-            public Int64 TestInt64 = -64;
-            public UInt16 TestUInt16 = 16;
-            public UInt32 TestUInt32 = 32;
-            public UInt64 TestUInt64 = 64;
         }
     }
 }
