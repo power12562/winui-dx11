@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Devices.PointOfService;
 
 namespace WsiuEngine.Core.System
 {
@@ -13,6 +10,16 @@ namespace WsiuEngine.Core.System
 
     [AttributeUsage(AttributeTargets.Method)]
     public class SerializeMethodAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class FieldReadOnlyAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class StringMultilineAttribute : Attribute 
+    {
+        public float Width = 0f;
+        public float Height = 0f;
+    }
 
     public static partial class ReflectionObject
     {
@@ -24,6 +31,31 @@ namespace WsiuEngine.Core.System
             public Type Type { get; init; } = null!;
             public Func<object, object?> Get { get; init; } = null!;
             public Action<object, object?>? Set { get; init; }
+
+            public IReadOnlyDictionary<Type, Attribute> CustomAttributes { get; init; } = null!;
+            public bool HasAttribute<TAttribute>() where TAttribute : Attribute
+            {
+                return CustomAttributes.ContainsKey(typeof(TAttribute));
+            }
+
+            public TAttribute? GetAttribute<TAttribute>() where TAttribute : Attribute 
+            {
+                CustomAttributes.TryGetValue(typeof(TAttribute), out var attribute);
+                return (TAttribute?)attribute;             
+            }
+
+            public static Dictionary<Type, Attribute> CreateCustomAttributes(MemberInfo info)
+            {
+                var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
+                Dictionary<Type, Attribute> dictionary = [];
+                foreach(var attribute in attributes)
+                {
+                    Type type = attribute.GetType();
+                    dictionary[type] = attribute;
+                }
+                return dictionary;
+            }
+
         }
         public class Method
         {
@@ -80,27 +112,32 @@ namespace WsiuEngine.Core.System
             var list = new List<Field>();
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-            foreach (var field in type.GetFields(flags))
+            foreach (FieldInfo field in type.GetFields(flags))
             {
-                if (field.IsPublic || field.GetCustomAttribute<SerializeFieldAttribute>() != null)
+                Dictionary<Type, Attribute> attributes = Field.CreateCustomAttributes(field);
+                Type fieldType = field.FieldType;
+                if (field.IsPublic || attributes.ContainsKey(typeof(SerializeFieldAttribute)))
                 {
                     list.Add(new Field
                     {
                         Name = field.Name,
-                        Type = field.FieldType,
+                        Type = fieldType,
                         Get = (obj) => field.GetValue(obj),
                         Set = (obj, value) => field.SetValue(obj, value),
+                        CustomAttributes = attributes
                     });
                 }
             }
 
-            foreach (var property in type.GetProperties(flags))
+            foreach (PropertyInfo property in type.GetProperties(flags))
             {
                 if (property.GetIndexParameters().Length > 0) continue;
 
+                Dictionary<Type, Attribute> attributes = Field.CreateCustomAttributes(property);
+                Type propertyType = property.PropertyType;
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
-                bool isAttribute = property.GetCustomAttribute<SerializeFieldAttribute>() != null;
+                bool isAttribute = attributes.ContainsKey(typeof(SerializeFieldAttribute));
                 if (isPublicRead || isAttribute)
                 {
                     Action<object, object?>? setter;
@@ -119,6 +156,7 @@ namespace WsiuEngine.Core.System
                         Type = property.PropertyType,
                         Get = (obj) => property.GetValue(obj),
                         Set = setter,
+                        CustomAttributes = attributes
                     });
                 }
             }
