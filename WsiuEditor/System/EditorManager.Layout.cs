@@ -16,10 +16,48 @@ namespace WsiuEditor.System
             return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.imguiLayoutFilename);
         }
 
+        public static void SaveImguiLayout()
+        {
+            SaveImguiLayout(GetDefaultLayoutPath());
+        }
+        public static void SaveImguiLayout(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentNullException(nameof(filePath));
+
+            string? directory = Path.GetDirectoryName(filePath);
+            if (string.IsNullOrEmpty(directory) == false)
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            string settings = ImguiContext.SaveIniSettingsToMemory();
+            File.WriteAllText(filePath, settings);
+        }
+        public static void LoadImguiLayout()
+        {
+            LoadImguiLayout(GetDefaultLayoutPath()); 
+        }
+
+        public static void LoadImguiLayout(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentNullException(nameof(filePath));
+
+            if (Path.Exists(filePath) == false)
+            {
+                return;
+            }
+
+            string settings = File.ReadAllText(filePath);
+            ImguiContext.LoadIniSettingsFromMemory(settings);
+        }
+
         public static async Task SaveImguiLayoutAsync()
         {      
             await SaveImguiLayoutAsync(GetDefaultLayoutPath());
         }
+
         public static async Task SaveImguiLayoutAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) 
