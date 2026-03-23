@@ -102,5 +102,6 @@ namespace WsiuRenderer
         void DragInt64N(String label, Int64[] val, Int64NChangedCallback handle);
         static void SettingInput(ImGuiInputTextFlags textFlags);
         void InputText(String label, String val, StringChangedCallback handle);
+        void InputTextMultiline(String label, String val, StringChangedCallback handle);
     } 
 }

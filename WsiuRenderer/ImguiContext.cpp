@@ -853,4 +853,27 @@ namespace winrt::WsiuRenderer::implementation
         };
         PushCommand(command);
     }
+
+    void ImguiContext::InputTextMultiline(hstring const&                                    label,
+                                          hstring const&                                    val,
+                                          float                                             width,
+                                          float                                             height,
+                                          winrt::WsiuRenderer::StringChangedCallback const& handle)
+    {
+        auto command = [this,
+                        label = winrt::to_string(label),
+                        val   = winrt::to_string(val),
+                        handle,
+                        Size = ImVec2{width, height}]() mutable
+        {
+            auto& settings = _inputSetting;
+            ImGui::InputTextMultiline(label.c_str(), &val, Size, settings.TextFlags);
+            if (ImGui::IsItemDeactivatedAfterEdit())
+            {
+                handle(winrt::to_hstring(val));
+            }
+        };
+        PushCommand(command);
+    }
+
 } // namespace winrt::WsiuRenderer::implementation

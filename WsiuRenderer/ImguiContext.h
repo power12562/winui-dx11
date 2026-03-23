@@ -156,6 +156,12 @@ namespace winrt::WsiuRenderer::implementation
         void InputText(hstring const& label,
                        hstring const& val,
                        winrt::WsiuRenderer::StringChangedCallback const& handle);
+        void InputTextMultiline(hstring const&                                    label,
+                                hstring const&                                    val,
+                                float width,
+                                float height,
+                                winrt::WsiuRenderer::StringChangedCallback const& handle);
+
     private:
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;
