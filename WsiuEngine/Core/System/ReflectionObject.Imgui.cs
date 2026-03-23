@@ -182,7 +182,7 @@ namespace WsiuEngine.Core.System
             if (dictionary.TryGetValue(method, out var parametersBuffer) == false)
             {
                 int parametersCount = method.Parameters.Count;
-                parametersBuffer = [parametersCount];
+                parametersBuffer = new object[parametersCount];
                 for (int i = 0; i < parametersCount; i++)
                 {
                     ParameterInfo info = method.Parameters[i];
