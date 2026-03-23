@@ -54,10 +54,17 @@ namespace WsiuEditor.Editor
             {
                 _testSerialize = ReflectionObject.SerializeToJson(this);
             }
+
             [SerializeMethod]
             public void Deserialize()
             {
                 ReflectionObject.DeserializeFromJson(this, _testSerialize);
+            }
+
+            [SerializeMethod]
+            public int AddFoo(int a, int b, int c)
+            {
+                return a + b + c;
             }
         }
     }
