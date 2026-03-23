@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace WsiuEngine.Core.System
 {
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SerializeFieldAttribute : Attribute { }
 
@@ -12,10 +13,10 @@ namespace WsiuEngine.Core.System
     public class SerializeMethodAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class FieldReadOnlyAttribute : Attribute { }
+    public class ReadOnlyFieldAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class StringMultilineAttribute : Attribute 
+    public class MultilineStringFieldAttribute : Attribute 
     {
         public float Width = 0f;
         public float Height = 0f;
@@ -118,7 +119,7 @@ namespace WsiuEngine.Core.System
                 Type fieldType = field.FieldType;
                 if (field.IsPublic || attributes.ContainsKey(typeof(SerializeFieldAttribute)))
                 {
-                    bool isReadOnly = Member.HasAttribute<FieldReadOnlyAttribute>(attributes);
+                    bool isReadOnly = Member.HasAttribute<ReadOnlyFieldAttribute>(attributes);
                     list.Add(new Field
                     {
                         Name = field.Name,
@@ -139,7 +140,7 @@ namespace WsiuEngine.Core.System
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
                 bool isAttribute = attributes.ContainsKey(typeof(SerializeFieldAttribute));
-                bool isNotReadOnly = Member.HasAttribute<FieldReadOnlyAttribute>(attributes) == false;
+                bool isNotReadOnly = Member.HasAttribute<ReadOnlyFieldAttribute>(attributes) == false;
                 if (isPublicRead || isAttribute)
                 {
                     Action<object, object?>? setter;
