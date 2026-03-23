@@ -22,12 +22,8 @@ namespace WsiuEngine.Core.System
                     ctx.InputText(n, value, v => cb(v));
                 }
                 else
-                {
-                    if (Member.HasAttribute<FieldReadOnlyAttribute>(atts))
-                    {
-                        ctx.TextUnformatted(value);
-                    }
-                    else if (Member.GetAttribute<StringMultilineAttribute>(atts) is { } attr)
+                {                 
+                    if (Member.GetAttribute<MultilineStringFieldAttribute>(atts) is { } attr)
                     {
                         ctx.InputTextMultiline(n, value, attr.Width, attr.Height, v => cb(v));
                     }
