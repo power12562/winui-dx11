@@ -65,7 +65,7 @@ namespace WsiuEngine.Core.System
                     continue;
 
                 Type type = field.Type;
-                if (IsSystemNamespaceClass(type) == false)
+                if (type.IsClass && IsSystemNamespace(type) == false)
                 {
                     context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
                     DrawFields(context, value, false);

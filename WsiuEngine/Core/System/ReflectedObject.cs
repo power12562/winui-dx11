@@ -42,9 +42,9 @@ namespace WsiuEngine.Core.System
             private readonly List<Method> methods = CreateSerializeMethods(type);
         }
 
-        public static bool IsSystemNamespaceClass(Type type)
+        public static bool IsSystemNamespace(Type type)
         {
-            return type.IsClass && type.Namespace != null && type.Namespace.StartsWith("System");
+            return type.Namespace != null && type.Namespace.StartsWith("System");
         }
 
         private static readonly Dictionary<Type, Member> reflectDataBase = [];
