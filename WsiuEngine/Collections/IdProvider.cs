@@ -10,11 +10,16 @@ namespace WsiuEngine.Collections
     {
         [SerializeField]
         [HideInInspector]
-        private UInt64 _idCounter;
+        private UInt64 _idCounter = 0;
 
         [SerializeField]
         [HideInInspector]
         private UInt64 _maxId = UInt64.MaxValue;
+        public UInt64 MaxID 
+        { 
+            get => _maxId;  
+            set => _maxId = value;
+        }
 
         private Queue<UInt64> _reusableIds = new();
         [SerializeField]
@@ -36,8 +41,13 @@ namespace WsiuEngine.Collections
             if(_reusableIds.Count > 0)
                 id = _reusableIds.Dequeue();
             else
-                id = _idCounter++;
+            {
+                if (_idCounter == _maxId)
+                    throw new InvalidOperationException("The IdProvider has reached its maximum ID capacity and cannot generate a new ID.");
 
+                id = _idCounter++;
+            }
+                
             _activeIds.Add(id);
             return id;
         }
