@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using WsiuRenderer;
 using Windows.Storage;
 using WsiuEngine.Core.System;
+using WsiuEngine.Core;
 
 namespace WsiuEditor.System
 {
@@ -17,20 +18,51 @@ namespace WsiuEditor.System
             return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.editorLayoutFilename);
         }
 
-        [SerializeField]
+        struct LayoutSettings
+        {
+            public string ImguiLayoutSettings;
+            public bool IsMaximized;
+            public int ScreenPosX;
+            public int ScreenPosY;
+            public int ScreenWidth;
+            public int ScreenHeight;
+        }
         [HideInInspector]
-        private string _imguiLayoutSettings;
+        [SerializeField]
+        private LayoutSettings _layoutSettings = new()
+        {
+            ImguiLayoutSettings = "",
+            IsMaximized = false,
+            ScreenPosX = 0, 
+            ScreenPosY = 0,
+            ScreenWidth = 1920,
+            ScreenHeight = 1080
+        };
 
         public void OnBeforeSerialize()
         {
-            _imguiLayoutSettings = ImguiContext.SaveIniSettingsToMemory();
+            _layoutSettings.ImguiLayoutSettings = ImguiContext.SaveIniSettingsToMemory();
+            Screen screen = Engine.Screen;
+            _layoutSettings.IsMaximized  = screen.IsMaximized;
+            Screen.Bounds bounds = screen.RestoreBounds;
+            _layoutSettings.ScreenPosX   = bounds.X;
+            _layoutSettings.ScreenPosY   = bounds.Y;
+            _layoutSettings.ScreenWidth  = bounds.Width;
+            _layoutSettings.ScreenHeight = bounds.Height;
         }
+
         public void OnAfterDeserialize()
         {
-            if (string.IsNullOrEmpty(_imguiLayoutSettings) == true)
+            if (string.IsNullOrEmpty(_layoutSettings.ImguiLayoutSettings) == true)
                 return;
 
-            ImguiContext.LoadIniSettingsFromMemory(_imguiLayoutSettings);
+            ImguiContext.LoadIniSettingsFromMemory(_layoutSettings.ImguiLayoutSettings);
+
+            Screen screen = Engine.Screen;
+            screen.Move(_layoutSettings.ScreenPosY, _layoutSettings.ScreenPosY);
+            screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
+            if (_layoutSettings.IsMaximized)
+                screen.Maximize();
         }
 
         public void SaveLayoutToFile()
