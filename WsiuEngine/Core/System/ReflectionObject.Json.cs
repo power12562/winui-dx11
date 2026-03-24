@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
+using System.Diagnostics;
 
 namespace WsiuEngine.Core.System
 {
@@ -23,6 +24,7 @@ namespace WsiuEngine.Core.System
             {
                 IncludeFields = true,
                 WriteIndented = true,
+                AllowTrailingCommas = true,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString
             });
         }
@@ -132,9 +134,10 @@ namespace WsiuEngine.Core.System
             {
                 jsonElements = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, SerializedOption.JsonOption);
             }
-            catch
+            catch (Exception ex)
             {
                 //TODO: 이후 로그 작성 필요
+                Debug.WriteLine(ex);
                 return;
             }
 
@@ -173,7 +176,7 @@ namespace WsiuEngine.Core.System
 
                         if (isIdEntity)
                         {
-                            object? uid = element.Deserialize(typeof(Guid), SerializedOption.JsonOption);
+                            Guid? uid = element.Deserialize<Guid>(SerializedOption.JsonOption);
                             if (uid != null)
                             {
                                 records.Add(new IdEntityRecord
@@ -191,7 +194,9 @@ namespace WsiuEngine.Core.System
                             object? fieldObj = field.Get(obj);
                             if (fieldObj != null)
                             {
-                                PoulateFromJson(fieldObj, element.GetRawText(), ref records, ref callbacks);
+                                string? rawJson = element.GetString();
+                                if(rawJson != null)
+                                    PoulateFromJson(fieldObj, rawJson, ref records, ref callbacks);
                             }                        
                             continue;
                         }
