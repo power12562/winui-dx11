@@ -110,7 +110,9 @@ namespace WsiuEngine.Core.System
                     context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 }
 
-                DrawField(context, type, name, value, attributes, (v) =>
+                context.Text(name);
+                context.SameLine();
+                DrawField(context, type, $"[{type.Name}]##{name}", value, attributes, (v) =>
                 {
                     field.Set?.Invoke(target, v);
                 });
