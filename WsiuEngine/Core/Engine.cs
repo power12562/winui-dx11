@@ -30,10 +30,7 @@ namespace WsiuEngine.Core
             if (instance != null) 
                 throw new InvalidOperationException("Engine is already initialized!");
             instance = this;
-
-            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-
+            
             _engine = new EngineCore();
             _engine.Initialize((ulong)hwnd, enginePanel);
 
@@ -43,7 +40,7 @@ namespace WsiuEngine.Core
             _time = new Time();
             Time = _time;
 
-            _screen = new Screen(appWindow);
+            _screen = new Screen(hwnd);
             Screen = _screen;
         }
 
