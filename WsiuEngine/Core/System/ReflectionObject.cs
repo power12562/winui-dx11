@@ -5,25 +5,47 @@ using System.Reflection;
 
 namespace WsiuEngine.Core.System
 {
+    /// <summary>
+    /// 클래스가 엔진의 직렬화 시스템에 의해 처리될 수 있음을 명시합니다. <br/>
+    /// 해당 어트리뷰트가 있어야 클래스가 직렬화 대상이 됩니다.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class SerializableClassAttribute : Attribute { }
 
+    /// <summary>
+    /// 필드, 프로퍼티 또는 메서드를 에디터의 인스펙터(Inspector) 창에서 숨깁니다.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     public class HideInInspectorAttribute : Attribute { }
 
+    /// <summary>
+    /// 비공개(private/protected) 필드나 프로퍼티를 직렬화 대상에 포함하도록 지정합니다.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SerializeFieldAttribute : Attribute { }
 
+    /// <summary>
+    /// 특정 메서드를 에디터 상에서 호출 가능하도록 마킹합니다.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class SerializeMethodAttribute : Attribute { }
 
+    /// <summary>
+    /// 인스펙터에서 사용자가 값을 수정할 수 없도록 비활성화합니다.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ReadOnlyFieldAttribute : Attribute { }
 
+    /// <summary>
+    /// 문자열 필드를 인스펙터에서 여러 줄 입력이 가능한 텍스트 영역으로 표시합니다. <br/>
+    /// 가로와 세로 크기를 지정할 수 있습니다. 
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class MultilineStringFieldAttribute : Attribute 
+    public class MultilineStringFieldAttribute : Attribute
     {
+        /// <summary>입력 영역의 가로 너비 (기본값: 0f)</summary>
         public float Width = 0f;
+        /// <summary>입력 영역의 세로 높이 (기본값: 0f)</summary>
         public float Height = 0f;
     }
 
