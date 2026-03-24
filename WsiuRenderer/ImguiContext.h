@@ -61,6 +61,8 @@ namespace winrt::WsiuRenderer::implementation
         void Separator();
         void SeparatorText(hstring const& text);
 
+        void SameLine();
+
         void PushID(uint32_t id);
         void PopID();
 

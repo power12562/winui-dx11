@@ -137,6 +137,15 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::SameLine()
+    {
+        auto command = []
+        {
+            ImGui::SameLine();
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::PushID(uint32_t id)
     {
         auto command = [id]

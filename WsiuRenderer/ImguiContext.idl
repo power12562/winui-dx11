@@ -48,6 +48,7 @@ namespace WsiuRenderer
         void SetTitle(String newTitle);
         void Separator();
         void SeparatorText(String text);
+        void SameLine();
         void PushID(UInt32 id);
         void PopID();
         void BeginDisabled();
