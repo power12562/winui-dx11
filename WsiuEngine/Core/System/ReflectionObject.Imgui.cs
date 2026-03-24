@@ -63,23 +63,10 @@ namespace WsiuEngine.Core.System
             DrawField(context, type, name, value, null, callback);
         }
 
-        private static readonly HashSet<object> alreadyDrawnObjects = new(ReferenceEqualityComparer.Instance);
-        public static void DrawFields(ImguiContext context, object target, bool isRoot = true)
+        public static void DrawFields(ImguiContext context, object target)
         {
             if (target.GetType().IsClass == false)
                 return;
-
-            if (isRoot)
-                alreadyDrawnObjects.Clear();
-
-            if (alreadyDrawnObjects.Contains(target))
-            {
-                context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                context.Text($"(Shared Reference: {target.GetType().Name})");
-                context.PopStyleVar();
-                return;
-            }
-            alreadyDrawnObjects.Add(target);
 
             IReadOnlyList<Field> fields = GetFields(target);
             foreach (var field in fields)
@@ -91,9 +78,18 @@ namespace WsiuEngine.Core.System
                 Type type = field.Type;
                 if (type.IsClass && IsSystemNamespace(type) == false)
                 {
-                    context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
-                    DrawFields(context, value, false);
-                    context.TreePop();
+                    if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
+                    {
+                        context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
+                        DrawFields(context, value);
+                        context.TreePop();
+                    }
+                    else if (typeof(IIdentity).IsAssignableFrom(type))
+                    {
+                        context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                        context.Text($"(Reference: {target.GetType().Name})");
+                        context.PopStyleVar();
+                    }             
                     continue;
                 }
 
