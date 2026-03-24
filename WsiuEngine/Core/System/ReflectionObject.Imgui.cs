@@ -97,7 +97,7 @@ namespace WsiuEngine.Core.System
                     continue;
                 }
 
-                var attributes = field.CustomAttributes;
+                var attributes = field.FieldAttributes;
                 if (Member.HasAttribute<HideInInspectorAttribute>(attributes))
                 {
                     continue;

@@ -5,6 +5,9 @@ using System.Reflection;
 
 namespace WsiuEngine.Core.System
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SerializableClassAttribute : Attribute { }
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     public class HideInInspectorAttribute : Attribute { }
 
@@ -35,7 +38,8 @@ namespace WsiuEngine.Core.System
             public Func<object, object?> Get { get; init; } = null!;
             public Action<object, object?>? Set { get; init; }
 
-            public IReadOnlyDictionary<Type, Attribute> CustomAttributes { get; init; } = null!;
+            public IReadOnlyDictionary<Type, Attribute> TypeAttributes { get; init; } = null!;
+            public IReadOnlyDictionary<Type, Attribute> FieldAttributes { get; init; } = null!;
         }
         public class Method
         {
@@ -44,6 +48,7 @@ namespace WsiuEngine.Core.System
             public Type ReturnType = null!;
             public MethodInvoker Invoker { get; init; } = null!;
             public List<ParameterInfo> Parameters = null!;
+            public IReadOnlyDictionary<Type, Attribute> MethodAttributes { get; init; } = null!;
         }
         public class Member(Type type)
         {
@@ -64,7 +69,7 @@ namespace WsiuEngine.Core.System
                 return (TAttribute?)attribute;
             }
 
-            public static Dictionary<Type, Attribute> CreateCustomAttributes(MemberInfo info)
+            public static Dictionary<Type, Attribute> GetAttributes(MemberInfo info)
             {
                 var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
                 Dictionary<Type, Attribute> dictionary = [];
@@ -117,7 +122,7 @@ namespace WsiuEngine.Core.System
 
             foreach (FieldInfo field in type.GetFields(flags))
             {
-                Dictionary<Type, Attribute> attributes = Member.CreateCustomAttributes(field);
+                Dictionary<Type, Attribute> attributes = Member.GetAttributes(field);
                 Type fieldType = field.FieldType;
                 if (field.IsPublic || attributes.ContainsKey(typeof(SerializeFieldAttribute)))
                 {
@@ -128,7 +133,8 @@ namespace WsiuEngine.Core.System
                         Type = fieldType,
                         Get = (obj) => field.GetValue(obj),
                         Set = isReadOnly ? null : (obj, value) => field.SetValue(obj, value),
-                        CustomAttributes = attributes
+                        FieldAttributes = attributes,
+                        TypeAttributes = Member.GetAttributes(fieldType)
                     });
                 }
             }
@@ -137,7 +143,7 @@ namespace WsiuEngine.Core.System
             {
                 if (property.GetIndexParameters().Length > 0) continue;
 
-                Dictionary<Type, Attribute> attributes = Member.CreateCustomAttributes(property);
+                Dictionary<Type, Attribute> attributes = Member.GetAttributes(property);
                 Type propertyType = property.PropertyType;
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
@@ -158,10 +164,11 @@ namespace WsiuEngine.Core.System
                     list.Add(new Field
                     {
                         Name = property.Name,
-                        Type = property.PropertyType,
+                        Type = propertyType,
                         Get = (obj) => property.GetValue(obj),
                         Set = setter,
-                        CustomAttributes = attributes
+                        FieldAttributes = attributes,
+                        TypeAttributes = Member.GetAttributes(propertyType)
                     });
                 }
             }
@@ -173,9 +180,10 @@ namespace WsiuEngine.Core.System
         {
             var list = new List<Method>();
             var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            foreach (var method in type.GetMethods(flags))
+            foreach (MethodInfo method in type.GetMethods(flags))
             {
-                if (method.GetCustomAttribute<SerializeMethodAttribute>() != null)
+                var attributes = Member.GetAttributes(method);
+                if (Member.HasAttribute<SerializeMethodAttribute>(attributes) == true)
                 {
                     string name = method.Name;
                     Type returnType = method.ReturnType;
@@ -190,6 +198,7 @@ namespace WsiuEngine.Core.System
                         ReturnType = returnType,
                         Invoker = methodInvoker,
                         Parameters = parameters,
+                        MethodAttributes = attributes
                     });             
                 }
             }
