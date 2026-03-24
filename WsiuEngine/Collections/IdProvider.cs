@@ -15,6 +15,8 @@ namespace WsiuEngine.Collections
         [SerializeField]
         [HideInInspector]
         private UInt64 _maxId = UInt64.MaxValue;
+
+        [ReadOnlyField]
         public UInt64 MaxID 
         { 
             get => _maxId;  
@@ -58,8 +60,6 @@ namespace WsiuEngine.Collections
                 _reusableIds.Enqueue(id);
             //else // TODO: 이미 파괴되었거나 존재하지 않는 ID에 대한 경고 로그 필요
         }
-
-        public IdProvider Current => throw new NotImplementedException();
 
         public void OnBeforeSerialize()
         {
