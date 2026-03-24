@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using WsiuEditor.Editor;
 using WsiuEngine.Core;
+using WsiuEngine.Core.System;
 using WsiuRenderer;
 
 namespace WsiuEditor.System
 {
-    public partial class EditorManager
+    public partial class EditorManager : ReflectionObject.ISerializationCallback
     {
         public EditorManager(Engine engine)
         {

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using WsiuRenderer;
 using Windows.Storage;
+using WsiuEngine.Core.System;
 
 namespace WsiuEditor.System
 {
@@ -10,17 +11,34 @@ namespace WsiuEditor.System
     {
         public static string ApplicationLocalFolderPath => lazyApplicationLocalFolderPath.Value;
         private static readonly Lazy<string> lazyApplicationLocalFolderPath = new(() => ApplicationData.Current.LocalFolder.Path);
-        private const string imguiLayoutFilename = "editorImguiLayout.ini";
+        private const string editorLayoutFilename = "EditorManagerLayout.ini";
         private static string GetDefaultLayoutPath()
         {
-            return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.imguiLayoutFilename);
+            return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.editorLayoutFilename);
         }
 
-        public static void SaveImguiLayout()
+        [SerializeField]
+        [HideInInspector]
+        private string _imguiLayoutSettings;
+
+        public void OnBeforeSerialize()
         {
-            SaveImguiLayout(GetDefaultLayoutPath());
+            _imguiLayoutSettings = ImguiContext.SaveIniSettingsToMemory();
         }
-        public static void SaveImguiLayout(string filePath)
+        public void OnAfterDeserialize()
+        {
+            if (string.IsNullOrEmpty(_imguiLayoutSettings) == true)
+                return;
+
+            ImguiContext.LoadIniSettingsFromMemory(_imguiLayoutSettings);
+        }
+
+        public void SaveLayoutToFile()
+        {
+            SaveLayoutToFile(EditorManager.GetDefaultLayoutPath());
+        }
+
+        public void SaveLayoutToFile(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -31,15 +49,16 @@ namespace WsiuEditor.System
                 Directory.CreateDirectory(directory);
             }
 
-            string settings = ImguiContext.SaveIniSettingsToMemory();
+            string settings = ReflectionObject.SerializeToJson(this);
             File.WriteAllText(filePath, settings);
         }
-        public static void LoadImguiLayout()
+
+        public void LoadLayoutFromFile()
         {
-            LoadImguiLayout(GetDefaultLayoutPath()); 
+            LoadLayoutFromFile(EditorManager.GetDefaultLayoutPath());
         }
 
-        public static void LoadImguiLayout(string filePath)
+        public void LoadLayoutFromFile(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -50,15 +69,10 @@ namespace WsiuEditor.System
             }
 
             string settings = File.ReadAllText(filePath);
-            ImguiContext.LoadIniSettingsFromMemory(settings);
+            ReflectionObject.DeserializeFromJson(this, settings);
         }
 
-        public static async Task SaveImguiLayoutAsync()
-        {      
-            await SaveImguiLayoutAsync(GetDefaultLayoutPath());
-        }
-
-        public static async Task SaveImguiLayoutAsync(string filePath)
+        public async Task SaveLayoutToFileAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) 
                 throw new ArgumentNullException(nameof(filePath));
@@ -69,16 +83,11 @@ namespace WsiuEditor.System
                 Directory.CreateDirectory(directory);
             }
 
-            string settings = ImguiContext.SaveIniSettingsToMemory();
+            string settings = ReflectionObject.SerializeToJson(this);
             await File.WriteAllTextAsync(filePath, settings);
         }
 
-        public static async Task LoadImguiLayoutAsync()
-        {
-            await LoadImguiLayoutAsync(GetDefaultLayoutPath()); 
-        }
-
-        public static async Task LoadImguiLayoutAsync(string filePath)
+        public async Task LoadLayoutFromFileAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -90,7 +99,7 @@ namespace WsiuEditor.System
        
             Task<string> task = File.ReadAllTextAsync(filePath);
             string settings = await task;
-            ImguiContext.LoadIniSettingsFromMemory(settings);
+            ReflectionObject.DeserializeFromJson(this, settings);
         }
     }
 }

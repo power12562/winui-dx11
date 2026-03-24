@@ -49,13 +49,13 @@ namespace WsiuEditor
         private void OnWindowOpened(object obj, RoutedEventArgs  args)
         {
             SetWindowToFullWorkArea();
-            EditorManager.LoadImguiLayout();
+            _editorManager.LoadLayoutFromFile();
         }
 
         private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
         {
             args.Cancel = true;
-            EditorManager.SaveImguiLayout();
+            _editorManager.SaveLayoutToFile();
             Close();
         }
 
