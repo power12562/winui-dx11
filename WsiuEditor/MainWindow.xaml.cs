@@ -37,7 +37,7 @@ namespace WsiuEditor
             {
                 frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened(obj, eventArgs);      
             }
-            AppWindow.Closing += async (sender, args) => OnWindowClosing(sender, args);
+            AppWindow.Closing += (sender, args) => OnWindowClosing(sender, args);
         }
          
         private void EditorLoop()
@@ -48,7 +48,6 @@ namespace WsiuEditor
 
         private void OnWindowOpened(object obj, RoutedEventArgs  args)
         {
-            SetWindowToFullWorkArea();
             _editorManager.LoadLayoutFromFile();
         }
 
@@ -57,24 +56,6 @@ namespace WsiuEditor
             args.Cancel = true;
             _editorManager.SaveLayoutToFile();
             Close();
-        }
-
-        private void SetWindowToFullWorkArea()
-        {
-            IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            AppWindow appWindow = AppWindow.GetFromWindowId(windowId);
-            if (appWindow != null)
-            {
-                DisplayArea displayArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Primary);
-                RectInt32 workArea = displayArea.WorkArea;
-                appWindow.MoveAndResize(new RectInt32(
-                    workArea.X,
-                    workArea.Y,
-                    workArea.Width,
-                    workArea.Height
-                ));
-            }
         }
     }
 }
