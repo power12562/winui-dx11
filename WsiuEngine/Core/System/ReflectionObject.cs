@@ -95,7 +95,7 @@ namespace WsiuEngine.Core.System
             {
                 var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
                 Dictionary<Type, Attribute> dictionary = [];
-                foreach (var attribute in attributes)
+                foreach (Attribute attribute in attributes)
                 {
                     Type type = attribute.GetType();
                     dictionary[type] = attribute;
