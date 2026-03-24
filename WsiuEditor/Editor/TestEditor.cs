@@ -1,6 +1,7 @@
-﻿using ABI.WsiuRenderer;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
+using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
@@ -18,6 +19,13 @@ namespace WsiuEditor.Editor
 
         public override void Draw()
         {
+            //TestDraw();
+            TestDraw2();
+        }
+
+        private readonly TestClassDraw _testClass = new();
+        private void TestDraw()
+        {
             _imguiContext.Text("Fields");
             ReflectionObject.DrawFields(_imguiContext, _testClass);
             _imguiContext.Separator();
@@ -27,7 +35,18 @@ namespace WsiuEditor.Editor
             _imguiContext.PopStyleColor();
         }
 
-        private readonly TestClassDraw _testClass = new();
+        private readonly TestClassDraw2 _testClass2 = new();
+        private void TestDraw2()
+        {
+            _imguiContext.Text("Fields");
+            ReflectionObject.DrawFields(_imguiContext, _testClass2);
+            _imguiContext.Separator();
+            _imguiContext.Text("Methods");
+            _imguiContext.PushStyleColor(ImGuiCol.Text, 0.4f, 0.7f, 1.0f, 1.0f);
+            ReflectionObject.DrawMethods(_imguiContext, _testClass2);
+            _imguiContext.PopStyleColor();
+        }
+
         class TestClassDraw
         {
             public float TestFloat = 1.1f;
@@ -41,13 +60,9 @@ namespace WsiuEditor.Editor
             public Vector3 TestVector3 = new();
             public Vector4 TestVector4 = new();
 
-            [HideInInspector]
-            public string TestString = "";
-
             [MultilineStringField(Height = 100f)]
             public string TestSerialize => _testSerialize;
             private string _testSerialize = "";
-
 
             [SerializeMethod]
             public void Serialize()
@@ -65,6 +80,47 @@ namespace WsiuEditor.Editor
             public int AddFoo(int a, int b, int c)
             {
                 return a + b + c;
+            }
+        }
+
+        class TestClassDraw2
+        {
+            [MultilineStringField]
+            [ReadOnlyField]
+            public string TestSerialize = "";
+
+            public IdProvider IdProvider = new();
+            private readonly List<UInt64> _idList = [];
+
+            [SerializeMethod]
+            public void Serialize()
+            {
+                TestSerialize = ReflectionObject.SerializeToJson(this);
+            }
+
+            [SerializeMethod]
+            public void Deserailize()
+            {
+                ReflectionObject.DeserializeFromJson(this, TestSerialize);
+            }
+
+            [SerializeMethod] 
+            public void GenerateId()
+            {
+                _idList.Add(IdProvider.Generate());
+            }
+
+            [SerializeMethod]
+            public void ReleaseId()
+            {
+                IdProvider.Release(_idList[^1]);
+                _idList.RemoveAt(_idList.Count - 1);
+            }
+
+            [SerializeMethod]
+            public void ClearIdProvider()
+            {
+                IdProvider = new();
             }
         }
     }
