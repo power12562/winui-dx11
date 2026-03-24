@@ -99,22 +99,26 @@ namespace WsiuEngine.Core.System
             public Field Field;     
             public Guid Uid;     
         }
-        private static readonly ThreadLocal<List<IdEntityRecord>> recordList = new(() => []);
+        private static readonly ThreadLocal<List<IdEntityRecord>> recordListBuffer = new(() => []);
+        private static readonly ThreadLocal<List<ISerializationCallback>> callbackListBuffer = new(() => []);
         public static void DeserializeFromJson(object obj, string json)
         {
-            List<IdEntityRecord> records = recordList.Value!;
+            List<IdEntityRecord> records = recordListBuffer.Value!;
+            List<ISerializationCallback> callbacks = callbackListBuffer.Value!;
             records.Clear();
-            PoulateFromJson(obj, json, ref records);
+            callbacks.Clear();
+            PoulateFromJson(obj, json, ref records, ref callbacks);
             ResolveReferences(records);
-            if (obj is ISerializationCallback target)
+            foreach (ISerializationCallback callback in callbacks)
             {
-                target.OnAfterDeserialize();
+                callback.OnAfterDeserialize();
             }
         }
 
-        internal static void PoulateFromJson(object obj, string json, ref List<IdEntityRecord> records)
+        internal static void PoulateFromJson(object obj, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks)
         {
             records ??= [];
+            callbacks ??= [];
 
             if (string.IsNullOrEmpty(json))
                 return;
@@ -187,7 +191,7 @@ namespace WsiuEngine.Core.System
                             object? fieldObj = field.Get(obj);
                             if (fieldObj != null)
                             {
-                                PoulateFromJson(fieldObj, element.GetRawText(), ref records);
+                                PoulateFromJson(fieldObj, element.GetRawText(), ref records, ref callbacks);
                             }                        
                             continue;
                         }
@@ -203,6 +207,11 @@ namespace WsiuEngine.Core.System
                         //TODO: 이후 로그 작성 필요
                     }
                 }
+            }
+
+            if (obj is ISerializationCallback target)
+            {
+                callbacks.Add(target);
             }
         }    
         
