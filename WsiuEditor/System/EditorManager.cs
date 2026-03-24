@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using WsiuEditor.Editor;
+using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
@@ -21,7 +22,7 @@ namespace WsiuEditor.System
         private readonly List<IEditor> _transientEditors = [];
         private readonly List<IEditor> _singletonEditors = [];
         private readonly Dictionary<Type, IEditor> _singletonEditorInstance = [];
-        private readonly Dictionary<Type, UInt64> _editorIdCounter = [];
+        private readonly Dictionary<Type, IdProvider> _editorIdProvider = [];
         private bool _cleanupEditors = false;
         private void CleanUpEditors() 
         { 
@@ -38,13 +39,13 @@ namespace WsiuEditor.System
         {
             if (EditorManager.transientProvider.TryGetValue(type, out var provider))
             {
-                IEditor iEditor = provider(_engine, AddEditorId(type));
+                IEditor iEditor = provider(_engine, GenerateEditorId(type));
                 _transientEditors.Add(iEditor);
                 iEditor.SetDisableCallback(CleanUpEditors);
             }
         }
 
-        public void ActiveStaticEditor<T>() where T : IEditor
+        public void ActiveSingletonEditor<T>() where T : IEditor
         {
             Type type = typeof(T);
             ActiveSingletonEditor(type);
@@ -91,6 +92,7 @@ namespace WsiuEditor.System
                     IEditor editor = _transientEditors[i];
                     if(editor.Active == false)
                     {
+                        ReleaseEditorId(editor.GetType(), editor.ID);
                         _transientEditors.RemoveAt(i);
                     }
                 }
@@ -98,11 +100,22 @@ namespace WsiuEditor.System
             }
         }
 
-        private UInt64 AddEditorId(Type type)
+        private UInt64 GenerateEditorId(Type type)
         {
-            _editorIdCounter.TryGetValue(type, out UInt64 id);
-            _editorIdCounter[type] = id + 1;
-            return id;
+            if (_editorIdProvider.TryGetValue(type, out IdProvider? provider) == false)
+            {
+                provider = new();
+                _editorIdProvider.Add(type, provider);
+            }          
+            return provider.Generate();
+        }
+
+        private void ReleaseEditorId(Type type, UInt64 id)
+        {
+            if (_editorIdProvider.TryGetValue(type, out IdProvider? provider) == false)
+                return;
+
+            provider.Release(id);
         }
     }
 }
