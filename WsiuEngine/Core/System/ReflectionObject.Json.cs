@@ -33,6 +33,11 @@ namespace WsiuEngine.Core.System
             if (fields.Count == 0)
                 return string.Empty;
 
+            if (obj is ISerializationCallback target)
+            {
+                target.OnBeforeSerialize();
+            }
+
             string json = string.Empty;
             Dictionary<string, object> fieldsNode = [];
             foreach (var field in fields)
@@ -63,11 +68,24 @@ namespace WsiuEngine.Core.System
 
         public static void DeserializeFromJson(object obj, string json)
         {
+            if (string.IsNullOrEmpty(json))
+                return;
+
             IReadOnlyList<Field> fields = GetFields(obj);
             if (fields.Count == 0)
                 return;
 
-            var jsonElements = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, SerializedOption.JsonOption);
+            Dictionary<string, JsonElement>? jsonElements;
+            try
+            {
+                jsonElements = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, SerializedOption.JsonOption);
+            }
+            catch
+            {
+                //TODO: 이후 로그 작성 필요
+                return;
+            }
+          
             if (jsonElements == null)
                 return;
 
@@ -96,8 +114,15 @@ namespace WsiuEngine.Core.System
                             setter(obj, value);
                     }
                     catch
-                    {}
+                    {
+                        //TODO: 이후 로그 작성 필요
+                    }
                 }
+            }
+
+            if (obj is ISerializationCallback target)
+            {
+                target.OnAfterDeserialize();
             }
         }
     }
