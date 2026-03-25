@@ -13,7 +13,7 @@ namespace WsiuEngine.Core.System
     public class SerializableClassAttribute : Attribute { }
 
     /// <summary>
-    /// 필드, 프로퍼티 또는 메서드를 에디터의 인스펙터(Inspector) 창에서 숨깁니다.
+    /// 필드, 프로퍼티를 에디터의 인스펙터(Inspector) 창에서 숨깁니다.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     public class HideInInspectorAttribute : Attribute { }
@@ -31,7 +31,8 @@ namespace WsiuEngine.Core.System
     public class SerializeMethodAttribute : Attribute { }
 
     /// <summary>
-    /// 인스펙터에서 사용자가 값을 수정할 수 없도록 비활성화합니다.
+    /// 인스펙터에서 사용자가 값을 수정할 수 없도록 비활성화합니다. <br/>
+    /// *이 어트리뷰트 필드는 Serialize 할 수 없습니다.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ReadOnlyFieldAttribute : Attribute { }
