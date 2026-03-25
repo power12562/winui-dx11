@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ABI.WsiuRenderer;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using WsiuEngine.Collections;
@@ -19,13 +20,15 @@ namespace WsiuEditor.Editor
 
         public override void Draw()
         {
-            //TestDraw();
+            TestDraw();
             TestDraw2();
         }
 
         private readonly TestClassDraw _testClass = new();
         private void TestDraw()
         {
+            _imguiContext.TreeNodeEx("Test Draw", ImGuiTreeNodeFlags.None);
+
             _imguiContext.Text("Fields");
             ReflectionObject.DrawFields(_imguiContext, _testClass);
             _imguiContext.Separator();
@@ -33,11 +36,15 @@ namespace WsiuEditor.Editor
             _imguiContext.PushStyleColor(ImGuiCol.Text, 0.4f, 0.7f, 1.0f, 1.0f);
             ReflectionObject.DrawMethods(_imguiContext, _testClass);
             _imguiContext.PopStyleColor();
+
+            _imguiContext.TreePop();
         }
 
         private readonly TestClassDraw2 _testClass2 = new();
         private void TestDraw2()
         {
+            _imguiContext.TreeNodeEx("Test Draw2", ImGuiTreeNodeFlags.None);
+
             _imguiContext.Text("Fields");
             ReflectionObject.DrawFields(_imguiContext, _testClass2);
             _imguiContext.Separator();
@@ -45,6 +52,8 @@ namespace WsiuEditor.Editor
             _imguiContext.PushStyleColor(ImGuiCol.Text, 0.4f, 0.7f, 1.0f, 1.0f);
             ReflectionObject.DrawMethods(_imguiContext, _testClass2);
             _imguiContext.PopStyleColor();
+
+            _imguiContext.TreePop();
         }
 
         class TestClassDraw
