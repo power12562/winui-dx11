@@ -54,9 +54,9 @@ namespace WsiuEngine.Core.System
                 {
                     context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
                 }
-                context.Text(name);
+                context.TextUnformatted(name);
                 context.SameLine();
-                handle(context, $"[{type.Name}]##{name}", value, attributes, callback);
+                handle(context, $"[{type.Name}]###{name}", value, attributes, callback);
                 if (isReadOnly)
                 {
                     context.PopStyleVar();
@@ -106,7 +106,7 @@ namespace WsiuEngine.Core.System
                     }
                 }
                 context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                context.TreeNodeEx($"{name} [{type.Name}] ({count})", ImGuiTreeNodeFlags.None);
+                context.TreeNodeEx($"{name} [{type.Name}] ({count})###{name}", ImGuiTreeNodeFlags.None);
                 uint index = 0;
                 foreach (object? value in values)
                 {
@@ -118,7 +118,7 @@ namespace WsiuEngine.Core.System
                     {
                         object val = value;
                         Type valueType = val.GetType();
-                        context.Text($"({index})".PadRight(5)); 
+                        context.TextUnformatted($"({index})".PadRight(5)); 
                         context.SameLine();
                         if (typeByDrawFieldHandler.TryGetValue(valueType, out var handle) == true)
                         {
@@ -143,19 +143,51 @@ namespace WsiuEngine.Core.System
 
         public static void DrawFields(ImguiContext context, object target)
         {
-            if (target.GetType().IsClass == false)
+            Type targetType = target.GetType();
+            if (targetType.IsClass == false)
                 return;
 
             IReadOnlyList<Field> fields = GetFields(target);
+            if (fields.Count == 0)
+                return;
+
+            bool isTableOpen = false;
+            void OpenTable()
+            {
+                if (isTableOpen == false)
+                {
+                    context.BeginTable($"##{target.GetHashCode()}", 2, ImGuiTableFlags.SizingFixedFit);
+                    context.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 0f);
+                    context.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch, 0f);
+                    isTableOpen = true;
+                }          
+            }
+            void CloseTable()
+            {
+                if (isTableOpen == true)
+                {
+                    context.EndTable();
+                    isTableOpen = false;
+                }
+            }
+
             foreach (var field in fields)
             {
                 object? value = field.Get(target);
                 if (value == null)
                     continue;
 
+                var attributes = field.FieldAttributes;
+                if (Member.HasAttribute<HideInInspectorAttribute>(attributes))
+                {
+                    continue;
+                }
+           
+                // 클래스 처리
                 Type type = field.Type;
                 if (type.IsClass && IsSystemNamespace(type) == false)
                 {
+                    CloseTable();
                     if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
                     {
                         context.TreeNodeEx($"{field.Name} [{type.Name}]", ImGuiTreeNodeFlags.None);
@@ -164,26 +196,57 @@ namespace WsiuEngine.Core.System
                     }
                     else if (typeof(IIdentity).IsAssignableFrom(type))
                     {
-                        context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                        context.Text($"(Reference: {type.Name})");
-                        context.PopStyleVar();
+                        context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, () => {});
                     }             
                     continue;
                 }
 
-                var attributes = field.FieldAttributes;
-                if (Member.HasAttribute<HideInInspectorAttribute>(attributes))
-                {
-                    continue;
-                }
-
+                // 타입 처리
                 string name = field.Name;
                 bool isReadOnly = field.Set == null;
-                DrawField(context, type, name, value, isReadOnly, attributes, (obj) => 
-                { 
-                    field.Set?.Invoke(target, obj); 
-                });
+                bool hasDrawHandler = typeByDrawFieldHandler.TryGetValue(type, out var handle) == true;
+                if (hasDrawHandler == false && typeof(IEnumerable).IsAssignableFrom(type))
+                {
+                    CloseTable();
+                    DrawEnumerable(context, type, name, (IEnumerable)value, isReadOnly, attributes, (obj) =>
+                    {
+                        field.Set?.Invoke(target, obj);
+                    });
+                }
+                else
+                {
+                    OpenTable();
+                    context.TableNextRow();
+                    if (isReadOnly)
+                    {
+                        context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                    }
+
+                    if (hasDrawHandler == true)
+                    {
+                        context.TableNextColumn(); // 1
+                        context.TextUnformatted(name);
+                        context.TableNextColumn(); // 2
+                        handle!(context, $"[{type.Name}]###{name}", value, attributes, (obj) =>
+                        {
+                            field.Set?.Invoke(target, obj);
+                        });
+                    }
+                    else
+                    {
+                        context.TableNextColumn(); // 1
+                        context.TextUnformatted(name);
+                        context.TableNextColumn(); // 2
+                        context.Selectable($"{value} [{type.Name}]", false, ImGuiSelectableFlags.None, () => { });
+                    }
+
+                    if (isReadOnly)
+                    {
+                        context.PopStyleVar();
+                    }
+                }
             }
+            CloseTable();
         }
 
         public static void DrawMethods(ImguiContext context, object target)
