@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using WsiuEditor.Editor;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
@@ -22,8 +23,9 @@ namespace WsiuEditor.System
         private readonly List<IEditor> _transientEditors = [];
         private readonly List<IEditor> _singletonEditors = [];
         private readonly Dictionary<Type, IEditor> _singletonEditorInstance = [];
-        private readonly Dictionary<Type, IdProvider> _editorIdProvider = [];
         private bool _cleanupEditors = false;
+        private Dictionary<Type, IdProvider> _editorIdProvider = [];
+
         private void CleanUpEditors() 
         { 
             _cleanupEditors = true; 
@@ -37,9 +39,14 @@ namespace WsiuEditor.System
 
         public void CreateTransientEditor(Type type)
         {
+            CreateTransientEditorWithId(type, GenerateEditorId(type));
+        }
+
+        private void CreateTransientEditorWithId(Type type, UInt64 id)
+        {
             if (EditorManager.transientProvider.TryGetValue(type, out var provider))
             {
-                IEditor iEditor = provider(_engine, GenerateEditorId(type));
+                IEditor iEditor = provider(_engine, id);
                 _transientEditors.Add(iEditor);
                 iEditor.SetDisableCallback(CleanUpEditors);
             }
