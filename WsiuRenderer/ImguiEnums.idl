@@ -1,5 +1,11 @@
 namespace WsiuRenderer
 {
+    struct ImcVec2
+    {
+        Single x;
+        Single y;
+    };
+
     enum ImGuiSliderFlags
     {
         None               = 0,
@@ -186,76 +192,139 @@ namespace WsiuRenderer
     enum ImGuiInputTextFlags
     {
         // Basic filters (also see CallbackCharFilter)
-        None             = 0,
-        CharsDecimal     = 1 << 0, // Allow 0123456789.+-*/
-        CharsHexadecimal = 1 << 1, // Allow 0123456789ABCDEFabcdef
-        CharsScientific  = 1 << 2, // Allow 0123456789.+-*/eE (Scientific notation input)
-        CharsUppercase   = 1 << 3, // Turn a..z into A..Z
-        CharsNoBlank     = 1 << 4, // Filter out spaces, tabs
-
+        None                = 0,
+        CharsDecimal        = 1 << 0,   // Allow 0123456789.+-*/
+        CharsHexadecimal    = 1 << 1,   // Allow 0123456789ABCDEFabcdef
+        CharsScientific     = 1 << 2,   // Allow 0123456789.+-*/eE (Scientific notation input)
+        CharsUppercase      = 1 << 3,   // Turn a..z into A..Z
+        CharsNoBlank        = 1 << 4,   // Filter out spaces, tabs
+    
         // Inputs
-        AllowTabInput = 1 << 5, // Pressing TAB input a '\t' character into the text field
-        EnterReturnsTrue =
-            1 << 6, // Return 'true' when Enter is pressed (as opposed to every time the value was modified). Consider
-                    // using IsItemDeactivatedAfterEdit() instead!
-        EscapeClearsAll = 1 << 7, // Escape key clears content if not empty, and deactivate
-                                                      // otherwise (contrast to default behavior of Escape to revert)
-        CtrlEnterForNewLine =
-            1 << 8, // In multi-line mode: validate with Enter, add new line with Ctrl+Enter (default is opposite:
-                    // validate with Ctrl+Enter, add line with Enter). Note that Shift+Enter always enter a new line
-                    // either way.
-
+        AllowTabInput       = 1 << 5,   // Pressing TAB input a '\t' character into the text field
+        EnterReturnsTrue    = 1 << 6,   // Return 'true' when Enter is pressed (as opposed to every time the value was modified). Consider using IsItemDeactivatedAfterEdit() instead!
+        EscapeClearsAll     = 1 << 7,   // Escape key clears content if not empty, and deactivate otherwise (contrast to default behavior of Escape to revert)
+        CtrlEnterForNewLine = 1 << 8,   // In multi-line mode: validate with Enter, add new line with Ctrl+Enter (default is opposite: validate with Ctrl+Enter, add line with Enter). Note that Shift+Enter always enter a new line either way.
+    
         // Other options
-        ReadOnly        = 1 << 9,  // Read-only mode
-        Password        = 1 << 10, // Password mode, display all characters as '*', disable copy
-        AlwaysOverwrite = 1 << 11, // Overwrite mode
-        AutoSelectAll   = 1 << 12, // Select entire text when first taking mouse focus
-        ParseEmptyRefVal =
-            1 << 13, // InputFloat(), InputInt(), InputScalar() etc. only: parse empty string as zero value.
-        DisplayEmptyRefVal =
-            1 << 14, // InputFloat(), InputInt(), InputScalar() etc. only: when value is zero, do not display it.
-                     // Generally used with ParseEmptyRefVal.
-        NoHorizontalScroll = 1 << 15, // Disable following the cursor horizontally
-        NoUndoRedo =
-            1 << 16, // Disable undo/redo. Note that input text owns the text data while active, if you want to provide
-                     // your own undo/redo stack you need e.g. to call ClearActiveID().
-
+        ReadOnly            = 1 << 9,   // Read-only mode
+        Password            = 1 << 10,  // Password mode, display all characters as '*', disable copy
+        AlwaysOverwrite     = 1 << 11,  // Overwrite mode
+        AutoSelectAll       = 1 << 12,  // Select entire text when first taking mouse focus
+        ParseEmptyRefVal    = 1 << 13,  // InputFloat(), InputInt(), InputScalar() etc. only: parse empty string as zero value.
+        DisplayEmptyRefVal  = 1 << 14,  // InputFloat(), InputInt(), InputScalar() etc. only: when value is zero, do not display it. Generally used with ParseEmptyRefVal.
+        NoHorizontalScroll  = 1 << 15,  // Disable following the cursor horizontally
+        NoUndoRedo          = 1 << 16,  // Disable undo/redo. Note that input text owns the text data while active, if you want to provide your own undo/redo stack you need e.g. to call ClearActiveID().
+    
         // Elide display / Alignment
-        ElideLeft = 1 << 17, // When text doesn't fit, elide left side to ensure right side stays
-                                                 // visible. Useful for path/filenames. Single-line only!
-
+        ElideLeft           = 1 << 17,  // When text doesn't fit, elide left side to ensure right side stays visible. Useful for path/filenames. Single-line only!
+    
         // Callback features
-        CallbackCompletion = 1 << 18, // Callback on pressing TAB (for completion handling)
-        CallbackHistory    = 1 << 19, // Callback on pressing Up/Down arrows (for history handling)
-        CallbackAlways =
-            1 << 20, // Callback on each iteration. User code may query cursor position, modify text buffer.
-        CallbackCharFilter =
-            1 << 21, // Callback on character inputs to replace or discard them. Modify 'EventChar' to replace or
-                     // discard, or return 1 in callback to discard.
-        CallbackResize =
-            1 << 22, // Callback on buffer capacity changes request (beyond 'buf_size' parameter value), allowing the
-                     // string to grow. Notify when the string wants to be resized (for string types which hold a cache
-                     // of their Size). You will be provided a new BufSize in the callback and NEED to honor it. (see
-                     // misc/cpp/imgui_stdlib.h for an example of using this)
-        CallbackEdit =
-            1
-            << 23, // Callback on any edit. Note that InputText() already returns true on edit + you can always use
-                   // IsItemEdited(). The callback is useful to manipulate the underlying buffer while focus is active.
-
+        CallbackCompletion  = 1 << 18,  // Callback on pressing TAB (for completion handling)
+        CallbackHistory     = 1 << 19,  // Callback on pressing Up/Down arrows (for history handling)
+        CallbackAlways      = 1 << 20,  // Callback on each iteration. User code may query cursor position, modify text buffer.
+        CallbackCharFilter  = 1 << 21,  // Callback on character inputs to replace or discard them. Modify 'EventChar' to replace or discard, or return 1 in callback to discard.
+        CallbackResize      = 1 << 22,  // Callback on buffer capacity changes request (beyond 'buf_size' parameter value), allowing the string to grow. Notify when the string wants to be resized (for string types which hold a cache of their Size). You will be provided a new BufSize in the callback and NEED to honor it. (see misc/cpp/imgui_stdlib.h for an example of using this)
+        CallbackEdit        = 1 << 23,  // Callback on any edit. Note that InputText() already returns true on edit + you can always use IsItemEdited(). The callback is useful to manipulate the underlying buffer while focus is active.
+    
         // Multi-line Word-Wrapping [BETA]
-        // - Not well tested yet. Please report any incorrect cursor movement, selection behavior etc. bug to
-        // https://github.com/ocornut/imgui/issues/3237.
-        // - Wrapping style is not ideal. Wrapping of long words/sections (e.g. words larger than total available width)
-        // may be particularly unpleasing.
+        // - Not well tested yet. Please report any incorrect cursor movement, selection behavior etc. bug to https://github.com/ocornut/imgui/issues/3237.
+        // - Wrapping style is not ideal. Wrapping of long words/sections (e.g. words larger than total available width) may be particularly unpleasing.
         // - Wrapping width needs to always account for the possibility of a vertical scrollbar.
         // - It is much slower than regular text fields.
-        //   Ballpark estimate of cost on my 2019 desktop PC: for a 100 KB text buffer: +~0.3 ms (Optimized) / +~1.0 ms
-        //   (Debug build). The CPU cost is very roughly proportional to text length, so a 10 KB buffer should cost
-        //   about ten times less.
-        WordWrap = 1 << 24, // InputTextMultiline(): word-wrap lines that are too long.
-
+        //   Ballpark estimate of cost on my 2019 desktop PC: for a 100 KB text buffer: +~0.3 ms (Optimized) / +~1.0 ms (Debug build).
+        //   The CPU cost is very roughly proportional to text length, so a 10 KB buffer should cost about ten times less.
+        WordWrap            = 1 << 24,  // InputTextMultiline(): word-wrap lines that are too long.
+    
         // Obsolete names
-        // AlwaysInsertMode  = AlwaysOverwrite   // [renamed in 1.82] name was
-        // not matching behavior
+        //AlwaysInsertMode  = AlwaysOverwrite   // [renamed in 1.82] name was not matching behavior
+    };
+
+    enum ImGuiTableFlags
+    {
+        // Features
+        None                       = 0,
+        Resizable                  = 1 << 0,   // Enable resizing columns.
+        Reorderable                = 1 << 1,   // Enable reordering columns in header row (need calling TableSetupColumn() + TableHeadersRow() to display headers)
+        Hideable                   = 1 << 2,   // Enable hiding/disabling columns in context menu.
+        Sortable                   = 1 << 3,   // Enable sorting. Call TableGetSortSpecs() to obtain sort specs. Also see SortMulti and SortTristate.
+        NoSavedSettings            = 1 << 4,   // Disable persisting columns order, width, visibility and sort settings in the .ini file.
+        ContextMenuInBody          = 1 << 5,   // Right-click on columns body/contents will display table context menu. By default it is available in TableHeadersRow().
+        // Decorations
+        RowBg                      = 1 << 6,   // Set each RowBg color with ImGuiCol_TableRowBg or ImGuiCol_TableRowBgAlt (equivalent of calling TableSetBgColor with ImGuiTableBgFlags_RowBg0 on each row manually)
+        BordersInnerH              = 1 << 7,   // Draw horizontal borders between rows.
+        BordersOuterH              = 1 << 8,   // Draw horizontal borders at the top and bottom.
+        BordersInnerV              = 1 << 9,   // Draw vertical borders between columns.
+        BordersOuterV              = 1 << 10,  // Draw vertical borders on the left and right sides.
+        BordersH                   = BordersInnerH | BordersOuterH, // Draw horizontal borders.
+        BordersV                   = BordersInnerV | BordersOuterV, // Draw vertical borders.
+        BordersInner               = BordersInnerV | BordersInnerH, // Draw inner borders.
+        BordersOuter               = BordersOuterV | BordersOuterH, // Draw outer borders.
+        Borders                    = BordersInner | BordersOuter,   // Draw all borders.
+        NoBordersInBody            = 1 << 11,  // [ALPHA] Disable vertical borders in columns Body (borders will always appear in Headers). -> May move to style
+        NoBordersInBodyUntilResize = 1 << 12,  // [ALPHA] Disable vertical borders in columns Body until hovered for resize (borders will always appear in Headers). -> May move to style
+        // Sizing Policy (read above for defaults)
+        SizingFixedFit             = 1 << 13,  // Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching contents width.
+        SizingFixedSame            = 2 << 13,  // Columns default to _WidthFixed or _WidthAuto (if resizable or not resizable), matching the maximum contents width of all columns. Implicitly enable NoKeepColumnsVisible.
+        SizingStretchProp          = 3 << 13,  // Columns default to _WidthStretch with default weights proportional to each columns contents widths.
+        SizingStretchSame          = 4 << 13,  // Columns default to _WidthStretch with default weights all equal, unless overridden by TableSetupColumn().
+        // Sizing Extra Options
+        NoHostExtendX              = 1 << 16,  // Make outer width auto-fit to columns, overriding outer_size.x value. Only available when ScrollX/ScrollY are disabled and Stretch columns are not used.
+        NoHostExtendY              = 1 << 17,  // Make outer height stop exactly at outer_size.y (prevent auto-extending table past the limit). Only available when ScrollX/ScrollY are disabled. Data below the limit will be clipped and not visible.
+        NoKeepColumnsVisible       = 1 << 18,  // Disable keeping column always minimally visible when ScrollX is off and table gets too small. Not recommended if columns are resizable.
+        PreciseWidths              = 1 << 19,  // Disable distributing remainder width to stretched columns (width allocation on a 100-wide table with 3 columns: Without this flag: 33,33,34. With this flag: 33,33,33). With larger number of columns, resizing will appear to be less smooth.
+        // Clipping
+        NoClip                     = 1 << 20,  // Disable clipping rectangle for every individual columns (reduce draw command count, items will be able to overflow into other columns). Generally incompatible with TableSetupScrollFreeze().
+        // Padding
+        PadOuterX                  = 1 << 21,  // Default if BordersOuterV is on. Enable outermost padding. Generally desirable if you have headers.
+        NoPadOuterX                = 1 << 22,  // Default if BordersOuterV is off. Disable outermost padding.
+        NoPadInnerX                = 1 << 23,  // Disable inner padding between columns (double inner padding if BordersOuterV is on, single inner padding if BordersOuterV is off).
+        // Scrolling
+        ScrollX                    = 1 << 24,  // Enable horizontal scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size. Changes default sizing policy. Because this creates a child window, ScrollY is currently generally recommended when using ScrollX.
+        ScrollY                    = 1 << 25,  // Enable vertical scrolling. Require 'outer_size' parameter of BeginTable() to specify the container size.
+        // Sorting
+        SortMulti                  = 1 << 26,  // Hold shift when clicking headers to sort on multiple column. TableGetSortSpecs() may return specs where (SpecsCount > 1).
+        SortTristate               = 1 << 27,  // Allow no sorting, disable default sorting. TableGetSortSpecs() may return specs where (SpecsCount == 0).
+        // Miscellaneous
+        HighlightHoveredColumn     = 1 << 28,  // Highlight column headers when hovered (may evolve into a fuller highlight)
+    
+        // [Internal] Combinations and masks
+        SizingMask_                = SizingFixedFit | SizingFixedSame | SizingStretchProp | SizingStretchSame,
+    };
+
+    enum ImGuiTableColumnFlags
+    {
+        // Input configuration flags
+        None                  = 0,
+        Disabled              = 1 << 0,   // Overriding/master disable flag: hide column, won't show in context menu (unlike calling TableSetColumnEnabled() which manipulates the user accessible state)
+        DefaultHide           = 1 << 1,   // Default as a hidden/disabled column.
+        DefaultSort           = 1 << 2,   // Default as a sorting column.
+        WidthStretch          = 1 << 3,   // Column will stretch. Preferable with horizontal scrolling disabled (default if table sizing policy is _SizingStretchSame or _SizingStretchProp).
+        WidthFixed            = 1 << 4,   // Column will not stretch. Preferable with horizontal scrolling enabled (default if table sizing policy is _SizingFixedFit and table is resizable).
+        NoResize              = 1 << 5,   // Disable manual resizing.
+        NoReorder             = 1 << 6,   // Disable manual reordering this column, this will also prevent other columns from crossing over this column.
+        NoHide                = 1 << 7,   // Disable ability to hide/disable this column.
+        NoClip                = 1 << 8,   // Disable clipping for this column (all NoClip columns will render in a same draw command).
+        NoSort                = 1 << 9,   // Disable ability to sort on this field (even if ImGuiTableFlags_Sortable is set on the table).
+        NoSortAscending       = 1 << 10,  // Disable ability to sort in the ascending direction.
+        NoSortDescending      = 1 << 11,  // Disable ability to sort in the descending direction.
+        NoHeaderLabel         = 1 << 12,  // TableHeadersRow() will submit an empty label for this column. Convenient for some small columns. Name will still appear in context menu or in angled headers. You may append into this cell by calling TableSetColumnIndex() right after the TableHeadersRow() call.
+        NoHeaderWidth         = 1 << 13,  // Disable header text width contribution to automatic column width.
+        PreferSortAscending   = 1 << 14,  // Make the initial sort direction Ascending when first sorting on this column (default).
+        PreferSortDescending  = 1 << 15,  // Make the initial sort direction Descending when first sorting on this column.
+        IndentEnable          = 1 << 16,  // Use current Indent value when entering cell (default for column 0).
+        IndentDisable         = 1 << 17,  // Ignore current Indent value when entering cell (default for columns > 0). Indentation changes _within_ the cell will still be honored.
+        AngledHeader          = 1 << 18,  // TableHeadersRow() will submit an angled header row for this column. Note this will add an extra row.
+    
+        // Output status flags, read-only via TableGetColumnFlags()
+        IsEnabled             = 1 << 24,  // Status: is enabled == not hidden by user/api (referred to as "Hide" in _DefaultHide and _NoHide) flags.
+        IsVisible             = 1 << 25,  // Status: is visible == is enabled AND not clipped by scrolling.
+        IsSorted              = 1 << 26,  // Status: is currently part of the sort specs
+        IsHovered             = 1 << 27,  // Status: is hovered by mouse
+    
+        // [Internal] Combinations and masks
+        WidthMask_            = WidthStretch | WidthFixed,
+        IndentMask_           = IndentEnable | IndentDisable,
+        StatusMask_           = IsEnabled | IsVisible | IsSorted | IsHovered,
+        NoDirectResize_       = 1 << 30,  // [Internal] Disable user resizing this column directly (it may however we resized indirectly from its left edge)
     };
 }
