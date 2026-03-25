@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using WsiuRenderer;
 using Windows.Storage;
-using WsiuEngine.Core.System;
+using WsiuEngine.Collections;
 using WsiuEngine.Core;
+using WsiuEngine.Core.System;
+using WsiuRenderer;
 
 namespace WsiuEditor.System
 {
@@ -27,6 +30,7 @@ namespace WsiuEditor.System
             public int ScreenWidth;
             public int ScreenHeight;
         }
+
         [HideInInspector]
         [SerializeField]
         private LayoutSettings _layoutSettings = new()
@@ -39,19 +43,54 @@ namespace WsiuEditor.System
             ScreenHeight = 1080
         };
 
+        [HideInInspector]
+        [SerializeField]
+        private Dictionary<string, IdProvider>? _editorIdProviderLayout = null;
+
+        [HideInInspector]
+        [SerializeField]
+        private List<Type>? _singletonEditorInstanceLayout = null;
+
         public void OnBeforeSerialize()
+        {
+            BeforeSerializeImguiLayout();
+            BeforeSerializeTransientEditorLayout();
+            BeforeSerializeSingletoneEditorLayout();
+        }
+
+        private void BeforeSerializeImguiLayout()
         {
             _layoutSettings.ImguiLayoutSettings = ImguiContext.SaveIniSettingsToMemory();
             Screen screen = Engine.Screen;
-            _layoutSettings.IsMaximized  = screen.IsMaximized;
+            _layoutSettings.IsMaximized = screen.IsMaximized;
             Screen.Bounds bounds = screen.RestoreBounds;
-            _layoutSettings.ScreenPosX   = bounds.X;
-            _layoutSettings.ScreenPosY   = bounds.Y;
-            _layoutSettings.ScreenWidth  = bounds.Width;
+            _layoutSettings.ScreenPosX = bounds.X;
+            _layoutSettings.ScreenPosY = bounds.Y;
+            _layoutSettings.ScreenWidth = bounds.Width;
             _layoutSettings.ScreenHeight = bounds.Height;
         }
 
+        private void BeforeSerializeTransientEditorLayout()
+        {
+            _editorIdProviderLayout = _editorIdProvider.ToDictionary(
+            (pair) => TypeJsonConverter.ConvertTypeToString(pair.Key),
+            (pair) => pair.Value
+            );
+        }           
+
+        private void BeforeSerializeSingletoneEditorLayout()
+        {
+            _singletonEditorInstanceLayout = _singletonEditorInstance.Keys.ToList();
+        }
+        
         public void OnAfterDeserialize()
+        {
+            AfterDeserializeImguiLayout();
+            AfterDeserializeTransientEditorLayout();
+            AfterDeserializeSingletonEditorLayout();
+        }
+
+        private void AfterDeserializeImguiLayout()
         {
             if (string.IsNullOrEmpty(_layoutSettings.ImguiLayoutSettings) == true)
                 return;
@@ -63,6 +102,42 @@ namespace WsiuEditor.System
             screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
             if (_layoutSettings.IsMaximized)
                 screen.Maximize();
+        }
+
+        private void AfterDeserializeTransientEditorLayout()
+        {
+            if (_editorIdProviderLayout == null)
+                return;
+
+            var select = _editorIdProviderLayout.Select(pair => (Key: TypeJsonConverter.ConvertStringToType(pair.Key), pair.Value));
+            var where = select.Where(pair => pair.Key != null);
+            _editorIdProvider = where.ToDictionary(
+                (pair) => pair.Key!,
+                (pair) => pair.Value
+            );
+            _editorIdProviderLayout = null;
+
+            foreach ( var pair in _editorIdProvider)
+            {
+                Type type = pair.Key;
+                IdProvider provider = pair.Value;
+                foreach (UInt64 id in provider.ActiveIds)
+                {
+                    CreateTransientEditorWithId(type, id);
+                }
+            }
+        }
+
+        private void AfterDeserializeSingletonEditorLayout()
+        {
+            if (_singletonEditorInstanceLayout == null)
+                return;
+
+            foreach ( Type type in _singletonEditorInstanceLayout)
+            {
+                ActiveSingletonEditor(type);
+            }
+            _singletonEditorInstanceLayout = null;
         }
 
         public void SaveLayoutToFile()
