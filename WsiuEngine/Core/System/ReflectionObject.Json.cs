@@ -44,6 +44,9 @@ namespace WsiuEngine.Core.System
             Dictionary<string, object> fieldsNode = [];
             foreach (var field in fields)
             {
+                if (field.IsProperty)
+                    continue;
+
                 var setter = field.Set;
                 if (setter == null)
                     continue;
@@ -149,6 +152,9 @@ namespace WsiuEngine.Core.System
 
             foreach (var field in fields)
             {
+                if (field.IsProperty)
+                    continue;
+
                 var setter = field.Set;
                 if (setter == null)
                     continue;
