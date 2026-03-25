@@ -157,7 +157,7 @@ namespace WsiuEngine.Core.System
             {
                 Dictionary<Type, Attribute> attributes = Member.GetAttributes(field);
                 Type fieldType = field.FieldType;
-                if (field.IsPublic || attributes.ContainsKey(typeof(SerializeFieldAttribute)))
+                if (field.IsPublic || Member.HasAttribute<SerializeFieldAttribute>(attributes))
                 {
                     bool isReadOnly = Member.HasAttribute<ReadOnlyFieldAttribute>(attributes);
                     list.Add(new Field
