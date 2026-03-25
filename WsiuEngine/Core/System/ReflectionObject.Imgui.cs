@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.Mime;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
 namespace WsiuEngine.Core.System
@@ -94,8 +93,20 @@ namespace WsiuEngine.Core.System
             }
             else
             {
+                int count = 0;
+                if (values is ICollection collection)
+                {
+                    count = collection.Count;
+                }
+                else
+                {
+                    foreach (object? _ in values)
+                    {
+                        ++count;
+                    }
+                }
                 context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                context.TreeNodeEx($"{name} [{type.Name}]", ImGuiTreeNodeFlags.None);
+                context.TreeNodeEx($"{name} [{type.Name}] ({count})", ImGuiTreeNodeFlags.None);
                 uint index = 0;
                 foreach (object? value in values)
                 {
