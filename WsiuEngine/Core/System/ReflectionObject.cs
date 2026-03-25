@@ -19,8 +19,18 @@ namespace WsiuEngine.Core.System
     public class HideInInspectorAttribute : Attribute { }
 
     /// <summary>
-    /// 비공개(private/protected) 필드나 프로퍼티를 직렬화 대상에 포함하도록 지정합니다.
+    /// 필드나 프로퍼티를 직렬화 대상에 포함하고 인스펙터(Inspector)에 노출합니다.
     /// </summary>
+    /// <remarks>
+    /// <b>[직렬화 규칙]</b><br/>
+    /// 1. <b>Public 필드:</b> 별도의 설정 없이도 기본적으로 직렬화 대상입니다.<br/>
+    /// 2. <b>프로퍼티:</b> <c>get</c>과 <c>set</c> 접근자가 모두 존재해야 직렬화됩니다.<br/>
+    /// 3. <b>Private 멤버:</b> 이 어트리뷰트를 사용하여 강제로 직렬화할 수 있습니다.<br/>
+    /// 4. <b>우선순위:</b> <see cref="ReadOnlyFieldAttribute"/>가 함께 적용된 경우, <b>직렬화 대상에서 최종 제외</b>됩니다.<br/>
+    /// <br/>
+    /// <b>[추가 제어]</b><br/>
+    /// - 직렬화는 유지하되 인스펙터에서만 숨기고 싶다면 <see cref="HideInInspectorAttribute"/>를 함께 사용하세요.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class SerializeFieldAttribute : Attribute { }
 
@@ -32,7 +42,7 @@ namespace WsiuEngine.Core.System
 
     /// <summary>
     /// 인스펙터에서 사용자가 값을 수정할 수 없도록 비활성화합니다. <br/>
-    /// *이 어트리뷰트 필드는 Serialize 할 수 없습니다.
+    /// 이 어트리뷰트 필드는 직렬화 할 수 없습니다.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ReadOnlyFieldAttribute : Attribute { }
