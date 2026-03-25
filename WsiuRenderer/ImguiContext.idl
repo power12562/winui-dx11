@@ -46,9 +46,12 @@ namespace WsiuRenderer
         Boolean GetActive();
         void SetActive(Boolean active);
         void SetTitle(String newTitle);
+        void SetCursorPosX(Single x);
+        void CalcTextSize(String text, FloatNChangedCallback handle);
         void Separator();
         void SeparatorText(String text);
         void SameLine();
+        void SetNextItemWidth(Single width);
         void PushID(UInt32 id);
         void PopID();
         void BeginDisabled();
@@ -63,6 +66,11 @@ namespace WsiuRenderer
         void EndMenu();
         void TreeNodeEx(String label, ImGuiTreeNodeFlags flags);
         void TreePop();
+        void BeginTable(String strId, Int32 columnsCount, ImGuiTableFlags flags);
+        void EndTable();
+        void TableNextRow();
+        void TableNextColumn();
+        void TableSetupColumn(String label, ImGuiTableColumnFlags flags, Single initWidth);
         void PushStyleVar(ImGuiStyleVar style, Single x);
         void PushStyleVar(ImGuiStyleVar style, Single x, Single y);
         void PopStyleVar();

@@ -119,6 +119,29 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorChangeTitle(_windowID, title);
     }
 
+    void ImguiContext::SetCursorPosX(float x)
+    {
+        auto command = [x]
+        {
+            ImGui::SetCursorPosX(x);
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::CalcTextSize(hstring const& text, winrt::WsiuRenderer::FloatNChangedCallback const& handle)
+    {
+
+        auto command = [text = winrt::to_string(text), handle]
+        {
+            ImVec2 size = ImGui::CalcTextSize(text.c_str());
+            constexpr size_t tempCount = 2;
+            float temp[tempCount];
+            std::memcpy(temp, &size.x, sizeof(temp));
+            handle(winrt::array_view<float const>(temp, temp + tempCount));
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::Separator() 
     {
         auto command = []
@@ -142,6 +165,15 @@ namespace winrt::WsiuRenderer::implementation
         auto command = []
         {
             ImGui::SameLine();
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::SetNextItemWidth(float width)
+    {
+        auto command = [width]
+        {
+            ImGui::SetNextItemWidth(width);
         };
         PushCommand(command);
     }
@@ -258,26 +290,83 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags)
     {
-        size_t counterID = _commandsStackCounter.create();
-        auto   command   = [this, string = winrt::to_string(label), flags, counterID]
+        size_t counterId = _commandsStackCounter.create();
+        auto   command   = [this, string = winrt::to_string(label), flags, counterId]
         {
             if (ImGui::TreeNodeEx(string.c_str(), static_cast<ImGuiTreeNodeFlags_>(flags)) == false)
             {
-                SkipCommand(counterID);
+                SkipCommand(counterId);
             }
         };
         PushCommand(command);
-        PushCommandStack(counterID);
+        PushCommandStack(counterId);
     }
 
     void ImguiContext::TreePop()
     {
-        auto command = [this]
+        auto command = []
         {
             ImGui::TreePop();
         };
         PushCommand(command);
         PopCommandStack();
+    }
+
+    void ImguiContext::BeginTable(hstring const& strId, int columnsCount, ImGuiTableFlags const& flags)
+    {
+        size_t counterId = _commandsStackCounter.create();
+        auto   command   = [this,
+                        counterId,
+                        strId = winrt::to_string(strId),
+                        columnsCount,
+                        flags = static_cast<ImGuiTableFlags_>(flags)]
+        {
+            if (ImGui::BeginTable(strId.c_str(),columnsCount, flags) == false)
+            {
+                SkipCommand(counterId);
+            }
+        };
+        PushCommand(command);
+        PushCommandStack(counterId);
+    }
+
+    void ImguiContext::EndTable()
+    {
+        auto command = []
+        {
+            ImGui::EndTable();
+        };
+        PushCommand(command);
+        PopCommandStack();
+    }
+
+    void ImguiContext::TableSetupColumn(hstring const&                                    label,
+                                        winrt::WsiuRenderer::ImGuiTableColumnFlags const& flags,
+                                        float                                             initWidth)
+    {
+        auto command = [label = winrt::to_string(label), flags = static_cast<ImGuiTableColumnFlags_>(flags), initWidth]
+        {
+            ImGui::TableSetupColumn(label.c_str(), flags, initWidth);
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::TableNextRow()
+    {
+        auto command = []
+        {
+            ImGui::TableNextRow();
+        };
+        PushCommand(command);
+    }
+
+    void ImguiContext::TableNextColumn()
+    {
+        auto command = []
+        {
+            ImGui::TableNextColumn();
+        };
+        PushCommand(command);
     }
 
     void ImguiContext::PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x)

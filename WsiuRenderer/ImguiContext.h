@@ -57,11 +57,16 @@ namespace winrt::WsiuRenderer::implementation
         bool GetActive() const;
         void SetActive(bool active);
         void SetTitle(hstring const& title) const;
+        
+        void SetCursorPosX(float x);
+        void CalcTextSize(hstring const& text, winrt::WsiuRenderer::FloatNChangedCallback const& handle);
 
         void Separator();
         void SeparatorText(hstring const& text);
 
         void SameLine();
+
+        void SetNextItemWidth(float width);
 
         void PushID(uint32_t id);
         void PopID();
@@ -82,6 +87,14 @@ namespace winrt::WsiuRenderer::implementation
 
         void TreeNodeEx(hstring const& label, winrt::WsiuRenderer::ImGuiTreeNodeFlags const& flags);
         void TreePop();
+
+        void BeginTable(hstring const& strId, int columnsCount, winrt::WsiuRenderer::ImGuiTableFlags const& flags);
+        void EndTable();
+
+        void TableSetupColumn(hstring const& label, winrt::WsiuRenderer::ImGuiTableColumnFlags const& flags, float initWidth);
+
+        void TableNextRow();
+        void TableNextColumn();
 
         void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x);
         void PushStyleVar(winrt::WsiuRenderer::ImGuiStyleVar const& style, float x, float y);
