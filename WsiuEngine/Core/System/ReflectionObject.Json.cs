@@ -28,7 +28,8 @@ namespace WsiuEngine.Core.System
                 AllowTrailingCommas = true,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString,
                 Converters = { 
-                    new IdProviderJsonConverter()
+                    new IdProviderJsonConverter(),
+                    new TypeJsonConverter(),
                 }
             });
         }
