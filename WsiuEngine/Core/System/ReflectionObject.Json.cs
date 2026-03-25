@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Diagnostics;
+using WsiuEngine.Collections;
 
 namespace WsiuEngine.Core.System
 {
@@ -16,7 +17,7 @@ namespace WsiuEngine.Core.System
                 get => jsonOption.Value;
                 set => jsonOption = new(() => new JsonSerializerOptions(value));
             }
-            public static Lazy<JsonSerializerOptions> jsonOption = new(() => new JsonSerializerOptions(DefaultJsonOption));
+            private static Lazy<JsonSerializerOptions> jsonOption = new(() => new JsonSerializerOptions(DefaultJsonOption));
 
             public static JsonSerializerOptions DefaultJsonOption => defaultJsonOption.Value;
             private static readonly Lazy<JsonSerializerOptions> defaultJsonOption = new(() =>
@@ -25,11 +26,19 @@ namespace WsiuEngine.Core.System
                 IncludeFields = true,
                 WriteIndented = true,
                 AllowTrailingCommas = true,
-                NumberHandling = JsonNumberHandling.AllowReadingFromString
+                NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                Converters = { 
+                    new IdProviderJsonConverter()
+                }
             });
         }
 
         public static string SerializeToJson(object obj)
+        {
+            return SerializeToJson(obj, SerializedOption.JsonOption);
+        }
+
+        public static string SerializeToJson(object obj, JsonSerializerOptions options)
         {
             IReadOnlyList<Field> fields = GetFields(obj);
             if (fields.Count == 0)
@@ -65,11 +74,11 @@ namespace WsiuEngine.Core.System
                     if (typeof(IIdentity).IsAssignableFrom(type))
                     {
                         IIdentity identity = (IIdentity)value;
-                        value = SerializeIdentityToJson(identity);
+                        value = SerializeIdentityToJson(identity, options);
                     }
                     else if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
                     {
-                        value = SerializeToJson(value);
+                        value = SerializeToJson(value, options);
                     }
                     else
                     {
@@ -81,11 +90,11 @@ namespace WsiuEngine.Core.System
                 fieldsNode[name] = value;
             }
 
-            json = JsonSerializer.Serialize(fieldsNode, SerializedOption.JsonOption);
+            json = JsonSerializer.Serialize(fieldsNode, options);
             return json;
         }
 
-        private static object SerializeIdentityToJson(IIdentity identity)
+        private static object SerializeIdentityToJson(IIdentity identity, JsonSerializerOptions options)
         {
             if (identity.IsEntity == true) 
             {
@@ -94,7 +103,7 @@ namespace WsiuEngine.Core.System
             }
             else
             {
-                return SerializeToJson(identity);
+                return SerializeToJson(identity, options);
             }
         }
 
@@ -106,13 +115,19 @@ namespace WsiuEngine.Core.System
         }
         private static readonly ThreadLocal<List<IdEntityRecord>> recordListBuffer = new(() => []);
         private static readonly ThreadLocal<List<ISerializationCallback>> callbackListBuffer = new(() => []);
+
         public static void DeserializeFromJson(object obj, string json)
+        {
+            DeserializeFromJson(obj, json, SerializedOption.JsonOption);
+        }
+
+        public static void DeserializeFromJson(object obj, string json, JsonSerializerOptions options)
         {
             List<IdEntityRecord> records = recordListBuffer.Value!;
             List<ISerializationCallback> callbacks = callbackListBuffer.Value!;
             records.Clear();
             callbacks.Clear();
-            PoulateFromJson(obj, json, ref records, ref callbacks);
+            PoulateFromJson(obj, json, ref records, ref callbacks, options);
             ResolveReferences(records);
             foreach (ISerializationCallback callback in callbacks)
             {
@@ -120,7 +135,7 @@ namespace WsiuEngine.Core.System
             }
         }
 
-        internal static void PoulateFromJson(object obj, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks)
+        internal static void PoulateFromJson(object obj, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks, JsonSerializerOptions options)
         {
             records ??= [];
             callbacks ??= [];
@@ -135,7 +150,7 @@ namespace WsiuEngine.Core.System
             Dictionary<string, JsonElement>? jsonElements;
             try
             {
-                jsonElements = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, SerializedOption.JsonOption);
+                jsonElements = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, options);
             }
             catch (Exception ex)
             {
@@ -182,7 +197,7 @@ namespace WsiuEngine.Core.System
 
                         if (isIdEntity)
                         {
-                            Guid? uid = element.Deserialize<Guid>(SerializedOption.JsonOption);
+                            Guid? uid = element.Deserialize<Guid>(options);
                             if (uid != null)
                             {
                                 records.Add(new IdEntityRecord
@@ -202,12 +217,12 @@ namespace WsiuEngine.Core.System
                             {
                                 string? rawJson = element.GetString();
                                 if(rawJson != null)
-                                    PoulateFromJson(fieldObj, rawJson, ref records, ref callbacks);
+                                    PoulateFromJson(fieldObj, rawJson, ref records, ref callbacks, options);
                             }                        
                             continue;
                         }
 
-                        object? value = element.Deserialize(type, SerializedOption.JsonOption);
+                        object? value = element.Deserialize(type, options);
                         if (value == null)
                             continue;
 
