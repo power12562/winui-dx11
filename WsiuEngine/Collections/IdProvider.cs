@@ -12,6 +12,8 @@ namespace WsiuEngine.Collections
         [HideInInspector]
         private UInt64 _idCounter = 0;
 
+        public UInt64 IdCounter => _idCounter;
+
         [SerializeField]
         [HideInInspector]
         private UInt64 _maxId = UInt64.MaxValue;
@@ -28,14 +30,13 @@ namespace WsiuEngine.Collections
         [HideInInspector]
         private UInt64[]? _reusableIdsBuffer;
 
+        public IEnumerable ReusableIds => _reusableIds;
+
         [SerializeField]
         [HideInInspector]
         private HashSet<UInt64> _activeIds = [];
 
-        public IEnumerator GetActiveIds()
-        {
-            return _activeIds.GetEnumerator();
-        }
+        public IEnumerable ActiveIds => _activeIds;
 
         public UInt64 Generate()
         {
