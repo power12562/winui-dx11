@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Numerics;
@@ -11,8 +12,8 @@ namespace WsiuEngine.Core.System
 {
     public static partial class ReflectionObject
     {
-        private delegate void DrawHandler(ImguiContext ctx, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback);
-        private static readonly Dictionary<Type, DrawHandler> drawFieldHandler = new(ReferenceEqualityComparer.Instance)
+        private delegate void DrawFieldHandler(ImguiContext ctx, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback);
+        private static readonly Dictionary<Type, DrawFieldHandler> typeByDrawFieldHandler = new(ReferenceEqualityComparer.Instance)
         {
             [typeof(string)] = (ctx, n, v, atts, cb) =>
             {
@@ -33,8 +34,8 @@ namespace WsiuEngine.Core.System
                     }
                 }
             },
-            [typeof(float)] = (ctx, n, v, atts, cb) => ctx.DragFloat(n, (float)v, v => cb(v)),
-            [typeof(double)] = (ctx, n, v, atts, cb) => ctx.DragDouble(n, (double)v, v => cb(v)),
+            [typeof(Single)] = (ctx, n, v, atts, cb) => ctx.DragFloat(n, (Single)v, v => cb(v)),
+            [typeof(Double)] = (ctx, n, v, atts, cb) => ctx.DragDouble(n, (Double)v, v => cb(v)),
             [typeof(Int16)] = (ctx, n, v, atts, cb) => ctx.DragInt16(n, (Int16)v, v => cb(v)),
             [typeof(Int32)] = (ctx, n, v, atts, cb) => ctx.DragInt32(n, (Int32)v, v => cb(v)),
             [typeof(Int64)] = (ctx, n, v, atts, cb) => ctx.DragInt64(n, (Int64)v, v => cb(v)),
@@ -46,21 +47,87 @@ namespace WsiuEngine.Core.System
             [typeof(Vector4)] = (ctx, n, v, atts, cb) => ctx.DragVector4(n, (Vector4)v, v => cb(v)),
         };
 
-        public static void DrawField(ImguiContext context, Type type, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
+        public static void DrawField(ImguiContext context, Type type, string name, object value, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
         {
-            if (drawFieldHandler.TryGetValue(type, out var handle))
+            if (typeByDrawFieldHandler.TryGetValue(type, out var handle) == true)
             {
-                handle(context, name, value, attributes, callback);
+                if (isReadOnly)
+                {
+                    context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                }
+                context.Text(name);
+                context.SameLine();
+                handle(context, $"[{type.Name}]##{name}", value, attributes, callback);
+                if (isReadOnly)
+                {
+                    context.PopStyleVar();
+                }
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                DrawEnumerable(context, type, name, (IEnumerable)value, isReadOnly, attributes, callback);
             }
             else
             {
-                context.Text($"{name}: {value} ({type.Name})");
+                context.Selectable($"{name} {value} [{type.Name}]", false, ImGuiSelectableFlags.None, ()=>{ });
             }
         }
 
-        public static void DrawField(ImguiContext context, Type type, string name, object value, Action<object> callback)
+        public static void DrawField(ImguiContext context, Type type, string name, object value, bool isReadOnly, Action<object> callback)
         {
-            DrawField(context, type, name, value, null, callback);
+            DrawField(context, type, name, value, isReadOnly, null, callback);
+        }
+
+        public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback)
+        {    
+            //TODO: List 및 배열은 따로 처리
+            if (false && values is IList list)
+            {
+                if (type.IsArray)
+                {
+
+                }
+                else 
+                {
+
+                }
+            }
+            else
+            {
+                context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                context.TreeNodeEx($"{name} [{type.Name}]", ImGuiTreeNodeFlags.None);
+                uint index = 0;
+                foreach (object? value in values)
+                {
+                    if(value == null)
+                    {
+                        context.Selectable($"({index}) null", false, ImGuiSelectableFlags.None, () => { });
+                    }
+                    else
+                    {
+                        object val = value;
+                        Type valueType = val.GetType();
+                        context.Text($"({index})".PadRight(5)); 
+                        context.SameLine();
+                        if (typeByDrawFieldHandler.TryGetValue(valueType, out var handle) == true)
+                        {
+                            handle(context, $"[{valueType.Name}]##({index})", val, attributes, (obj) => { });
+                        }
+                        else
+                        {
+                            context.Selectable($"({index}) {val} [{valueType.Name}]", false, ImGuiSelectableFlags.None, () => { });
+                        }
+                    }
+                    ++index;
+                }
+                context.TreePop();
+                context.PopStyleVar();
+            }
+        }
+
+        public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, Action<IEnumerable> callback)
+        {
+            DrawEnumerable(context, type, name, values, isReadOnly, null, callback);
         }
 
         public static void DrawFields(ImguiContext context, object target)
@@ -80,14 +147,14 @@ namespace WsiuEngine.Core.System
                 {
                     if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
                     {
-                        context.TreeNodeEx(field.Name, ImGuiTreeNodeFlags.None);
+                        context.TreeNodeEx($"{field.Name} [{type.Name}]", ImGuiTreeNodeFlags.None);
                         DrawFields(context, value);
                         context.TreePop();
                     }
                     else if (typeof(IIdentity).IsAssignableFrom(type))
                     {
                         context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                        context.Text($"(Reference: {target.GetType().Name})");
+                        context.Text($"(Reference: {type.Name})");
                         context.PopStyleVar();
                     }             
                     continue;
@@ -101,22 +168,10 @@ namespace WsiuEngine.Core.System
 
                 string name = field.Name;
                 bool isReadOnly = field.Set == null;
-                if (isReadOnly)
-                {
-                    context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                }
-
-                context.Text(name);
-                context.SameLine();
-                DrawField(context, type, $"[{type.Name}]##{name}", value, attributes, (v) =>
-                {
-                    field.Set?.Invoke(target, v);
+                DrawField(context, type, name, value, isReadOnly, attributes, (obj) => 
+                { 
+                    field.Set?.Invoke(target, obj); 
                 });
-
-                if (isReadOnly)
-                {
-                    context.PopStyleVar();
-                }
             }
         }
 
@@ -151,7 +206,7 @@ namespace WsiuEngine.Core.System
                         }
                         int index = i;
 
-                        DrawField(context, parameterType, parameterName, buffer[index], (v) =>
+                        DrawField(context, parameterType, parameterName, buffer[index], false, (v) =>
                         {
                             buffer[index] = v;
                         });
