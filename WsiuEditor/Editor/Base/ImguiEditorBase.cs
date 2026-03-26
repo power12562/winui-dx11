@@ -4,7 +4,7 @@ using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuRenderer;
 
-namespace WsiuEditor.Editor
+namespace WsiuEditor.Editor.Base
 {
     public abstract class ImguiEditorBase : IEditor
     {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using WsiuEditor.Editor.Base;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
