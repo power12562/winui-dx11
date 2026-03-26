@@ -16,16 +16,28 @@ namespace WsiuEngine.Core.System
         Up          
     }
 
-    public class InputSystem(EngineCore engineCore)
+    public class InputSystem
     {
-        private EngineCore _engine = engineCore;
+        private static InputSystem instance = null!;
+        private EngineCore _engine;
 
         private KeyboardInputState _keyboardLastState;
         private KeyboardInputState _keyboardState;
         private MouseInputState _mouseInputLastState;
         private MouseInputState _mouseInputState;
 
-        public KeyState GetKeyState(Keyboard.KeyCode keyCode)
+        internal static void Initialize(EngineCore _engine)
+        {
+            instance = new InputSystem(_engine);
+        }
+
+        private InputSystem(EngineCore engineCore)
+        {
+            _engine = engineCore;
+        }
+
+        public static KeyState GetKeyState(Keyboard.KeyCode keyCode) => instance.GetKeyStateInternal(keyCode);
+        internal KeyState GetKeyStateInternal(Keyboard.KeyCode keyCode)
         {
             bool last = IsKeyboardBitSet(ref _keyboardLastState, keyCode);
             bool current = IsKeyboardBitSet(ref _keyboardState, keyCode);
@@ -36,7 +48,8 @@ namespace WsiuEngine.Core.System
             return last ? KeyState.Up : KeyState.None;
         }
 
-        public KeyState GetKeyState(Mouse.KeyCode keyCode)
+        public static KeyState GetKeyState(Mouse.KeyCode keyCode) => instance.GetKeyStateInternal(keyCode);
+        internal KeyState GetKeyStateInternal(Mouse.KeyCode keyCode)
         {
             bool last = IsMouseKeySet(ref _mouseInputLastState, keyCode);
             bool current = IsMouseKeySet(ref _mouseInputState, keyCode);
@@ -91,7 +104,9 @@ namespace WsiuEngine.Core.System
             }
         }
 
-        internal void Update()
+        public static void Update() => instance.UpdateInternal();
+
+        internal void UpdateInternal()
         {
             UpdateMouse();
             UpdateKeyboard();
