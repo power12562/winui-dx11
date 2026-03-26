@@ -142,6 +142,12 @@ namespace WsiuEngine.Core.System
             DrawEnumerable(context, type, name, values, isReadOnly, null, callback);
         }
 
+        public static void DrawStaticFields<TClass>(ImguiContext context) where TClass : class
+        {
+            IReadOnlyList<Field> fields = GetStaticFields<TClass>();
+            DrawFields(context, null, fields);
+        }
+
         public static void DrawFields(ImguiContext context, object target)
         {
             Type targetType = target.GetType();
@@ -149,6 +155,11 @@ namespace WsiuEngine.Core.System
                 return;
 
             IReadOnlyList<Field> fields = GetFields(target);
+            DrawFields(context, target, fields);
+        }
+
+        private static void DrawFields(ImguiContext context, object? target, IReadOnlyList<Field> fields)
+        {
             if (fields.Count == 0)
                 return;
 
@@ -157,7 +168,7 @@ namespace WsiuEngine.Core.System
             {
                 if (isTableOpen == false)
                 {
-                    context.BeginTable($"##{target.GetHashCode()}", 2, ImGuiTableFlags.SizingFixedFit);
+                    context.BeginTable($"###{fields.GetHashCode()}", 2, ImGuiTableFlags.SizingFixedFit);
                     context.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 0f);
                     context.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch, 0f);
                     isTableOpen = true;
@@ -249,6 +260,11 @@ namespace WsiuEngine.Core.System
             }
             CloseTable();
         }
+        public static void DrawStaticMethods<TClass>(ImguiContext context) where TClass : class
+        {
+            IReadOnlyList<Method> methods = GetStaticMethods<TClass>();
+            DrawMethods(context, null, methods);
+        }
 
         public static void DrawMethods(ImguiContext context, object target)
         {
@@ -256,6 +272,11 @@ namespace WsiuEngine.Core.System
                 return;
 
             IReadOnlyList<Method> methods = GetMethods(target);
+            DrawMethods(context, target, methods);
+        }
+
+        private static void DrawMethods(ImguiContext context, object? target, IReadOnlyList<Method> methods)
+        {
             foreach (Method method in methods)
             {
                 List<ParameterInfo> parameters = method.Parameters;
@@ -269,7 +290,13 @@ namespace WsiuEngine.Core.System
                 else
                 {
                     context.TreeNodeEx(method.DisplayName, ImGuiTreeNodeFlags.None);
-                    object[] buffer = GetMethodParametersBuffer(target, method);
+
+                    object[] buffer;
+                    if (target != null)
+                        buffer = GetMethodParametersBuffer(target, method);
+                    else
+                        buffer = GetMethodParametersBuffer(methods, method);
+
                     for (int i = 0; i < buffer.Length; i++)
                     {
                         ParameterInfo info = parameters[i];
