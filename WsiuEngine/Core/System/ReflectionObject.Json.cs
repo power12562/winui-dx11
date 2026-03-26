@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Diagnostics;
 using WsiuEngine.Collections;
+using WsiuEngine.Core.Interfaces;
 
 namespace WsiuEngine.Core.System
 {

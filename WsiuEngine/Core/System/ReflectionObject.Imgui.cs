@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
+using WsiuEngine.Core.Interfaces;
 namespace WsiuEngine.Core.System
 {
     public static partial class ReflectionObject

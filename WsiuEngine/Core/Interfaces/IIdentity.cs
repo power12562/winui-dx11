@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WsiuEngine.Core
+namespace WsiuEngine.Core.Interfaces
 {
     /// <summary>
     /// 고유 식별성을 가진 객체의 최상위 인터페이스입니다.    <br/>
