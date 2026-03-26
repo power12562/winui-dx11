@@ -1,7 +1,12 @@
 ﻿using Microsoft.UI;
 using Microsoft.UI.Windowing;
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Windows.Graphics;
+using WsiuEngine.Core.Interfaces;
+using WsiuEngine.Extensions;
+using WsiuRenderer;
 
 namespace WsiuEngine.Core.System
 {
@@ -24,17 +29,42 @@ namespace WsiuEngine.Core.System
         private readonly WindowId _windowID;
         private readonly AppWindow _appWindow;
 
-        public struct Bounds(int x, int y, int width, int height)
+        public struct Bounds(int x, int y, int width, int height) : IReflectionDrawer
         {
             public int X = x;
             public int Y = y;
             public int Width = width;
             public int Height = height;
+
+            readonly bool IReflectionDrawer.UseCustomDrawing => true;
+            readonly void IReflectionDrawer.DrawFields(ImguiContext context, string name, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes)
+            {
+                Type type = typeof(int);
+                context.TreeNodeEx(name, ImGuiTreeNodeFlags.None);
+                context.PushStyleReadOnly();
+                context.BeginTablePropertyType(GetHashCode().ToString());
+                DrawField(context, type, X, nameof(X));
+                DrawField(context, type, Y, nameof(Y));
+                DrawField(context, type, Width, nameof(Width));
+                DrawField(context, type, Height, nameof(Height));
+                context.EndTable();
+                context.PopStyleReadOnly();
+                context.TreePop();
+            }
+
+            private static void DrawField(ImguiContext context, Type type, int field, string name)
+            {
+                context.TableNextRow();
+                context.TableNextColumn();
+                context.TextUnformatted(name);
+                context.TableNextColumn();
+                ReflectionObject.DrawField(context, type, name, field, true, (v) => { });
+            }
         }
 
         public static int Width => instance.InternalGetAppWindowSize().Width;
         public static int Height => instance.InternalGetAppWindowSize().Height;
-        internal SizeInt32 InternalGetAppWindowSize() => _appWindow.Size;   
+        internal SizeInt32 InternalGetAppWindowSize() => _appWindow.Size;
 
         public static int PosX => instance.InternalGetAppWindowPosition().X;
         public static int PosY => instance.InternalGetAppWindowPosition().Y;
@@ -60,7 +90,7 @@ namespace WsiuEngine.Core.System
             _appWindow.ResizeClient(new(width, height));
         }
 
-   
+
         public static void Maximize() => instance.InternalMaximize();
         internal void InternalMaximize()
         {
@@ -68,6 +98,7 @@ namespace WsiuEngine.Core.System
                 overlapped.Maximize();
         }
 
+        [HideInInspector]
         public static Bounds RestoreBounds => instance.InternalGetRestoreBounds();
         internal Bounds InternalGetRestoreBounds()
         {
