@@ -53,7 +53,7 @@ namespace WsiuEditor.System
         [SerializeField]
         private List<Type>? _singletonEditorInstanceLayout = null;
 
-        public void OnBeforeSerialize()
+        void ReflectionObject.ISerializationCallback.OnBeforeSerialize()
         {
             BeforeSerializeImguiLayout();
             BeforeSerializeTransientEditorLayout();
@@ -84,7 +84,7 @@ namespace WsiuEditor.System
             _singletonEditorInstanceLayout = _singletonEditorInstance.Keys.ToList();
         }
         
-        public void OnAfterDeserialize()
+        void ReflectionObject.ISerializationCallback.OnAfterDeserialize()
         {
             AfterDeserializeImguiLayout();
             AfterDeserializeTransientEditorLayout();
