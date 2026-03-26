@@ -50,7 +50,14 @@ namespace WsiuEngine.Core.System
 
         public static void DrawField(ImguiContext context, Type type, string name, object value, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
         {
-            if (typeByDrawFieldHandler.TryGetValue(type, out var handle) == true)
+            if (value is IReflectionDrawer drawer)
+            {
+                if (drawer.UseCustomDrawing)
+                {
+                    drawer.DrawFields(context, isReadOnly, attributes);
+                }
+            }
+            else if (typeByDrawFieldHandler.TryGetValue(type, out var handle) == true)
             {
                 if (isReadOnly)
                 {
@@ -119,16 +126,26 @@ namespace WsiuEngine.Core.System
                     else
                     {
                         object val = value;
-                        Type valueType = val.GetType();
-                        context.TextUnformatted($"({index})".PadRight(5)); 
-                        context.SameLine();
-                        if (typeByDrawFieldHandler.TryGetValue(valueType, out var handle) == true)
+                        if (val is IReflectionDrawer drawer)
                         {
-                            handle(context, $"[{valueType.Name}]##({index})", val, attributes, (obj) => { });
+                            if (drawer.UseCustomDrawing)
+                            {
+                                drawer.DrawFields(context, isReadOnly, attributes);
+                            }
                         }
                         else
                         {
-                            context.Selectable($"({index}) {val} [{valueType.Name}]", false, ImGuiSelectableFlags.None, () => { });
+                            Type valueType = val.GetType();
+                            context.TextUnformatted($"({index})".PadRight(5));
+                            context.SameLine();
+                            if (typeByDrawFieldHandler.TryGetValue(valueType, out var handle) == true)
+                            {
+                                handle(context, $"[{valueType.Name}]##({index})", val, attributes, (obj) => { });
+                            }
+                            else
+                            {
+                                context.Selectable($"({index}) {val} [{valueType.Name}]", false, ImGuiSelectableFlags.None, () => { });
+                            }
                         }
                     }
                     ++index;
@@ -195,7 +212,19 @@ namespace WsiuEngine.Core.System
                 {
                     continue;
                 }
-           
+
+                // 인터페이스 처리
+                bool isReadOnly = field.Set == null;
+                if (value is IReflectionDrawer drawer)
+                {
+                    if (drawer.UseCustomDrawing)
+                    {
+                        CloseTable();
+                        drawer.DrawFields(context, isReadOnly, attributes);
+                        continue;
+                    }                
+                }
+      
                 // 클래스 처리
                 Type type = field.Type;
                 if (type.IsClass && IsSystemNamespace(type) == false)
@@ -216,7 +245,6 @@ namespace WsiuEngine.Core.System
 
                 // 타입 처리
                 string name = field.Name;
-                bool isReadOnly = field.Set == null;
                 bool hasDrawHandler = typeByDrawFieldHandler.TryGetValue(type, out var handle) == true;
                 if (hasDrawHandler == false && value is IEnumerable enumerable)
                 {
