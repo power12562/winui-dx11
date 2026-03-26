@@ -73,9 +73,8 @@ namespace WsiuEngine.Core.System
                 Type type = field.Type;
                 if (type.IsClass && IsSystemNamespace(type) == false)
                 {
-                    if (typeof(IIdentity).IsAssignableFrom(type))
+                    if (value is IIdentity identity)
                     {
-                        IIdentity identity = (IIdentity)value;
                         value = SerializeIdentityToJson(identity, options);
                     }
                     else if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
@@ -178,12 +177,13 @@ namespace WsiuEngine.Core.System
                 if (setter == null)
                     continue;
 
+                object? fieldValue = field.Get(obj);
                 Type type = field.Type;
                 bool isIdEntity = false;
                 bool isSerializableClass = false;
                 if (type.IsClass && IsSystemNamespace(type) == false)
                 {
-                    if (typeof(IIdentity).IsAssignableFrom(type))
+                    if (fieldValue is IIdentity)
                         isIdEntity = true;
                     else if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
                         isSerializableClass = true;
@@ -216,12 +216,11 @@ namespace WsiuEngine.Core.System
 
                         if (isSerializableClass == true)
                         {
-                            object? fieldObj = field.Get(obj);
-                            if (fieldObj != null)
+                            if (fieldValue != null)
                             {
                                 string? rawJson = element.GetString();
                                 if(rawJson != null)
-                                    PoulateFromJson(fieldObj, rawJson, ref records, ref callbacks, options);
+                                    PoulateFromJson(fieldValue, rawJson, ref records, ref callbacks, options);
                             }                        
                             continue;
                         }
