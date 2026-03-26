@@ -25,7 +25,7 @@ namespace WsiuEngine.Collections
             set => _maxId = value;
         }
 
-        private Queue<UInt64> _reusableIds = new();
+        private Stack<UInt64> _reusableIds = new();
         [SerializeField]
         [HideInInspector]
         private UInt64[]? _reusableIdsBuffer;
@@ -42,7 +42,7 @@ namespace WsiuEngine.Collections
         {
             UInt64 id;
             if(_reusableIds.Count > 0)
-                id = _reusableIds.Dequeue();
+                id = _reusableIds.Pop();
             else
             {
                 if (_idCounter == _maxId)
@@ -58,7 +58,7 @@ namespace WsiuEngine.Collections
         public void Release(UInt64 id)
         {
             if (_activeIds.Remove(id))
-                _reusableIds.Enqueue(id);
+                _reusableIds.Push(id);
             //else // TODO: 이미 파괴되었거나 존재하지 않는 ID에 대한 경고 로그 필요
         }
 
