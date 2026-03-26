@@ -56,5 +56,25 @@ namespace WsiuEngine.Extensions
                 callback(outVector);
             });
         }
+
+        /// <summary>
+        /// columns가 2개인 key, value 그리기용 테이블을 Begin 합니다.
+        /// </summary>
+        public static void BeginTablePropertyType(this ImguiContext context, string tableId)
+        {
+            context.BeginTable($"###{tableId}", 2, ImGuiTableFlags.SizingFixedFit);
+            context.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 0f);
+            context.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch, 0f);
+        }
+
+        public static void PushStyleReadOnly(this ImguiContext context)
+        {
+            context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+        }
+
+        public static void PopStyleReadOnly(this ImguiContext context)
+        {
+            context.PopStyleVar();
+        }
     }
 }
