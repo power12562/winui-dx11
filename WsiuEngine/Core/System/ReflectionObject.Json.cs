@@ -156,7 +156,9 @@ namespace WsiuEngine.Core.System
             catch (Exception ex)
             {
                 //TODO: 이후 로그 작성 필요
-                Debug.WriteLine(ex);
+                Debug.WriteLine($"[Deserialize Error] {ex.Message}");
+                if(Debugger.IsAttached) 
+                    Debugger.Break();
                 return;
             }
 
@@ -229,9 +231,12 @@ namespace WsiuEngine.Core.System
 
                         setter(obj, value);
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         //TODO: 이후 로그 작성 필요
+                        Debug.WriteLine($"[Deserialize Error] {ex.Message}");
+                        if (Debugger.IsAttached) 
+                            Debugger.Break();
                     }
                 }
             }
