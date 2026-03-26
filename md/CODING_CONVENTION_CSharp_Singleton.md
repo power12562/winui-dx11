@@ -17,7 +17,7 @@ public partial class SystemManager : ISystemService
     private static SystemManager instance = null!;
 
     // static Initialize 함수를 통해 인스턴스 생성 및 초기화
-    public static void Initialize()
+    internal static void Initialize()
     {
         if (instance != null) return;
         instance = new SystemManager();
