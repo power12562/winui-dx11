@@ -7,8 +7,8 @@ namespace WsiuEditor.Editor
 {
     internal class TimeEditor : ImguiEditorBase
     {
-        public TimeEditor(Engine engine, UInt64 id) : base(engine, id) 
-        {       
+        public TimeEditor(Engine engine, UInt64 id) : base(engine, id)
+        {
             _imguiContext.InitializeWindowClosable("Time");
             Name = "Time";
         }
@@ -17,7 +17,7 @@ namespace WsiuEditor.Editor
         {
             ImguiContext.SettingFloat(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
             ImguiContext.SettingDouble(0.01f, 0, 0, "%.3f", ImGuiSliderFlags.None);
-            ReflectionObject.DrawFields(_imguiContext, Engine.Time);
+            ReflectionObject.DrawStaticFields<Time>(_imguiContext);
         }
 
     }
