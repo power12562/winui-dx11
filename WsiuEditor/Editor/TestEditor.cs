@@ -88,9 +88,9 @@ namespace WsiuEditor.Editor
             }
 
             [SerializeMethod]
-            public int AddFoo(int a, int b, int c)
+            public int AddFoo(int foo, int tempParameter, int c)
             {
-                return a + b + c;
+                return foo + tempParameter + c;
             }
         }
 
