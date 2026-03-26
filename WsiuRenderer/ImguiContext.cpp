@@ -15,7 +15,8 @@ namespace winrt::WsiuRenderer::implementation
 
     ImguiContext::~ImguiContext()
     {
-        _engineCore.EditorDestroy(_windowID);
+        if (INVALID_WINDOW_ID != _windowID)
+            _engineCore.EditorDestroy(_windowID);
     }
 
     hstring ImguiContext::SaveIniSettingsToMemory()
@@ -106,16 +107,25 @@ namespace winrt::WsiuRenderer::implementation
 
     bool ImguiContext::GetActive() const
     {
+        if (INVALID_WINDOW_ID == _windowID)
+            return false;
+
         return _engineCore.EditorGetActive(_windowID);
     }
 
     void ImguiContext::SetActive(bool active)
     {
+        if (INVALID_WINDOW_ID == _windowID)
+            return;
+
         _engineCore.EditorSetActive(_windowID, active);
     }
 
     void ImguiContext::SetTitle(hstring const& title) const
     {
+        if (INVALID_WINDOW_ID == _windowID)
+            return;
+
         _engineCore.EditorChangeTitle(_windowID, title);
     }
 

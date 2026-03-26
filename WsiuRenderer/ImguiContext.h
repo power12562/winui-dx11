@@ -8,6 +8,8 @@ namespace winrt::WsiuRenderer::implementation
     struct ImguiContext : ImguiContextT<ImguiContext>
     {
         using EngineCore = winrt::WsiuRenderer::EngineCore;
+        inline static constexpr uint64_t INVALID_WINDOW_ID = (std::numeric_limits<uint64_t>::max)();
+
         template<typename _scala_type>
         struct ScalaSetting
         {
@@ -182,8 +184,8 @@ namespace winrt::WsiuRenderer::implementation
         using CommandsStack = std::vector<size_t>;
         using CommandsStackCounter = slot_pool<size_t>;
         EngineCore _engineCore;
-        uint64_t _windowID   = (std::numeric_limits<uint64_t>::max)();
-        size_t  _stackDepth   = 0;
+        uint64_t _windowID  = INVALID_WINDOW_ID;
+        size_t  _stackDepth = 0;
         Commands _commands;
         CommandsStack _commandsStack;
         CommandsStackCounter _commandsStackCounter;
