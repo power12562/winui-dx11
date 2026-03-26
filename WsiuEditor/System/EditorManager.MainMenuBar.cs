@@ -72,6 +72,10 @@ namespace WsiuEditor.System
                         {
                             InternalActiveSingletonEditor(type);
                         }
+                        else
+                        {
+                            editor!.Active = false;
+                        }
                     });
                 }
             }
