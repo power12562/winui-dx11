@@ -34,6 +34,7 @@ namespace WsiuEngine.Core.System
                     }
                 }
             },
+            [typeof(Boolean)] = (ctx, n, v, atts, cb) => ctx.Checkbox(n, (Boolean)v, v => cb(v)),
             [typeof(Single)] = (ctx, n, v, atts, cb) => ctx.DragFloat(n, (Single)v, v => cb(v)),
             [typeof(Double)] = (ctx, n, v, atts, cb) => ctx.DragDouble(n, (Double)v, v => cb(v)),
             [typeof(Int16)] = (ctx, n, v, atts, cb) => ctx.DragInt16(n, (Int16)v, v => cb(v)),
@@ -63,9 +64,9 @@ namespace WsiuEngine.Core.System
                     context.PopStyleVar();
                 }
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(type))
+            else if (value is IEnumerable enumerable)
             {
-                DrawEnumerable(context, type, name, (IEnumerable)value, isReadOnly, attributes, callback);
+                DrawEnumerable(context, type, name, enumerable, isReadOnly, attributes, callback);
             }
             else
             {
@@ -206,7 +207,7 @@ namespace WsiuEngine.Core.System
                         DrawFields(context, value);
                         context.TreePop();
                     }
-                    else if (typeof(IIdentity).IsAssignableFrom(type))
+                    else if (value is IIdentity identity)
                     {
                         context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, () => {});
                     }             
@@ -217,10 +218,10 @@ namespace WsiuEngine.Core.System
                 string name = field.Name;
                 bool isReadOnly = field.Set == null;
                 bool hasDrawHandler = typeByDrawFieldHandler.TryGetValue(type, out var handle) == true;
-                if (hasDrawHandler == false && typeof(IEnumerable).IsAssignableFrom(type))
+                if (hasDrawHandler == false && value is IEnumerable enumerable)
                 {
                     CloseTable();
-                    DrawEnumerable(context, type, name, (IEnumerable)value, isReadOnly, attributes, (obj) =>
+                    DrawEnumerable(context, type, name, enumerable, isReadOnly, attributes, (obj) =>
                     {
                         field.Set?.Invoke(target, obj);
                     });
@@ -249,7 +250,7 @@ namespace WsiuEngine.Core.System
                         context.TableNextColumn(); // 1
                         context.TextUnformatted(name);
                         context.TableNextColumn(); // 2
-                        context.Selectable($"{value} [{type.Name}]", false, ImGuiSelectableFlags.None, () => { });
+                        context.Selectable($"{value} [{type.Name}]###{name}", false, ImGuiSelectableFlags.None, () => { });
                     }
 
                     if (isReadOnly)
