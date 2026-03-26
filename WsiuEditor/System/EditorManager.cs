@@ -37,13 +37,23 @@ namespace WsiuEditor.System
             _cleanupEditors = true; 
         }
 
-        public void CreateTransientEditor<T>() where T : IEditor
+        public static void CreateTransientEditor<TEditor>() where TEditor : IEditor
         {
-            Type type = typeof(T);
-            CreateTransientEditor(type);
+            instance.InternalCreateTransientEditor<TEditor>();
         }
 
-        public void CreateTransientEditor(Type type)
+        internal void InternalCreateTransientEditor<TEditor>() where TEditor : IEditor
+        {
+            Type type = typeof(TEditor);
+            InternalCreateTransientEditor(type);
+        }
+
+        public static void CreateTransientEditor(Type type)
+        {
+            instance.InternalCreateTransientEditor(type);
+        }
+
+        internal void InternalCreateTransientEditor(Type type)
         {
             CreateTransientEditorWithId(type, GenerateEditorId(type));
         }
@@ -58,13 +68,23 @@ namespace WsiuEditor.System
             }
         }
 
-        public void ActiveSingletonEditor<T>() where T : IEditor
+        public static void ActiveSingletonEditor<TEditor>() where TEditor: IEditor
         {
-            Type type = typeof(T);
-            ActiveSingletonEditor(type);
+            instance.InternalActiveSingletonEditor<TEditor>();
         }
 
-        public void ActiveSingletonEditor(Type type) 
+        internal void InternalActiveSingletonEditor<TEditor>() where TEditor : IEditor
+        {
+            Type type = typeof(TEditor);
+            InternalActiveSingletonEditor(type);
+        }
+
+        public static void ActiveSingletonEditor(Type type)
+        {
+            instance.InternalActiveSingletonEditor(type);
+        }
+
+        internal void InternalActiveSingletonEditor(Type type) 
         {
             if (_singletonEditorInstance.TryGetValue(type, out var singletonEditor))
             {
@@ -82,10 +102,10 @@ namespace WsiuEditor.System
 
         internal static void Update()
         {
-            instance.Draw();
+            instance.InternalDraw();
         }
 
-        internal void Draw()
+        internal void InternalDraw()
         {
             DrawMainMenuBar();
             DrawEditors();

@@ -63,9 +63,8 @@ namespace WsiuEditor.System
         private void BeforeSerializeImguiLayout()
         {
             _layoutSettings.ImguiLayoutSettings = ImguiContext.SaveIniSettingsToMemory();
-            Screen screen = Engine.Screen;
-            _layoutSettings.IsMaximized = screen.IsMaximized;
-            Screen.Bounds bounds = screen.RestoreBounds;
+            _layoutSettings.IsMaximized = Screen.IsMaximized;
+            Screen.Bounds bounds = Screen.RestoreBounds;
             _layoutSettings.ScreenPosX = bounds.X;
             _layoutSettings.ScreenPosY = bounds.Y;
             _layoutSettings.ScreenWidth = bounds.Width;
@@ -99,11 +98,10 @@ namespace WsiuEditor.System
 
             ImguiContext.LoadIniSettingsFromMemory(_layoutSettings.ImguiLayoutSettings);
 
-            Screen screen = Engine.Screen;
-            screen.Move(_layoutSettings.ScreenPosY, _layoutSettings.ScreenPosY);
-            screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
+            Screen.Move(_layoutSettings.ScreenPosY, _layoutSettings.ScreenPosY);
+            Screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
             if (_layoutSettings.IsMaximized)
-                screen.Maximize();
+                Screen.Maximize();
         }
 
         private void AfterDeserializeTransientEditorLayout()
@@ -137,22 +135,27 @@ namespace WsiuEditor.System
 
             foreach ( Type type in _singletonEditorInstanceLayout)
             {
-                ActiveSingletonEditor(type);
+                InternalActiveSingletonEditor(type);
             }
             _singletonEditorInstanceLayout = null;
         }
 
         public static void SaveLayoutToFile()
         {
-            instance.SaveLayoutToFileInternal();
+            instance.InternalSaveLayoutToFile();
         }
 
-        internal void SaveLayoutToFileInternal()
+        internal void InternalSaveLayoutToFile()
         {
-            SaveLayoutToFileInternal(EditorManager.GetDefaultLayoutPath());
+            InternalSaveLayoutToFile(EditorManager.GetDefaultLayoutPath());
         }
 
-        internal void SaveLayoutToFileInternal(string filePath)
+        public static void SaveLayoutToFile(string filePath)
+        {
+            instance.InternalSaveLayoutToFile(filePath);
+        }
+
+        internal void InternalSaveLayoutToFile(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -169,15 +172,15 @@ namespace WsiuEditor.System
 
         public static void LoadLayoutFromFile()
         {
-            instance.LoadLayoutFromFileInternal();
+            instance.InternalLoadLayoutFromFile();
         }
 
-        internal void LoadLayoutFromFileInternal()
+        internal void InternalLoadLayoutFromFile()
         {
-            LoadLayoutFromFileInternal(EditorManager.GetDefaultLayoutPath());
+            InternalLoadLayoutFromFile(EditorManager.GetDefaultLayoutPath());
         }
 
-        internal void LoadLayoutFromFileInternal(string filePath)
+        internal void InternalLoadLayoutFromFile(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -196,7 +199,12 @@ namespace WsiuEditor.System
             ReflectionObject.DeserializeFromJson(this, layoutSettings);
         }
 
-        public async Task SaveLayoutToFileAsync(string filePath)
+        public static async Task SaveLayoutToFileAsync(string filePath)
+        {
+            await instance.InternalSaveLayoutToFileAsync(filePath);
+        }
+
+        internal async Task InternalSaveLayoutToFileAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) 
                 throw new ArgumentNullException(nameof(filePath));
@@ -211,7 +219,12 @@ namespace WsiuEditor.System
             await File.WriteAllTextAsync(filePath, settings);
         }
 
-        public async Task LoadLayoutFromFileAsync(string filePath)
+        public static async Task LoadLayoutFromFileAsync(string filePath)
+        {
+            await instance.InternalLoadLayoutFromFileAsync(filePath);
+        }
+
+        internal async Task InternalLoadLayoutFromFileAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
