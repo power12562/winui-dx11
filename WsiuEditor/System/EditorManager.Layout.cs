@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
+using WsiuEngine.Extensions;
 using WsiuRenderer;
 
 namespace WsiuEditor.System
@@ -176,7 +178,12 @@ namespace WsiuEditor.System
             }
 
             string settings = File.ReadAllText(filePath);
-            ReflectionObject.DeserializeFromJson(this, settings);
+            LoadLayoutFromMemory(settings);
+        }
+
+        private void LoadLayoutFromMemory(string layoutSettings)
+        {
+            ReflectionObject.DeserializeFromJson(this, layoutSettings);
         }
 
         public async Task SaveLayoutToFileAsync(string filePath)
@@ -207,6 +214,21 @@ namespace WsiuEditor.System
             Task<string> task = File.ReadAllTextAsync(filePath);
             string settings = await task;
             ReflectionObject.DeserializeFromJson(this, settings);
+        }
+
+        public static void ShowLayoutInExplorer()
+        {
+            ShowLayoutInExplorerAsync().Forget();
+        }
+
+        public static async Task ShowLayoutInExplorerAsync()
+        {
+            string path = ApplicationLocalFolderPath;
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
+            if (folder != null)
+            {
+                await Launcher.LaunchFolderAsync(folder);
+            }
         }
     }
 }
