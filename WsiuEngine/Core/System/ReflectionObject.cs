@@ -152,13 +152,13 @@ namespace WsiuEngine.Core.System
             return member.StaticFields;
         }
 
-        public static IReadOnlyList<Method> GetStaticMethod<TClass>() where TClass : class => GetStaticMethod(typeof(TClass));
-        public static IReadOnlyList<Method> GetStaticMethod(object obj)
+        public static IReadOnlyList<Method> GetStaticMethods<TClass>() where TClass : class => GetStaticMethods(typeof(TClass));
+        public static IReadOnlyList<Method> GetStaticMethods(object obj)
         {
             Type type = obj.GetType();
-            return GetStaticMethod(type);
+            return GetStaticMethods(type);
         }
-        public static IReadOnlyList<Method> GetStaticMethod(Type type)
+        public static IReadOnlyList<Method> GetStaticMethods(Type type)
         {
             Member member = TryInsert(type);
             return member.StaticMethods;
