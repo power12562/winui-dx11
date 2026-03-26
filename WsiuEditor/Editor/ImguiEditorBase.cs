@@ -33,7 +33,7 @@ namespace WsiuEditor.Editor
             get => _imguiContext.GetActive();
             set => _imguiContext.SetActive(value);
         }
-        private readonly string _typeName;
+
 
         protected string ImguiTitle => _imguiTitle;
         private string _imguiTitle;
@@ -50,6 +50,7 @@ namespace WsiuEditor.Editor
 
         protected readonly ImguiContext _imguiContext;
         protected readonly EngineCore _engineCore;
+        private readonly string _typeName;
         protected ImguiEditorBase(Engine engine, UInt64 id)
         {
             _engineCore = engine.EngineCore;
