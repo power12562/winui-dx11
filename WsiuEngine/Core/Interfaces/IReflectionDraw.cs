@@ -18,6 +18,6 @@ namespace WsiuEngine.Core.Interfaces
     {
         Boolean UseCustomDrawing { get; }
 
-        void DrawFields(ImguiContext context, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes);
+        void DrawFields(ImguiContext context, string name, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes);
     }
 }

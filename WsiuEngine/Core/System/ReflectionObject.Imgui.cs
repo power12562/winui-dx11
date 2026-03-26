@@ -48,42 +48,36 @@ namespace WsiuEngine.Core.System
             [typeof(Vector4)] = (ctx, n, v, atts, cb) => ctx.DragVector4(n, (Vector4)v, v => cb(v)),
         };
 
-        public static void DrawField(ImguiContext context, Type type, string name, object value, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
+        public static void DrawField(ImguiContext context, Type type, string strId, object value, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback)
         {
             if (value is IReflectionDrawer drawer)
             {
                 if (drawer.UseCustomDrawing)
                 {
-                    drawer.DrawFields(context, isReadOnly, attributes);
+                    drawer.DrawFields(context, strId, isReadOnly, attributes);
                 }
             }
             else if (typeByDrawFieldHandler.TryGetValue(type, out var handle) == true)
             {
+                if(isReadOnly)
+                    context.PushStyleReadOnly();
+                handle(context, $"[{type.Name}]###{strId}", value, attributes, callback);
                 if (isReadOnly)
-                {
-                    context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
-                }
-                context.TextUnformatted(name);
-                context.SameLine();
-                handle(context, $"[{type.Name}]###{name}", value, attributes, callback);
-                if (isReadOnly)
-                {
-                    context.PopStyleVar();
-                }
+                    context.PopStyleReadOnly();
             }
             else if (value is IEnumerable enumerable)
             {
-                DrawEnumerable(context, type, name, enumerable, isReadOnly, attributes, callback);
+                DrawEnumerable(context, type, strId, enumerable, isReadOnly, attributes, callback);
             }
             else
             {
-                context.Selectable($"{name} {value} [{type.Name}]", false, ImGuiSelectableFlags.None, ()=>{ });
+                context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, ()=>{ });
             }
         }
 
-        public static void DrawField(ImguiContext context, Type type, string name, object value, bool isReadOnly, Action<object> callback)
+        public static void DrawField(ImguiContext context, Type type, string strId, object value, bool isReadOnly, Action<object> callback)
         {
-            DrawField(context, type, name, value, isReadOnly, null, callback);
+            DrawField(context, type, strId, value, isReadOnly, null, callback);
         }
 
         public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback)
@@ -114,7 +108,7 @@ namespace WsiuEngine.Core.System
                         ++count;
                     }
                 }
-                context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                context.PushStyleReadOnly();
                 context.TreeNodeEx($"{name} [{type.Name}] ({count})###{name}", ImGuiTreeNodeFlags.None);
                 uint index = 0;
                 foreach (object? value in values)
@@ -130,7 +124,7 @@ namespace WsiuEngine.Core.System
                         {
                             if (drawer.UseCustomDrawing)
                             {
-                                drawer.DrawFields(context, isReadOnly, attributes);
+                                drawer.DrawFields(context, name, isReadOnly, attributes);
                             }
                         }
                         else
@@ -151,7 +145,7 @@ namespace WsiuEngine.Core.System
                     ++index;
                 }
                 context.TreePop();
-                context.PopStyleVar();
+                context.PopStyleReadOnly();
             }
         }
 
@@ -186,9 +180,7 @@ namespace WsiuEngine.Core.System
             {
                 if (isTableOpen == false)
                 {
-                    context.BeginTable($"###{fields.GetHashCode()}", 2, ImGuiTableFlags.SizingFixedFit);
-                    context.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 0f);
-                    context.TableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch, 0f);
+                    context.BeginTablePropertyType($"###{fields.GetHashCode()}");
                     isTableOpen = true;
                 }          
             }
@@ -215,12 +207,13 @@ namespace WsiuEngine.Core.System
 
                 // 인터페이스 처리
                 bool isReadOnly = field.Set == null;
+                string name = field.Name;
                 if (value is IReflectionDrawer drawer)
                 {
                     if (drawer.UseCustomDrawing)
                     {
                         CloseTable();
-                        drawer.DrawFields(context, isReadOnly, attributes);
+                        drawer.DrawFields(context, name, isReadOnly, attributes);
                         continue;
                     }                
                 }
@@ -244,7 +237,6 @@ namespace WsiuEngine.Core.System
                 }
 
                 // 타입 처리
-                string name = field.Name;
                 bool hasDrawHandler = typeByDrawFieldHandler.TryGetValue(type, out var handle) == true;
                 if (hasDrawHandler == false && value is IEnumerable enumerable)
                 {
@@ -260,7 +252,7 @@ namespace WsiuEngine.Core.System
                     context.TableNextRow();
                     if (isReadOnly)
                     {
-                        context.PushStyleVar(ImGuiStyleVar.Alpha, 0.70f);
+                        context.PushStyleReadOnly();
                     }
 
                     if (hasDrawHandler == true)
@@ -283,7 +275,7 @@ namespace WsiuEngine.Core.System
 
                     if (isReadOnly)
                     {
-                        context.PopStyleVar();
+                        context.PopStyleReadOnly();
                     }
                 }
             }
@@ -326,8 +318,10 @@ namespace WsiuEngine.Core.System
                     else
                         buffer = GetMethodParametersBuffer(methods, method);
 
+                    context.BeginTablePropertyType(buffer.GetHashCode().ToString());
                     for (int i = 0; i < buffer.Length; i++)
                     {
+                        context.TableNextRow();
                         ParameterInfo info = parameters[i];
                         Type parameterType = info.ParameterType;
                         string parameterName = string.Empty;
@@ -337,11 +331,15 @@ namespace WsiuEngine.Core.System
                         }
                         int index = i;
 
+                        context.TableNextColumn(); // 1
+                        context.TextUnformatted(parameterName);
+                        context.TableNextColumn(); // 2
                         DrawField(context, parameterType, parameterName, buffer[index], false, (v) =>
                         {
                             buffer[index] = v;
-                        });
+                        });                
                     }
+                    context.EndTable();
                     context.Button("call", () =>
                     {
                         method.Invoker(target, buffer);
