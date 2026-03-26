@@ -8,10 +8,12 @@ namespace WsiuEditor.Editor
 {
     internal class TimeEditor : ImguiEditorBase
     {
+        private const string editorName = "Time";
+
         public TimeEditor(Engine engine, UInt64 id) : base(engine, id)
         {
-            _imguiContext.InitializeWindowClosable("Time");
-            Name = "Time";
+            _imguiContext.InitializeWindowClosable(editorName);
+            Name = editorName;
         }
 
         public override void Draw()
