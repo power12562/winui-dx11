@@ -477,6 +477,18 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::Checkbox(hstring const& label, bool val, winrt::WsiuRenderer::BooleanChangedCallback handle)
+    {
+        auto command = [label = winrt::to_string(label), temp = val, handle] () mutable
+        {
+            if (ImGui::Checkbox(label.c_str(), &temp))
+            {
+                handle(temp);
+            }
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::IsItemDeactivatedAfterEdit(winrt::WsiuRenderer::DeactivatedCallback handle)
     {
         auto command = [handle]
