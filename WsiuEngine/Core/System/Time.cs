@@ -3,68 +3,101 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WsiuEngine.Core.Interfaces;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace WsiuEngine.Core.System
 {
-    public class Time
+    public class Time : ISingleton
     {
-        public Time()
+        private static Time instance = null!;
+
+        internal static void Initialize()
+        {
+            instance = new Time();
+            Engine.RegisterSingleton(instance);
+        }
+
+        private Time()
         {
             _stopWatch.Start();
             _lastTicks = _stopWatch.ElapsedTicks;
             _totalTime = _stopWatch.Elapsed;
         }
 
-
         /// <summary>
         /// 타이머의 업데이트가 일어난 횟수입니다.
         /// </summary>
-        public ulong FrameCount => _frameCount;
+        public static ulong FrameCount => instance.frameCount;
 
-        public ulong FPS => _fps;
+        public static ulong FPS => instance.fps;
 
-        public double TimeScaleAsDouble
+        public static double TimeScaleAsDouble
         {
-            get => _timeScale;
-            set => _timeScale = Math.Clamp(value, 0, 10.0);
+            get => instance.timeScaleAsDouble;
+            set => instance.timeScaleAsDouble = value;
         }
 
         /// <summary>
         /// 시간이 흐르는 배율 입니다.
         /// </summary>
-        public float TimeScale
+        public static float TimeScale
 
         {
-            get => (float)TimeScaleAsDouble;
-            set =>  TimeScaleAsDouble = (double)value; 
+            get => instance.timeScale;
+            set => instance.timeScale = value; 
         }
 
-        public double DeltaTimeAsDouble => _deltaTimeAsDouble;
+        public static double DeltaTimeAsDouble => instance.deltaTimeAsDouble;
 
         /// <summary>
         /// 델타 타임입니다.
         /// </summary>
-        public float DeltaTime => (float)DeltaTimeAsDouble;
+        public static float DeltaTime => instance.deltaTime;
 
-        public double UnscaleDeltaTimeAsDouble => _unscaleDeltaTimeAsDouble;
+        public static double UnscaleDeltaTimeAsDouble => instance.unscaleDeltaTimeAsDouble;
 
         /// <summary>
         /// 타임 스케일이 적용되지 않는 델타타임입니다.
         /// </summary>
-        public float UnscaleDeltaTime => (float)UnscaleDeltaTimeAsDouble;
+        public static float UnscaleDeltaTime => instance.unscaleDeltaTime;
 
         /// <summary>
         /// 현재까지 진행된 총 시간입니다.
         /// </summary>
-        public TimeSpan UnscaledTotalTime => _stopWatch.Elapsed;
+        public static TimeSpan UnscaledTotalTime => instance.unscaledTotalTime;
 
         /// <summary>
         /// 현재까지 진행된 총 델타타임 시간입니다.
         /// </summary>
-        public TimeSpan TotalTime => _totalTime;
+        public static TimeSpan TotalTime => instance.totalTime;
 
-        internal void UpdateTime()
+        public ulong frameCount => _frameCount;
+        public ulong fps => _fps;
+        public double timeScaleAsDouble
+        {
+            get => _timeScale;
+            set => _timeScale = Math.Clamp(value, 0, 10.0);
+        }
+        public float timeScale
+
+        {
+            get => (float)timeScaleAsDouble;
+            set => timeScaleAsDouble = (double)value;
+        }
+        public double deltaTimeAsDouble => _deltaTimeAsDouble;
+        public float deltaTime => (float)deltaTimeAsDouble;
+        public double unscaleDeltaTimeAsDouble => _unscaleDeltaTimeAsDouble;
+        public float unscaleDeltaTime => (float)unscaleDeltaTimeAsDouble;
+        public TimeSpan unscaledTotalTime => _stopWatch.Elapsed;
+        public TimeSpan totalTime => _totalTime;
+
+        internal static void Update()
+        {
+            instance.InternalUpdate();
+        }
+
+        internal void InternalUpdate()
         {
             ++_frameCount;
             _currentTicks = _stopWatch.ElapsedTicks;
