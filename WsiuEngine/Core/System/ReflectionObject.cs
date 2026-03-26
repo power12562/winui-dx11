@@ -61,15 +61,15 @@ namespace WsiuEngine.Core.System
 
     public static partial class ReflectionObject
     {
-        public delegate object? MethodInvoker(object target, object[]? args);
+        public delegate object? MethodInvoker(object? target, object[]? args);
 
         public class Field
         {
             public string Name { get; init; } = null!;
             public Type Type { get; init; } = null!;
             public bool IsProperty { get; init; }
-            public Func<object, object?> Get { get; init; } = null!;
-            public Action<object, object?>? Set { get; init; }
+            public Func<object?, object?> Get { get; init; } = null!;
+            public Action<object?, object?>? Set { get; init; }
 
             public IReadOnlyDictionary<Type, Attribute> TypeAttributes { get; init; } = null!;
             public IReadOnlyDictionary<Type, Attribute> FieldAttributes { get; init; } = null!;
@@ -85,8 +85,14 @@ namespace WsiuEngine.Core.System
         }
         public class Member(Type type)
         {
+            public IReadOnlyList<Field> StaticFields => staticFields;
+            private readonly List<Field> staticFields = CreateSerializeStaticFields(type);
+
             public IReadOnlyList<Field> Fields => fields;
             private readonly List<Field> fields = CreateSerializeFields(type);
+
+            public IReadOnlyList<Method> StaticMethods => staticMethods;
+            private readonly List<Method> staticMethods = CreateSerializeStaticMethods(type);
 
             public IReadOnlyList<Method> Methods => methods;
             private readonly List<Method> methods = CreateSerializeMethods(type);
@@ -120,38 +126,67 @@ namespace WsiuEngine.Core.System
             return type.Namespace != null && type.Namespace.StartsWith("System");
         }
 
-        private static readonly Dictionary<Type, Member> reflectDataBase = [];
+        private static readonly Dictionary<Type, Member> typeToReflectMember = [];
         public static IReadOnlyList<Field> GetFields(object obj)
         {
-            if (obj == null) return [];
-
             Type type = obj.GetType();
-            Member data = TryInsert(type);
-            return data.Fields;
+            Member member = TryInsert(type);
+            return member.Fields;
         }
         public static IReadOnlyList<Method> GetMethods(object obj)
         {
-            if (obj == null) return [];
-
             Type type = obj.GetType();
-            Member data = TryInsert(type);
-            return data.Methods;
+            Member member = TryInsert(type);
+            return member.Methods;
+        }
+
+        public static IReadOnlyList<Field> GetStaticFields<TClass>() where TClass : class => GetStaticFields(typeof(TClass));
+        public static IReadOnlyList<Field> GetStaticFields(object obj)
+        {
+            Type type = obj.GetType();
+            return GetStaticFields(type);
+        }
+        public static IReadOnlyList<Field> GetStaticFields(Type type)
+        {
+            Member member = TryInsert(type);
+            return member.StaticFields;
+        }
+
+        public static IReadOnlyList<Method> GetStaticMethod<TClass>() where TClass : class => GetStaticMethod(typeof(TClass));
+        public static IReadOnlyList<Method> GetStaticMethod(object obj)
+        {
+            Type type = obj.GetType();
+            return GetStaticMethod(type);
+        }
+        public static IReadOnlyList<Method> GetStaticMethod(Type type)
+        {
+            Member member = TryInsert(type);
+            return member.StaticMethods;
         }
 
         private static Member TryInsert(Type type)
         {
-            if (reflectDataBase.TryGetValue(type, out Member? data) == false)
+            if (typeToReflectMember.TryGetValue(type, out Member? member) == false)
             {
-                data = new Member(type);
-                reflectDataBase[type] = data;
+                member = new Member(type);
+                typeToReflectMember[type] = member;
             }
-            return data;
+            return member;
+        }
+
+        private static List<Field> CreateSerializeStaticFields(Type type)
+        {
+            return CreateSerializeFieldsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
         }
 
         private static List<Field> CreateSerializeFields(Type type)
         {
+            return CreateSerializeFieldsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        private static List<Field> CreateSerializeFieldsWithFlags(Type type, BindingFlags flags)
+        {
             var list = new List<Field>();
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
             foreach (FieldInfo field in type.GetFields(flags))
             {
@@ -181,18 +216,19 @@ namespace WsiuEngine.Core.System
                 Type propertyType = property.PropertyType;
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
-                bool isAttribute = attributes.ContainsKey(typeof(SerializeFieldAttribute));
+                bool isSerializedField = Member.HasAttribute<SerializeFieldAttribute>(attributes);
                 bool isNotReadOnly = Member.HasAttribute<ReadOnlyFieldAttribute>(attributes) == false;
-                if (isPublicRead || isAttribute)
+                if (isPublicRead || isSerializedField)
                 {
-                    Action<object, object?>? setter;
-                    if(isAttribute)
+                    Action<object?, object?>? setter;
+                    void propertySetter(object? obj, object? value) => property.SetValue(obj, value);
+                    if (isSerializedField)
                     {
-                        setter = isNotReadOnly && property.CanWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                        setter = isNotReadOnly && property.CanWrite ? propertySetter : null;
                     }
                     else
                     {
-                        setter = isNotReadOnly && isPublicWrite ? (obj, value) => property.SetValue(obj, value) : null;
+                        setter = isNotReadOnly && isPublicWrite ? propertySetter : null;
                     }
 
                     list.Add(new Field
@@ -213,8 +249,17 @@ namespace WsiuEngine.Core.System
 
         private static List<Method> CreateSerializeMethods(Type type)
         {
+            return CreateSerializeMethodsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        private static List<Method> CreateSerializeStaticMethods(Type type)
+        {
+            return CreateSerializeMethodsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        }
+
+        private static List<Method> CreateSerializeMethodsWithFlags(Type type, BindingFlags flags)
+        {
             var list = new List<Method>();
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
             foreach (MethodInfo method in type.GetMethods(flags))
             {
                 var attributes = Member.GetAttributes(method);
@@ -222,7 +267,7 @@ namespace WsiuEngine.Core.System
                 {
                     string name = method.Name;
                     Type returnType = method.ReturnType;
-                    object? methodInvoker(object obj, object[]? args) => method.Invoke(obj, args);
+                    object? methodInvoker(object? obj, object[]? args) => method.Invoke(obj, args);
                     List<ParameterInfo> parameters = [.. method.GetParameters()];
                     string parametersDisplay = string.Join(", ", parameters.Select(p => $"{p.ParameterType.Name} {p.Name}"));
                     string displayName = $"{returnType.Name} {name}({parametersDisplay})";
