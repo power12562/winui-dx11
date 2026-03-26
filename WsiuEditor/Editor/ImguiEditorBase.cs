@@ -22,10 +22,11 @@ namespace WsiuEditor.Editor
             set
             {
                 _name = value;
-                _imguiContext.SetTitle(GetImguiTitle());
+                _imguiTitle = $"{_name}###{_imguiId}";
+                _imguiContext.SetTitle(_imguiTitle);
             }
         }
-        private string _name = string.Empty;
+        private string _name;
 
         public bool Active 
         {
@@ -33,7 +34,12 @@ namespace WsiuEditor.Editor
             set => _imguiContext.SetActive(value);
         }
         private readonly string _typeName;
-        protected string GetImguiTitle() { return $"{_name}###{_typeName}{ID}"; }
+
+        protected string ImguiTitle => _imguiTitle;
+        private string _imguiTitle;
+
+        protected string ImguiId => _imguiId;
+        private readonly string _imguiId;
 
         public abstract void Draw();
 
@@ -50,6 +56,9 @@ namespace WsiuEditor.Editor
             _imguiContext = new(_engineCore);
             _typeName = GetType().Name;
             _id = id;
+            _imguiId = $"{_typeName}{ID}";
+            _name = "Please set the editor name after initialization.";
+            _imguiTitle = $"{_name}###{_imguiId}";
         }
     }
 }
