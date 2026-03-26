@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using WsiuEditor.Editor;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;

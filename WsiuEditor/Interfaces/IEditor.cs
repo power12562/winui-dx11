@@ -1,5 +1,5 @@
 ﻿using System;
-namespace WsiuEditor.Editor
+namespace WsiuEditor.Interfaces
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class SingletonEditorAttribute : Attribute {}

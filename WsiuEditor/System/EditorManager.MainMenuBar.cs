@@ -1,5 +1,5 @@
 ﻿using System;
-using WsiuEditor.Editor;
+using WsiuEditor.Interfaces;
 
 namespace WsiuEditor.System
 {
@@ -49,7 +49,7 @@ namespace WsiuEditor.System
                     Type type = key;
                     _imguiContext.MenuItem(GetDisplayName(type), () =>
                     {
-                        CreateTransientEditor(type);
+                        InternalCreateTransientEditor(type);
                     });
                 }
             }
@@ -70,7 +70,7 @@ namespace WsiuEditor.System
                     {
                         if (isActive == false)
                         {
-                            ActiveSingletonEditor(type);
+                            InternalActiveSingletonEditor(type);
                         }
                     });
                 }
@@ -84,13 +84,8 @@ namespace WsiuEditor.System
 
         private void DrawSaveLayoutMenuItem()
         {
-            return;
+            
 
-            void SaveLayout()
-            {
-
-            }
-            _imguiContext.MenuItem("Save Layout", SaveLayout);
         }
     }
 }

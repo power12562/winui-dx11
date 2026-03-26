@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Documents;
 using System;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuRenderer;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WsiuEditor.Editor;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 
 namespace WsiuEditor.System
