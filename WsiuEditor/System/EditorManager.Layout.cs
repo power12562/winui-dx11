@@ -142,12 +142,17 @@ namespace WsiuEditor.System
             _singletonEditorInstanceLayout = null;
         }
 
-        public void SaveLayoutToFile()
+        public static void SaveLayoutToFile()
         {
-            SaveLayoutToFile(EditorManager.GetDefaultLayoutPath());
+            instance.SaveLayoutToFileInternal();
         }
 
-        public void SaveLayoutToFile(string filePath)
+        internal void SaveLayoutToFileInternal()
+        {
+            SaveLayoutToFileInternal(EditorManager.GetDefaultLayoutPath());
+        }
+
+        internal void SaveLayoutToFileInternal(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
@@ -162,12 +167,17 @@ namespace WsiuEditor.System
             File.WriteAllText(filePath, settings);
         }
 
-        public void LoadLayoutFromFile()
+        public static void LoadLayoutFromFile()
         {
-            LoadLayoutFromFile(EditorManager.GetDefaultLayoutPath());
+            instance.LoadLayoutFromFileInternal();
         }
 
-        public void LoadLayoutFromFile(string filePath)
+        internal void LoadLayoutFromFileInternal()
+        {
+            LoadLayoutFromFileInternal(EditorManager.GetDefaultLayoutPath());
+        }
+
+        internal void LoadLayoutFromFileInternal(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));

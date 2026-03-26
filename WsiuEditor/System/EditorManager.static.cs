@@ -14,7 +14,7 @@ namespace WsiuEditor.System
 
         private static readonly Dictionary<Type, TransientProvider> transientProvider = [];
         private static readonly Dictionary<Type, SingletonProvider> singletonProvider = [];
-        public static void RegisterEditors()
+        public static void RegisterEditorsProvider()
         {
             var types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())

@@ -11,7 +11,13 @@ namespace WsiuEditor.System
 {
     public partial class EditorManager : ReflectionObject.ISerializationCallback
     {
-        public EditorManager(Engine engine)
+        private static EditorManager instance = null!;
+        internal static void Initialize(Engine engine)
+        {
+            instance = new EditorManager(engine);
+        }
+
+        private EditorManager(Engine engine)
         {
             _engine = engine;
             _imguiContext = new(engine.EngineCore);
@@ -72,6 +78,11 @@ namespace WsiuEditor.System
                 _singletonEditors.Add(iEditor);
                 _singletonEditorInstance.Add(type, iEditor);
             }
+        }
+
+        internal static void Update()
+        {
+            instance.Draw();
         }
 
         internal void Draw()
