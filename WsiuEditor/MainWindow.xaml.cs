@@ -21,7 +21,6 @@ namespace WsiuEditor
     public sealed partial class MainWindow : Window
     {
         private readonly Engine _engine;
-        private readonly EditorManager _editorManager;
 
         public MainWindow()
         {
@@ -29,8 +28,8 @@ namespace WsiuEditor
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(hwnd, EnginePanel);
 
-            EditorManager.RegisterEditors();
-            _editorManager = new(_engine);
+            EditorManager.RegisterEditorsProvider();
+            EditorManager.Initialize(_engine);
 
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
             if (Content is FrameworkElement frameworkElement)
@@ -42,19 +41,19 @@ namespace WsiuEditor
          
         private void EditorLoop()
         {
-            _editorManager.Draw();
+            EditorManager.Update();
             _engine.Update();
         }
 
         private void OnWindowOpened(object obj, RoutedEventArgs  args)
         {
-            _editorManager.LoadLayoutFromFile();
+            EditorManager.LoadLayoutFromFile();
         }
 
         private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
         {
             args.Cancel = true;
-            _editorManager.SaveLayoutToFile();
+            EditorManager.SaveLayoutToFile();
             Close();
         }
     }
