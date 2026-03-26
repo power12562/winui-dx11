@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.System;
+using WsiuEngine.Core.Interfaces;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
 
@@ -13,17 +14,10 @@ namespace WsiuEngine.Core
 {
     public class Engine
     {
-        private static Engine instance { get; set; } = null!;
-        public static InputSystem InputSystem { get; private set; } = null!;
-        public static Time Time { get; private set; } = null!;
-        public static Screen Screen { get; private set; } = null!;
+        private static Engine instance = null!;
+        private readonly EngineCore _engineCore;
 
-        private readonly EngineCore _engine;
-        private readonly InputSystem _inputSystem;
-        private readonly Time _time;
-        private readonly Screen _screen;
-
-        public EngineCore EngineCore { get { return _engine; } }
+        public EngineCore EngineCore { get { return _engineCore; } }
 
         public Engine(nint hwnd, SwapChainPanel enginePanel)
         {     
@@ -31,26 +25,40 @@ namespace WsiuEngine.Core
                 throw new InvalidOperationException("Engine is already initialized!");
             instance = this;
             
-            _engine = new EngineCore();
-            _engine.Initialize((ulong)hwnd, enginePanel);
+            _engineCore = new EngineCore();
+            _engineCore.Initialize((ulong)hwnd, enginePanel);
 
-            _inputSystem = new InputSystem(_engine);
-            InputSystem = _inputSystem;
-
-            _time = new Time();
-            Time = _time;
-
-            _screen = new Screen(hwnd);
-            Screen = _screen;
+            InputSystem.Initialize(_engineCore);
+            Time.Initialize();
+            Screen.Initialize(hwnd);
         }
 
         public void Update()
         {
-            _time.UpdateTime();
-            _engine.BeginFrame();
-            _inputSystem.Update();
-            _engine.Tick();
-            _engine.EndFrame();
+            Time.Update();
+            _engineCore.BeginFrame();
+            InputSystem.Update();
+            _engineCore.Tick();
+            _engineCore.EndFrame();
+        }
+
+        private readonly static Dictionary<Type, ISingleton> typeToSingletonInstance = [];
+        internal static void RegisterSingleton(ISingleton instance)
+        {
+            Type type = instance.GetType();
+            if (typeToSingletonInstance.ContainsKey(type))
+                throw new InvalidOperationException($"{type.Name} is already registered!");
+
+            typeToSingletonInstance.Add(type, instance);
+        }
+
+        public static TSingleton GetSingleton<TSingleton>() where TSingleton : ISingleton
+        {
+            Type type = typeof(TSingleton);
+            if (typeToSingletonInstance.TryGetValue(type, out ISingleton? instance) == false)
+                throw new InvalidOperationException($"{type.Name} is not registered!");
+
+            return (TSingleton)instance;
         }
     }
 }
