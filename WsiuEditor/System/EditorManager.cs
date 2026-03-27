@@ -28,7 +28,7 @@ namespace WsiuEditor.System
         private readonly ImguiContext _imguiContext;
         private readonly List<IEditor> _transientEditors = [];
         private readonly List<IEditor> _singletonEditors = [];
-        private readonly Dictionary<Type, IEditor> _singletonEditorInstance = [];
+        private readonly Dictionary<Type, IEditor> _singletonEditorTypeToInstance = [];
         private bool _cleanupEditors = false;
         private Dictionary<Type, IdProvider> _editorIdProvider = [];
 
@@ -86,7 +86,7 @@ namespace WsiuEditor.System
 
         internal void InternalActiveSingletonEditor(Type type) 
         {
-            if (_singletonEditorInstance.TryGetValue(type, out var singletonEditor))
+            if (_singletonEditorTypeToInstance.TryGetValue(type, out var singletonEditor))
             {
                 singletonEditor.Active = true; 
                 return;
@@ -96,7 +96,7 @@ namespace WsiuEditor.System
             {
                 IEditor iEditor = provider(_engine);
                 _singletonEditors.Add(iEditor);
-                _singletonEditorInstance.Add(type, iEditor);
+                _singletonEditorTypeToInstance.Add(type, iEditor);
             }
         }
 
