@@ -3,8 +3,8 @@ using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Storage;
+using Windows.UI.Core;
+using WinRT;
 using WinRT.Interop;
 
 namespace WsiuEngine.Core.System
@@ -18,11 +18,9 @@ namespace WsiuEngine.Core.System
             instance = new WindowService(hwnd);
         }
 
-        private nint _hwnd;
         private WindowId _windowId;
         private WindowService(nint hwnd)
         {
-            _hwnd = hwnd;
             _windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         }
 
@@ -33,7 +31,6 @@ namespace WsiuEngine.Core.System
         internal FileOpenPicker InternalCreateFileOpenPicker()
         {
             FileOpenPicker picker = new(_windowId);
-            InitializeWithWindow.Initialize(picker, _hwnd);
             return picker;
         }
 
@@ -44,7 +41,6 @@ namespace WsiuEngine.Core.System
         internal FileSavePicker InternalCreateFileSavePicker()
         {
             FileSavePicker picker = new(_windowId);
-            InitializeWithWindow.Initialize(picker, _hwnd);
             return picker;
         }
 
@@ -70,17 +66,18 @@ namespace WsiuEngine.Core.System
             return picker.PickSingleFileAsync().AsTask();     
         }   
 
-        public static Task<PickFileResult> GetSaveFilePathAsync(params string[] fileTypeChoices)
+        public static Task<PickFileResult> GetSaveFilePathAsync(string suggestedFileName, params string[] fileTypeChoices)
         {
-            return instance.InternalGetSaveFilePathAsync(fileTypeChoices);
+            return instance.InternalGetSaveFilePathAsync(suggestedFileName, fileTypeChoices);
         }
-        internal Task<PickFileResult> InternalGetSaveFilePathAsync(params string[] fileTypeChoices)
+        internal Task<PickFileResult> InternalGetSaveFilePathAsync(string suggestedFileName, params string[] fileTypeChoices)
         {
             FileSavePicker picker = InternalCreateFileSavePicker();
             picker.SuggestedStartLocation = PickerLocationId.Desktop;
+            picker.SuggestedFileName = suggestedFileName;
             if (fileTypeChoices.Length == 0)
             {
-                picker.FileTypeChoices.Add("any", ["*"]);
+                picker.FileTypeChoices.Add("All Files", ["*"]);
             }
             else if (fileTypeChoices.Length == 1)
             {
