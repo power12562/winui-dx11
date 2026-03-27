@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
@@ -23,6 +24,8 @@ namespace WsiuEditor.System
         {
             return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.editorLayoutFilename);
         }
+        public static bool IsLayoutSavedOnClose => instance._isLayoutSavedOnClose;
+        private bool _isLayoutSavedOnClose = true;
 
         struct LayoutSettings
         {
@@ -82,7 +85,14 @@ namespace WsiuEditor.System
 
         private void BeforeSerializeSingletoneEditorLayout()
         {
-            _singletonEditorInstanceLayout = _singletonEditorInstance.Keys.ToList();
+            _singletonEditorInstanceLayout = [];
+            foreach (IEditor editor in _singletonEditors)
+            {
+                if (editor.Active)
+                {
+                    _singletonEditorInstanceLayout.Add(editor.GetType());
+                }
+            }
         }
         
         void ReflectionObject.ISerializationCallback.OnAfterDeserialize()
@@ -98,7 +108,7 @@ namespace WsiuEditor.System
                 return;
 
             ImguiContext.LoadIniSettingsFromMemory(_layoutSettings.ImguiLayoutSettings);
-
+   
             Screen.Move(_layoutSettings.ScreenPosY, _layoutSettings.ScreenPosY);
             Screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
             if (_layoutSettings.IsMaximized)
@@ -235,7 +245,7 @@ namespace WsiuEditor.System
             }
         }
 
-        internal void InternalExportLayout()
+        private void ExportLayoutWithDialog()
         {
             WindowService.GetSaveFilePathAsync("WsiuEditorLayout.json", "WsiuEditor Layout File", ".json").SubmitToEngine((result) =>
             {
@@ -250,5 +260,25 @@ namespace WsiuEditor.System
                 File.WriteAllTextAsync(savePath, settings).Forget();
             });
         }
+
+        private void ImportLayoutWithDialog()
+        {
+            WindowService.GetOpenFilePathAsync(".json").SubmitToEngine((result) =>
+            {
+                if (result == null)
+                    return;
+
+                string savePath = result.Path;
+                if (string.IsNullOrEmpty(savePath))
+                    return;
+
+                File.ReadAllTextAsync(savePath).SubmitToEngine((settings) => 
+                {
+                    _isLayoutSavedOnClose = false;
+                    File.WriteAllTextAsync(GetDefaultLayoutPath(), settings).Forget();
+                });
+            });
+        }
+
     }
 }
