@@ -23,8 +23,9 @@ namespace WsiuEditor.System
         private void DrawLayoutMenu()
         {
             _imguiContext.BeginMenu("Layout");
-            DrawOpenLayoutFolderMenuItem();
-            DrawSaveLayoutMenuItem();
+            _imguiContext.MenuItem("Show in Explorer", ShowLayoutInExplorer);
+            _imguiContext.MenuItem("Export Layout", ExportLayoutWithDialog);
+            _imguiContext.MenuItem("Import Layout", ImportLayoutWithDialog);       
             _imguiContext.EndMenu();
         }
 
@@ -79,18 +80,6 @@ namespace WsiuEditor.System
                     });
                 }
             }
-        }
-
-        private void DrawOpenLayoutFolderMenuItem()
-        {
-            _imguiContext.MenuItem("Show in Explorer", ShowLayoutInExplorer);
-        }
-
-        private void DrawSaveLayoutMenuItem()
-        {
-            _imguiContext.MenuItem("Export Layout", InternalExportLayout);
-
-
         }
     }
 }
