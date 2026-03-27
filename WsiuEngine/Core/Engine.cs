@@ -31,6 +31,7 @@ namespace WsiuEngine.Core
             InputSystem.Initialize(_engineCore);
             Time.Initialize();
             Screen.Initialize(hwnd);
+            WindowService.Initialize(hwnd);
             TaskDispatcher.Initialize();
         }
 
