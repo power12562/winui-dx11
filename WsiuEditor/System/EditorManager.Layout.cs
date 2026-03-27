@@ -274,13 +274,19 @@ namespace WsiuEditor.System
                 {
                     _isLayoutSavedOnClose = false;
                     File.WriteAllTextAsync(GetDefaultLayoutPath(), settings).Forget();
-
                     WindowService.ShowContentDialogAsync(
                     "레이아웃 로드 완료",
                     "새 레이아웃은 재시작 시 적용됩니다. 지금 종료하시겠습니까?",
                     "종료", "나중에").SubmitToEngine((result) =>
                     {
-
+                        switch (result)
+                        {
+                            case Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary:
+                                Application.Quit();
+                                break;
+                            default:
+                                break;
+                        }
                     });
                 });
             });
