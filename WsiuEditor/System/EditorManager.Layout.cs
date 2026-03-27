@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Windows.Storage.Pickers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace WsiuEditor.System
     {
         public static string ApplicationLocalFolderPath => lazyApplicationLocalFolderPath.Value;
         private static readonly Lazy<string> lazyApplicationLocalFolderPath = new(() => ApplicationData.Current.LocalFolder.Path);
-        private const string editorLayoutFilename = "EditorManagerLayout.ini";
+        private const string editorLayoutFilename = "EditorManagerLayout.json";
         private static string GetDefaultLayoutPath()
         {
             return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.editorLayoutFilename);
@@ -230,8 +231,24 @@ namespace WsiuEditor.System
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
             if (folder != null)
             {
-                await Launcher.LaunchFolderAsync(folder);
+                await Launcher.LaunchFolderAsync(folder).AsTask();
             }
+        }
+
+        internal void InternalExportLayout()
+        {
+            WindowService.GetSaveFilePathAsync("WsiuEditorLayout.json", "WsiuEditor Layout File", ".json").SubmitToEngine((result) =>
+            {
+                if (result == null)
+                    return;
+
+                string savePath = result.Path;
+                if (string.IsNullOrEmpty(savePath))
+                    return;
+
+                string settings = ReflectionObject.SerializeToJson(this);
+                File.WriteAllTextAsync(savePath, settings).Forget();
+            });
         }
     }
 }
