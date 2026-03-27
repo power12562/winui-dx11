@@ -1,5 +1,4 @@
-﻿using Microsoft.Windows.Storage.Pickers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,6 @@ using Windows.Storage;
 using Windows.System;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
-using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
@@ -43,7 +41,7 @@ namespace WsiuEditor.System
         {
             ImguiLayoutSettings = "",
             IsMaximized = false,
-            ScreenPosX = 0, 
+            ScreenPosX = 0,
             ScreenPosY = 0,
             ScreenWidth = 1920,
             ScreenHeight = 1080
@@ -81,7 +79,7 @@ namespace WsiuEditor.System
             (pair) => TypeJsonConverter.ConvertTypeToString(pair.Key),
             (pair) => pair.Value
             );
-        }           
+        }
 
         private void BeforeSerializeSingletoneEditorLayout()
         {
@@ -94,7 +92,7 @@ namespace WsiuEditor.System
                 }
             }
         }
-        
+
         void ReflectionObject.ISerializationCallback.OnAfterDeserialize()
         {
             AfterDeserializeImguiLayout();
@@ -108,7 +106,7 @@ namespace WsiuEditor.System
                 return;
 
             ImguiContext.LoadIniSettingsFromMemory(_layoutSettings.ImguiLayoutSettings);
-   
+
             Screen.Move(_layoutSettings.ScreenPosY, _layoutSettings.ScreenPosY);
             Screen.Resize(_layoutSettings.ScreenWidth, _layoutSettings.ScreenHeight);
             if (_layoutSettings.IsMaximized)
@@ -128,7 +126,7 @@ namespace WsiuEditor.System
             );
             _editorIdProviderLayout = null;
 
-            foreach ( var pair in _editorIdProvider)
+            foreach (var pair in _editorIdProvider)
             {
                 Type type = pair.Key;
                 IdProvider provider = pair.Value;
@@ -144,7 +142,7 @@ namespace WsiuEditor.System
             if (_singletonEditorInstanceLayout == null)
                 return;
 
-            foreach ( Type type in _singletonEditorInstanceLayout)
+            foreach (Type type in _singletonEditorInstanceLayout)
             {
                 InternalActiveSingletonEditor(type);
             }
@@ -217,7 +215,7 @@ namespace WsiuEditor.System
 
         internal Task InternalSaveLayoutToFileAsync(string filePath)
         {
-            if (string.IsNullOrWhiteSpace(filePath)) 
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentNullException(nameof(filePath));
 
             string? directory = Path.GetDirectoryName(filePath);
@@ -272,10 +270,18 @@ namespace WsiuEditor.System
                 if (string.IsNullOrEmpty(savePath))
                     return;
 
-                File.ReadAllTextAsync(savePath).SubmitToEngine((settings) => 
+                File.ReadAllTextAsync(savePath).SubmitToEngine((settings) =>
                 {
                     _isLayoutSavedOnClose = false;
                     File.WriteAllTextAsync(GetDefaultLayoutPath(), settings).Forget();
+
+                    WindowService.ShowContentDialogAsync(
+                    "레이아웃 로드 완료",
+                    "새 레이아웃은 재시작 시 적용됩니다. 지금 종료하시겠습니까?",
+                    "종료", "나중에").SubmitToEngine((result) =>
+                    {
+
+                    });
                 });
             });
         }

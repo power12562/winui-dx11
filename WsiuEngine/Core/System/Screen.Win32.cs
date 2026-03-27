@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WsiuEngine.Core.System
 {
@@ -36,7 +32,7 @@ namespace WsiuEngine.Core.System
             public int showCmd;
             public POINT ptMinPosition;
             public POINT ptMaxPosition;
-            public RECT rcNormalPosition; 
+            public RECT rcNormalPosition;
         }
     }
 

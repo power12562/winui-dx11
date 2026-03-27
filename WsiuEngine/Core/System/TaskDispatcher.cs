@@ -8,10 +8,10 @@ namespace WsiuEngine.Core.System
         private static TaskDispatcher instance = null!;
         internal static void Initialize()
         {
-            instance = new TaskDispatcher();    
+            instance = new TaskDispatcher();
         }
 
-        private readonly ConcurrentQueue<Action> _taskQueue; 
+        private readonly ConcurrentQueue<Action> _taskQueue;
         private TaskDispatcher()
         {
             _taskQueue = [];

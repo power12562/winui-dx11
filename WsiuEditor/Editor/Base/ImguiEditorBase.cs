@@ -1,5 +1,4 @@
-﻿using Microsoft.UI.Xaml.Documents;
-using System;
+﻿using System;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuRenderer;
@@ -8,13 +7,13 @@ namespace WsiuEditor.Editor.Base
 {
     public abstract class ImguiEditorBase : IEditor
     {
-        public UInt64 ID 
+        public UInt64 ID
         {
             get => _id;
         }
         private readonly UInt64 _id;
 
-        public string Name 
+        public string Name
         {
             get
             {
@@ -29,7 +28,7 @@ namespace WsiuEditor.Editor.Base
         }
         private string _name;
 
-        public bool Active 
+        public bool Active
         {
             get => _imguiContext.GetActive();
             set => _imguiContext.SetActive(value);

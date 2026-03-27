@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using WsiuEngine.Core.Interfaces;
 using WsiuEngine.Extensions;
 using WsiuRenderer;
-using WsiuEngine.Core.Interfaces;
 namespace WsiuEngine.Core.System
 {
     public static partial class ReflectionObject
@@ -23,7 +22,7 @@ namespace WsiuEngine.Core.System
                     ctx.InputText(n, value, v => cb(v));
                 }
                 else
-                {                 
+                {
                     if (Member.GetAttribute<MultilineStringFieldAttribute>(atts) is { } attr)
                     {
                         ctx.InputTextMultiline(n, value, attr.Width, attr.Height, v => cb(v));
@@ -59,7 +58,7 @@ namespace WsiuEngine.Core.System
             }
             else if (typeByDrawFieldHandler.TryGetValue(type, out var handle) == true)
             {
-                if(isReadOnly)
+                if (isReadOnly)
                     context.PushStyleReadOnly();
                 handle(context, $"[{type.Name}]###{strId}", value, attributes, callback);
                 if (isReadOnly)
@@ -71,7 +70,7 @@ namespace WsiuEngine.Core.System
             }
             else
             {
-                context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, ()=>{ });
+                context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, () => { });
             }
         }
 
@@ -81,7 +80,7 @@ namespace WsiuEngine.Core.System
         }
 
         public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback)
-        {    
+        {
             //TODO: List 및 배열은 따로 처리
             if (false && values is IList list)
             {
@@ -89,7 +88,7 @@ namespace WsiuEngine.Core.System
                 {
 
                 }
-                else 
+                else
                 {
 
                 }
@@ -113,7 +112,7 @@ namespace WsiuEngine.Core.System
                 uint index = 0;
                 foreach (object? value in values)
                 {
-                    if(value == null)
+                    if (value == null)
                     {
                         context.Selectable($"({index}) null", false, ImGuiSelectableFlags.None, () => { });
                     }
@@ -182,7 +181,7 @@ namespace WsiuEngine.Core.System
                 {
                     context.BeginTablePropertyType($"###{fields.GetHashCode()}");
                     isTableOpen = true;
-                }          
+                }
             }
             void CloseTable()
             {
@@ -215,9 +214,9 @@ namespace WsiuEngine.Core.System
                         CloseTable();
                         drawer.DrawFields(context, name, isReadOnly, attributes);
                         continue;
-                    }                
+                    }
                 }
-      
+
                 // 클래스 처리
                 Type type = field.Type;
                 if (type.IsClass && IsSystemNamespace(type) == false)
@@ -231,8 +230,8 @@ namespace WsiuEngine.Core.System
                     }
                     else if (value is IIdentity identity)
                     {
-                        context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, () => {});
-                    }             
+                        context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, () => { });
+                    }
                     continue;
                 }
 
@@ -337,7 +336,7 @@ namespace WsiuEngine.Core.System
                         DrawField(context, parameterType, parameterName, buffer[index], false, (v) =>
                         {
                             buffer[index] = v;
-                        });                
+                        });
                     }
                     context.EndTable();
                     context.Button("call", () =>

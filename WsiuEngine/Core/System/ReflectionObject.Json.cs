@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
-using System.Diagnostics;
 using WsiuEngine.Collections;
 using WsiuEngine.Core.Interfaces;
 
@@ -28,7 +28,7 @@ namespace WsiuEngine.Core.System
                 WriteIndented = true,
                 AllowTrailingCommas = true,
                 NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                Converters = { 
+                Converters = {
                     new IdProviderJsonConverter(),
                     new TypeJsonConverter(),
                 }
@@ -97,7 +97,7 @@ namespace WsiuEngine.Core.System
 
         private static object SerializeIdentityToJson(IIdentity identity, JsonSerializerOptions options)
         {
-            if (identity.IsEntity == true) 
+            if (identity.IsEntity == true)
             {
                 // Entity는 GUID를 참조.
                 return identity.UId;
@@ -110,9 +110,9 @@ namespace WsiuEngine.Core.System
 
         internal struct IdEntityRecord
         {
-            public object Owner;    
-            public Field Field;     
-            public Guid Uid;     
+            public object Owner;
+            public Field Field;
+            public Guid Uid;
         }
         private static readonly ThreadLocal<List<IdEntityRecord>> recordListBuffer = new(() => []);
         private static readonly ThreadLocal<List<ISerializationCallback>> callbackListBuffer = new(() => []);
@@ -157,7 +157,7 @@ namespace WsiuEngine.Core.System
             {
                 //TODO: 이후 로그 작성 필요
                 Debug.WriteLine($"[Deserialize Error] {ex.Message}");
-                if(Debugger.IsAttached) 
+                if (Debugger.IsAttached)
                     Debugger.Break();
                 return;
             }
@@ -219,9 +219,9 @@ namespace WsiuEngine.Core.System
                             if (fieldValue != null)
                             {
                                 string? rawJson = element.GetString();
-                                if(rawJson != null)
+                                if (rawJson != null)
                                     PoulateFromJson(fieldValue, rawJson, ref records, ref callbacks, options);
-                            }                        
+                            }
                             continue;
                         }
 
@@ -235,7 +235,7 @@ namespace WsiuEngine.Core.System
                     {
                         //TODO: 이후 로그 작성 필요
                         Debug.WriteLine($"[Deserialize Error] {ex.Message}");
-                        if (Debugger.IsAttached) 
+                        if (Debugger.IsAttached)
                             Debugger.Break();
                     }
                 }
@@ -245,8 +245,8 @@ namespace WsiuEngine.Core.System
             {
                 callbacks.Add(target);
             }
-        }    
-        
+        }
+
         internal static void ResolveReferences(List<IdEntityRecord> records)
         {
             if (records.Count == 0)
@@ -259,7 +259,7 @@ namespace WsiuEngine.Core.System
                     continue;
 
                 //TODO: IdEntity 리소스 가져와서 참조 연결하는 로직 필요.
-                setter(record.Owner, null);         
+                setter(record.Owner, null);
             }
 
             records.Clear();

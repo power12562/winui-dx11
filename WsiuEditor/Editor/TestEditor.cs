@@ -1,9 +1,8 @@
-﻿using ABI.WsiuRenderer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using WsiuEditor.Interfaces;
 using WsiuEditor.Editor.Base;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
@@ -115,7 +114,7 @@ namespace WsiuEditor.Editor
                 ReflectionObject.DeserializeFromJson(this, TestSerialize);
             }
 
-            [SerializeMethod] 
+            [SerializeMethod]
             public void GenerateId()
             {
                 _idList.Add(IdProvider.Generate());

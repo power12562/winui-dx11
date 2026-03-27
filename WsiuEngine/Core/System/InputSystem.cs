@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.System;
-using WsiuRenderer;
+﻿using WsiuRenderer;
 
 namespace WsiuEngine.Core.System
 {
     public enum KeyState
     {
-        None,       
-        Down,       
-        Held,       
-        Up          
+        None,
+        Down,
+        Held,
+        Up
     }
 
     public class InputSystem

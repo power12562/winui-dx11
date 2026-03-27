@@ -279,7 +279,7 @@ namespace WsiuEngine.Core.System
                         Invoker = methodInvoker,
                         Parameters = parameters,
                         MethodAttributes = attributes
-                    });             
+                    });
                 }
             }
             return list;

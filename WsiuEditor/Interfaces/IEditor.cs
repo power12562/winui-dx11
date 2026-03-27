@@ -2,7 +2,7 @@
 namespace WsiuEditor.Interfaces
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class SingletonEditorAttribute : Attribute {}
+    public class SingletonEditorAttribute : Attribute { }
 
     public interface IEditor
     {

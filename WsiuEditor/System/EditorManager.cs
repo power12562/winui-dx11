@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
@@ -32,9 +31,9 @@ namespace WsiuEditor.System
         private bool _cleanupEditors = false;
         private Dictionary<Type, IdProvider> _editorIdProvider = [];
 
-        private void CleanUpEditors() 
-        { 
-            _cleanupEditors = true; 
+        private void CleanUpEditors()
+        {
+            _cleanupEditors = true;
         }
 
         public static void CreateTransientEditor<TEditor>() where TEditor : IEditor
@@ -68,7 +67,7 @@ namespace WsiuEditor.System
             }
         }
 
-        public static void ActiveSingletonEditor<TEditor>() where TEditor: IEditor
+        public static void ActiveSingletonEditor<TEditor>() where TEditor : IEditor
         {
             instance.InternalActiveSingletonEditor<TEditor>();
         }
@@ -84,11 +83,11 @@ namespace WsiuEditor.System
             instance.InternalActiveSingletonEditor(type);
         }
 
-        internal void InternalActiveSingletonEditor(Type type) 
+        internal void InternalActiveSingletonEditor(Type type)
         {
             if (_singletonEditorTypeToInstance.TryGetValue(type, out var singletonEditor))
             {
-                singletonEditor.Active = true; 
+                singletonEditor.Active = true;
                 return;
             }
 
@@ -128,7 +127,7 @@ namespace WsiuEditor.System
                 for (int i = _transientEditors.Count - 1; i >= 0; i--)
                 {
                     IEditor editor = _transientEditors[i];
-                    if(editor.Active == false)
+                    if (editor.Active == false)
                     {
                         ReleaseEditorId(editor.GetType(), editor.ID);
                         _transientEditors.RemoveAt(i);
@@ -144,7 +143,7 @@ namespace WsiuEditor.System
             {
                 provider = new();
                 _editorIdProvider.Add(type, provider);
-            }          
+            }
             return provider.Generate();
         }
 

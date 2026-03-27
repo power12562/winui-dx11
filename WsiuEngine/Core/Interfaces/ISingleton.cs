@@ -6,5 +6,5 @@
     /// 본 인터페이스는 Engine에 인스턴스 전달이 필요한 특수 상황에서 제한적으로 사용합니다. <br/>
     /// </summary>
     public interface ISingleton
-    {}
+    { }
 }

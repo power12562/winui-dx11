@@ -19,9 +19,9 @@ namespace WsiuEngine.Collections
         private UInt64 _maxId = UInt64.MaxValue;
 
         [ReadOnlyField]
-        public UInt64 MaxID 
-        { 
-            get => _maxId;  
+        public UInt64 MaxID
+        {
+            get => _maxId;
             set => _maxId = value;
         }
 
@@ -41,7 +41,7 @@ namespace WsiuEngine.Collections
         public UInt64 Generate()
         {
             UInt64 id;
-            if(_reusableIds.Count > 0)
+            if (_reusableIds.Count > 0)
                 id = _reusableIds.Pop();
             else
             {
@@ -50,7 +50,7 @@ namespace WsiuEngine.Collections
 
                 id = _idCounter++;
             }
-                
+
             _activeIds.Add(id);
             return id;
         }

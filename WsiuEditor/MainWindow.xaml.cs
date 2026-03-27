@@ -1,12 +1,6 @@
-using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
-using System;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Windows.Graphics;
 using WsiuEditor.System;
 using WsiuEngine.Core;
 
@@ -24,7 +18,7 @@ namespace WsiuEditor
 
         public MainWindow()
         {
-            InitializeComponent(); 
+            InitializeComponent();
 
             _engine = new Engine(this, EnginePanel);
 
@@ -34,18 +28,18 @@ namespace WsiuEditor
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
             if (Content is FrameworkElement frameworkElement)
             {
-                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened(obj, eventArgs);      
+                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened(obj, eventArgs);
             }
             AppWindow.Closing += (sender, args) => OnWindowClosing(sender, args);
         }
-         
+
         private void EditorLoop()
         {
             EditorManager.Update();
             _engine.Update();
         }
 
-        private void OnWindowOpened(object obj, RoutedEventArgs  args)
+        private void OnWindowOpened(object obj, RoutedEventArgs args)
         {
             EditorManager.LoadLayoutFromFile();
         }

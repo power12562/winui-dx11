@@ -20,12 +20,12 @@ namespace WsiuEngine.Extensions
                     //TODO: 이후 엔진 전용 로그로 교체해야함.
                     Debug.WriteLine($"[Task Error] {ex.Message}");
                     Debug.WriteLine(ex.StackTrace);
-                    if(Debugger.IsAttached) 
+                    if (Debugger.IsAttached)
                         Debugger.Break();
                 }
             });
         }
-   
+
         public static void SubmitToEngine(this Task task, Action<Task> handle)
         {
             Task.Run(async () =>
@@ -55,7 +55,7 @@ namespace WsiuEngine.Extensions
             {
                 try
                 {
-                    TResult result = await task; 
+                    TResult result = await task;
                     TaskDispatcher.PostToDispatcher(() => handle(result));
                 }
                 catch (Exception ex)

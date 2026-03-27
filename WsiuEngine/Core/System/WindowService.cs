@@ -5,7 +5,6 @@ using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using WsiuEngine.Core.MainEntry;
 
 namespace WsiuEngine.Core.System
 {
@@ -66,8 +65,8 @@ namespace WsiuEngine.Core.System
                     picker.FileTypeFilter.Add(filter);
                 }
             }
-            return picker.PickSingleFileAsync().AsTask();     
-        }   
+            return picker.PickSingleFileAsync().AsTask();
+        }
 
         public static Task<PickFileResult> GetSaveFilePathAsync(string suggestedFileName, params string[] fileTypeChoices)
         {
@@ -90,7 +89,7 @@ namespace WsiuEngine.Core.System
             {
                 picker.FileTypeChoices.Add(fileTypeChoices[0], fileTypeChoices.Skip(1).ToList());
             }
-            return picker.PickSaveFileAsync().AsTask(); 
+            return picker.PickSaveFileAsync().AsTask();
         }
 
         public static Task<ContentDialogResult> ShowContentDialogAsync(string title, string content, string primaryButtonText = "확인", string closeButtonText = "취소")
@@ -106,7 +105,7 @@ namespace WsiuEngine.Core.System
                 Content = content,
                 PrimaryButtonText = primaryButtonText,
                 CloseButtonText = closeButtonText,
-                XamlRoot = _mainWindow.Content.XamlRoot 
+                XamlRoot = _mainWindow.Content.XamlRoot
             };
             return dialog.ShowAsync().AsTask();
         }

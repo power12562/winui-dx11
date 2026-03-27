@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using WsiuEngine.Core.Interfaces;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
+using WsiuApplication = WsiuEngine.Core.System.Application;
 
 namespace WsiuEngine.Core
 {
@@ -16,8 +17,8 @@ namespace WsiuEngine.Core
         public EngineCore EngineCore { get { return _engineCore; } }
 
         public Engine(Window mainWindow, SwapChainPanel enginePanel)
-        {     
-            if (instance != null) 
+        {
+            if (instance != null)
                 throw new InvalidOperationException("Engine is already initialized!");
             instance = this;
 
@@ -29,6 +30,7 @@ namespace WsiuEngine.Core
             Screen.Initialize(hwnd);
             WindowService.Initialize(mainWindow);
             TaskDispatcher.Initialize();
+            WsiuApplication.Initialize();
         }
 
         public void Update()

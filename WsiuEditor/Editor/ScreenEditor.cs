@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WsiuEditor.Editor.Base;
+﻿using WsiuEditor.Editor.Base;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;

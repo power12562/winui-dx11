@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WsiuEngine.Core.Interfaces;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
@@ -45,7 +41,7 @@ namespace WsiuEngine.Core.System
 
         {
             get => instance.timeScale;
-            set => instance.timeScale = value; 
+            set => instance.timeScale = value;
         }
 
         public static double DeltaTimeAsDouble => instance.deltaTimeAsDouble;
@@ -134,7 +130,7 @@ namespace WsiuEngine.Core.System
         private void UpdateFPS()
         {
             _fpsElapsedTime += UnscaleDeltaTimeAsDouble;
-            if ( 1.0 <= _fpsElapsedTime )
+            if (1.0 <= _fpsElapsedTime)
             {
                 _fps = _frameCount - _fpsLastframeCount;
                 _fpsLastframeCount = _frameCount;
