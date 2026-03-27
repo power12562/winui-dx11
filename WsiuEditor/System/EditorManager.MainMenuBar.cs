@@ -62,7 +62,7 @@ namespace WsiuEditor.System
                 {
                     Type type = key;
                     bool isActive = false;
-                    if (_singletonEditorInstance.TryGetValue(type, out IEditor? editor))
+                    if (_singletonEditorTypeToInstance.TryGetValue(type, out IEditor? editor))
                     {
                         isActive = editor.Active;
                     }
