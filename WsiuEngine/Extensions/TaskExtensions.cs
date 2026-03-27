@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using WsiuEngine.Core.System;
 
 namespace WsiuEngine.Extensions
 {
@@ -8,9 +9,6 @@ namespace WsiuEngine.Extensions
     {
         public static void Forget(this Task task)
         {
-            if (task == null)
-                return;
-
             Task.Run(async () =>
             {
                 try
@@ -27,6 +25,28 @@ namespace WsiuEngine.Extensions
                 }
             });
         }
-
+   
+        public static void SubmitToEngine(this Task task, Action<Task> handle)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await task;
+                    TaskDispatcher.PostToDispatcher(() =>
+                    {
+                        handle(task);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    //TODO: 이후 엔진 전용 로그로 교체해야함.
+                    Debug.WriteLine($"[Task Error] {ex.Message}");
+                    Debug.WriteLine(ex.StackTrace);
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+                }
+            });
+        }
     }
 }
