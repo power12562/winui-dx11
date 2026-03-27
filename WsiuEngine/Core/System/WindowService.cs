@@ -1,11 +1,11 @@
 ﻿using Microsoft.UI;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.UI.Core;
-using WinRT;
-using WinRT.Interop;
+using WsiuEngine.Core.MainEntry;
 
 namespace WsiuEngine.Core.System
 {
@@ -13,14 +13,17 @@ namespace WsiuEngine.Core.System
     {
         private static WindowService instance = null!;
 
-        internal static void Initialize(nint hwnd)
+        internal static void Initialize(Window mainWindow)
         {
-            instance = new WindowService(hwnd);
+            instance = new WindowService(mainWindow);
         }
 
+        private readonly Window _mainWindow;
         private WindowId _windowId;
-        private WindowService(nint hwnd)
+        private WindowService(Window mainWindow)
         {
+            _mainWindow = mainWindow;
+            nint hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             _windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         }
 
@@ -88,6 +91,24 @@ namespace WsiuEngine.Core.System
                 picker.FileTypeChoices.Add(fileTypeChoices[0], fileTypeChoices.Skip(1).ToList());
             }
             return picker.PickSaveFileAsync().AsTask(); 
+        }
+
+        public static Task<ContentDialogResult> ShowContentDialogAsync(string title, string content, string primaryButtonText = "확인", string closeButtonText = "취소")
+        {
+            return instance.InternalShowContentDialogAsync(title, content, primaryButtonText, closeButtonText);
+        }
+
+        internal Task<ContentDialogResult> InternalShowContentDialogAsync(string title, string content, string primaryButtonText, string closeButtonText)
+        {
+            ContentDialog dialog = new()
+            {
+                Title = title,
+                Content = content,
+                PrimaryButtonText = primaryButtonText,
+                CloseButtonText = closeButtonText,
+                XamlRoot = _mainWindow.Content.XamlRoot 
+            };
+            return dialog.ShowAsync().AsTask();
         }
     }
 }
