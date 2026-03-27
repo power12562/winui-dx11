@@ -21,12 +21,12 @@ namespace WsiuEngine.Core.System
         private Screen(nint hwnd)
         {
             _hwnd = hwnd;
-            _windowID = Win32Interop.GetWindowIdFromWindow(hwnd);
-            _appWindow = AppWindow.GetFromWindowId(_windowID);
+            _windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+            _appWindow = AppWindow.GetFromWindowId(_windowId);
         }
 
         private readonly nint _hwnd;
-        private readonly WindowId _windowID;
+        private readonly WindowId _windowId;
         private readonly AppWindow _appWindow;
 
         public struct Bounds(int x, int y, int width, int height) : IReflectionDrawer
