@@ -25,8 +25,8 @@ namespace WsiuEditor
         public MainWindow()
         {
             InitializeComponent(); 
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            _engine = new Engine(hwnd, EnginePanel);
+
+            _engine = new Engine(this, EnginePanel);
 
             EditorManager.RegisterEditorsProvider();
             EditorManager.Initialize(_engine);

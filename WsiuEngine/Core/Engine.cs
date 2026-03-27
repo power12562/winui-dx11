@@ -1,11 +1,7 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.System;
 using WsiuEngine.Core.Interfaces;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
@@ -19,19 +15,19 @@ namespace WsiuEngine.Core
 
         public EngineCore EngineCore { get { return _engineCore; } }
 
-        public Engine(nint hwnd, SwapChainPanel enginePanel)
+        public Engine(Window mainWindow, SwapChainPanel enginePanel)
         {     
             if (instance != null) 
                 throw new InvalidOperationException("Engine is already initialized!");
             instance = this;
-            
+
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             _engineCore = new EngineCore();
             _engineCore.Initialize((ulong)hwnd, enginePanel);
-
             InputSystem.Initialize(_engineCore);
             Time.Initialize();
             Screen.Initialize(hwnd);
-            WindowService.Initialize(hwnd);
+            WindowService.Initialize(mainWindow);
             TaskDispatcher.Initialize();
         }
 
