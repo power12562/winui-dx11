@@ -26,7 +26,7 @@ namespace WsiuEngine.Core.MainEntry
         {
             InitializeComponent();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            _engine = new Engine(hwnd, EnginePanel);
+            _engine = new Engine(this, EnginePanel);
             CompositionTarget.Rendering += (sender, args) => _engine.Update();
         }
     }
