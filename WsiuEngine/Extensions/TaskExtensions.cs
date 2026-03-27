@@ -48,5 +48,25 @@ namespace WsiuEngine.Extensions
                 }
             });
         }
+
+        public static void SubmitToEngine<TResult>(this Task<TResult> task, Action<TResult> handle)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    TResult result = await task; 
+                    TaskDispatcher.PostToDispatcher(() => handle(result));
+                }
+                catch (Exception ex)
+                {
+                    //TODO: 이후 엔진 전용 로그로 교체해야함.
+                    Debug.WriteLine($"[Task Error] {ex.Message}");
+                    Debug.WriteLine(ex.StackTrace);
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+                }
+            });
+        }
     }
 }
