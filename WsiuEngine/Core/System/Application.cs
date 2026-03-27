@@ -1,6 +1,6 @@
 ﻿namespace WsiuEngine.Core.System
 {
-    internal class Application
+    public class Application
     {
         private static Application instance = null!;
         internal static void Initialize()
