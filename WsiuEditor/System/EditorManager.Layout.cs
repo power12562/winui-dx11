@@ -199,12 +199,12 @@ namespace WsiuEditor.System
             ReflectionObject.DeserializeFromJson(this, layoutSettings);
         }
 
-        public static async Task SaveLayoutToFileAsync(string filePath)
+        public static Task SaveLayoutToFileAsync(string filePath)
         {
-            await instance.InternalSaveLayoutToFileAsync(filePath);
+            return instance.InternalSaveLayoutToFileAsync(filePath);
         }
 
-        internal async Task InternalSaveLayoutToFileAsync(string filePath)
+        internal Task InternalSaveLayoutToFileAsync(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)) 
                 throw new ArgumentNullException(nameof(filePath));
@@ -216,27 +216,7 @@ namespace WsiuEditor.System
             }
 
             string settings = ReflectionObject.SerializeToJson(this);
-            await File.WriteAllTextAsync(filePath, settings);
-        }
-
-        public static async Task LoadLayoutFromFileAsync(string filePath)
-        {
-            await instance.InternalLoadLayoutFromFileAsync(filePath);
-        }
-
-        internal async Task InternalLoadLayoutFromFileAsync(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentNullException(nameof(filePath));
-
-            if (Path.Exists(filePath) == false)
-            {
-                return;
-            }
-       
-            Task<string> task = File.ReadAllTextAsync(filePath);
-            string settings = await task;
-            ReflectionObject.DeserializeFromJson(this, settings);
+            return File.WriteAllTextAsync(filePath, settings);
         }
 
         public static void ShowLayoutInExplorer()
