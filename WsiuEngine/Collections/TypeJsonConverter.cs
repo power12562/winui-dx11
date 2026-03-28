@@ -8,7 +8,7 @@ namespace WsiuEngine.Collections
 {
     public class TypeJsonConverter : JsonConverter<Type>
     {
-        private static readonly Dictionary<string, Type> _typeCache = [];
+        private static readonly Dictionary<string, Type> typeFindNameToType = [];
 
         public static string ConvertTypeToString(Type type)
         {
@@ -25,11 +25,11 @@ namespace WsiuEngine.Collections
 
         public static Type? ConvertStringToType(string typeName)
         {
-            if (_typeCache.TryGetValue(typeName, out Type? type) == false)
+            if (typeFindNameToType.TryGetValue(typeName, out Type? type) == false)
             {
                 type = Type.GetType(typeName);
                 if (type != null)
-                    _typeCache.Add(typeName, type);
+                    typeFindNameToType.Add(typeName, type);
             }
             return type;
         }
