@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using WsiuEngine.Core.System;
 
 namespace WsiuEngine.Collections
 {
@@ -31,6 +32,11 @@ namespace WsiuEngine.Collections
                     _typeCache.Add(typeName, type);
             }
             return type;
+        }
+
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return ReflectionObject.Types.Type.IsAssignableFrom(typeToConvert);
         }
 
         public override Type? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
