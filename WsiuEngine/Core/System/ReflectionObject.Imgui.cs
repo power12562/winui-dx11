@@ -81,7 +81,7 @@ namespace WsiuEngine.Core.System
 
             if (type.IsClass && IsSystemNamespace(type) == false)
             {      
-                if (attributes != null && type.GetCustomAttribute<SerializableClassAttribute>() != null)
+                if (attributes != null && Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(type)))
                 {
                     context.TreeNodeEx($"{strId} [{type.Name}]", ImGuiTreeNodeFlags.None);
                     DrawFields(context, value);
@@ -114,24 +114,28 @@ namespace WsiuEngine.Core.System
                 if (rd == false)
                 {
                     Type? elementType = t.GetElementType();
-                    if (elementType != null && HasDefaultConstructor(elementType))
+                    if (elementType != null)
                     {
-                        ctx.Button("+", () =>
+                        DefaultConstructor? constructor = GetDefaultConstructor(elementType);
+                        if (constructor != null)
                         {
-                            Array newArray = Array.CreateInstance(elementType, count + 1);
-                            Array.Copy((Array)lt, newArray, count);
-                            newArray.SetValue(Activator.CreateInstance(elementType), count);
-                            cb(newArray);
-                        });
-                        if (0 < count)
-                        {
-                            ctx.SameLine();
-                            ctx.Button("-", () =>
+                            ctx.Button("+", () =>
                             {
-                                Array newArray = Array.CreateInstance(elementType, count - 1);
-                                Array.Copy((Array)lt, newArray, count - 1);
+                                Array newArray = Array.CreateInstance(elementType, count + 1);
+                                Array.Copy((Array)lt, newArray, count);
+                                newArray.SetValue(constructor(), count);
                                 cb(newArray);
                             });
+                            if (0 < count)
+                            {
+                                ctx.SameLine();
+                                ctx.Button("-", () =>
+                                {
+                                    Array newArray = Array.CreateInstance(elementType, count - 1);
+                                    Array.Copy((Array)lt, newArray, count - 1);
+                                    cb(newArray);
+                                });
+                            }
                         }
                     }
                 }
@@ -147,11 +151,12 @@ namespace WsiuEngine.Core.System
                 if (genericArgs.Length > 0)
                 {
                     Type elementType = genericArgs[0];
-                    if (HasDefaultConstructor(elementType))
+                    DefaultConstructor? constructor = GetDefaultConstructor(elementType);
+                    if (constructor != null)
                     {
                         ctx.Button("+", () =>
                         {
-                            lt.Add(Activator.CreateInstance(elementType));
+                            lt.Add(constructor());
                         });
                         if (0 < count)
                         {
@@ -382,10 +387,10 @@ namespace WsiuEngine.Core.System
                 }
 
                 // 클래스 처리
-                if (type.IsClass && IsSystemNamespace(type) == false)
+                if (hasDrawHandler == false && type.IsClass && IsSystemNamespace(type) == false)
                 {
                     CloseTable();
-                    if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
+                    if (Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(type)))
                     {
                         context.TreeNodeEx($"{field.Name} [{type.Name}]", ImGuiTreeNodeFlags.None);
                         DrawFields(context, value);
@@ -526,11 +531,12 @@ namespace WsiuEngine.Core.System
                     }
                     else if (pType.IsValueType)
                     {
-                        object? value = Activator.CreateInstance(pType);
+                        DefaultConstructor constructor = GetDefaultConstructor(pType)!;
+                        object? value = constructor();
                         if (value != null)
                             parametersBuffer[i] = value;
                     }
-                    else if (pType == typeof(string))
+                    else if (pType == Types.String)
                     {
                         parametersBuffer[i] = string.Empty;
                     }

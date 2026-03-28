@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -71,21 +75,10 @@ namespace WsiuEngine.Core.System
                     continue;
 
                 Type type = field.Type;
-                if (type.IsClass && IsSystemNamespace(type) == false)
-                {
-                    if (value is IIdentity identity)
-                    {
-                        value = SerializeIdentityToJson(identity, options);
-                    }
-                    else if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
-                    {
-                        value = SerializeToJson(value, options);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
+                value = SerializeElementToJson(type, value, options);
+
+                if(value == null)
+                    continue;
 
                 string name = field.Name;
                 fieldsNode[name] = value;
@@ -95,12 +88,116 @@ namespace WsiuEngine.Core.System
             return json;
         }
 
-        private static object SerializeIdentityToJson(IIdentity identity, JsonSerializerOptions options)
+        internal static string SerializeElementToJson(Type type, object value, JsonSerializerOptions options)
+        {
+            bool isSystemNamespaceType = IsSystemNamespace(type);
+            if (value is not string && value is IEnumerable enumerable)
+            {
+                Type[]? elementTypes = null;
+                if (type.IsArray)
+                {
+                    Type? elementType = type.GetElementType();
+                    if (elementType == null)
+                        return string.Empty;
+
+                    elementTypes = [elementType];
+                }
+                else if (type.IsGenericType)
+                {
+                    elementTypes = type.GetGenericArguments();
+                }
+
+                if (elementTypes == null || elementTypes.Length == 0)
+                    return string.Empty;
+
+                bool isSerializable = true;
+                foreach (Type elementType in elementTypes)
+                {
+                    if (isSystemNamespaceType == false && Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(elementType)) == false)
+                    {
+                        isSerializable = false;
+                        break;
+                    }
+                }
+
+                if (isSerializable == false)
+                    return string.Empty;
+
+                if (enumerable is IDictionary dictionary)
+                {
+                    return SerializeDictionaryToJson(dictionary, options);
+                }
+                else
+                {
+                    return SerializeEnumerableToJson(enumerable, options);
+                }
+            }
+            else if (type.IsClass && isSystemNamespaceType == false)
+            {
+                if (value is IIdentity identity)
+                {
+                    return SerializeIdentityToJson(identity, options);
+                }
+                else if (Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(type)))
+                {
+                    return SerializeToJson(value, options);
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return JsonSerializer.Serialize(value, options);
+            }
+        }
+        internal static string SerializeDictionaryToJson(IDictionary dictionary, JsonSerializerOptions options)
+        {
+            List<KeyValuePair<string, string>> serializeTemp = [];
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                object key = entry.Key;
+                object? value = entry.Value;
+                if (value == null)
+                    continue;
+
+                string jsonKey = SerializeElementToJson(key.GetType(), key, options);
+                string jsonValue = SerializeElementToJson(value.GetType(), value, options);
+                if (string.IsNullOrEmpty(jsonKey))
+                    continue;
+                if (string.IsNullOrEmpty(jsonValue))
+                    continue;
+
+                serializeTemp.Add(new(jsonKey, jsonValue));
+            }
+            string json = JsonSerializer.Serialize(serializeTemp, options);
+            return json;
+        }
+
+        internal static string SerializeEnumerableToJson(IEnumerable enumerable, JsonSerializerOptions options)
+        {
+            List<string> serializeTemp = [];
+            foreach (object? item in enumerable)
+            {
+                if (item == null)
+                    continue;
+
+                string json = SerializeElementToJson(item.GetType(), item, options);
+                if (string.IsNullOrEmpty(json))
+                    continue;
+
+                serializeTemp.Add(json);
+            }
+            return JsonSerializer.Serialize(serializeTemp, options);
+        }
+
+        private static string SerializeIdentityToJson(IIdentity identity, JsonSerializerOptions options)
         {
             if (identity.IsEntity == true)
             {
                 // Entity는 GUID를 참조.
-                return identity.UId;
+                return JsonSerializer.Serialize(identity.UId, options);
             }
             else
             {
@@ -177,16 +274,30 @@ namespace WsiuEngine.Core.System
                 if (setter == null)
                     continue;
 
-                object? fieldValue = field.Get(obj);
-                Type type = field.Type;
+                Type type = field.Type;          
                 bool isIdEntity = false;
-                bool isSerializableClass = false;
-                if (type.IsClass && IsSystemNamespace(type) == false)
+                bool isSystemNamespaceType = IsSystemNamespace(type);
+                bool isDictionary = false;
+                bool isEnumerable = false;
+                object? fieldValue = field.Get(obj);
+                bool IsAssignableFrom<TType>(Type assignableType)
                 {
-                    if (fieldValue is IIdentity)
+                    if (fieldValue != null)
+                        return fieldValue is TType;
+                    else
+                        return assignableType.IsAssignableFrom(type);
+                }
+                if (type != Types.String && IsAssignableFrom<IEnumerable>(Types.IEnumerable))
+                {
+                    if (IsAssignableFrom<IDictionary>(Types.IDictionary))
+                        isDictionary = true;
+                    else
+                        isEnumerable = true;
+                }
+                else if (type.IsClass && isSystemNamespaceType == false)
+                {
+                    if (IsAssignableFrom<IIdentity>(Types.IIdentity))
                         isIdEntity = true;
-                    else if (Member.HasAttribute<SerializableClassAttribute>(field.TypeAttributes))
-                        isSerializableClass = true;
                     else
                         continue;
                 }
@@ -214,18 +325,26 @@ namespace WsiuEngine.Core.System
                             continue;
                         }
 
-                        if (isSerializableClass == true)
+                        object? value = null;
+                        if (isDictionary)
                         {
-                            if (fieldValue != null)
-                            {
-                                string? rawJson = element.GetString();
-                                if (rawJson != null)
-                                    PoulateFromJson(fieldValue, rawJson, ref records, ref callbacks, options);
-                            }
-                            continue;
+                            string? elementJson = element.GetString();
+                            if (elementJson != null)
+                                value = PoulateDictionaryFromJson(type, elementJson, ref records, ref callbacks, options);
                         }
-
-                        object? value = element.Deserialize(type, options);
+                        else if (isEnumerable)
+                        {
+                            string? elementJson = element.GetString();
+                            if (elementJson != null)
+                                value = PoulateEnumerableFromJson(type, elementJson, ref records, ref callbacks, options);
+                        }
+                        else
+                        {
+                            string? elementJson = element.GetString();
+                            if (elementJson != null)
+                                value = PoulateFromElement(type, elementJson, ref records, ref callbacks, options);
+                        }
+                           
                         if (value == null)
                             continue;
 
@@ -245,6 +364,150 @@ namespace WsiuEngine.Core.System
             {
                 callbacks.Add(target);
             }
+        }
+
+        private static object? PoulateFromElement(Type type, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks, JsonSerializerOptions options)
+        {
+            object? objectInstance = null;
+            if (type.IsClass && Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(type)))
+            {
+                DefaultConstructor? constructor = GetDefaultConstructor(type);
+                if (constructor == null)
+                {
+                    //TODO: 이후 로그 작성 필요
+                    Debug.WriteLine($"[Deserialize Error] {type.Name} must have a default constructor.");
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+                    return null;
+                }
+                objectInstance = constructor();
+                if (objectInstance == null)
+                    return null;
+
+                PoulateFromJson(objectInstance, json, ref records, ref callbacks, options);
+            }
+            else
+            {
+                try
+                {
+                    JsonElement element = JsonSerializer.Deserialize<JsonElement>(json, options);
+                    objectInstance = element.Deserialize(type, options);
+                }
+                catch (Exception ex)
+                {
+                    //TODO: 이후 로그 작성 필요
+                    Debug.WriteLine($"[Deserialize Error] {ex.Message}");
+                    if (Debugger.IsAttached)
+                        Debugger.Break();
+                }
+            }
+            return objectInstance;
+        }
+
+        internal static object? PoulateDictionaryFromJson(Type type, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks, JsonSerializerOptions options)
+        {
+            try
+            {
+                List<KeyValuePair<string, string>>? deserializeTemp = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(json);
+                if (deserializeTemp == null)
+                    return null;
+
+                DefaultConstructor? constructor = GetDefaultConstructor(type);
+                if (constructor == null)
+                    return null;
+
+                object? dictionaryObject = constructor();
+                if (dictionaryObject == null)
+                    return null;
+
+                if (dictionaryObject is not IDictionary dictionary)
+                    return null;
+
+                Type[] arguments = type.GetGenericArguments();
+                Type keyType = arguments[0];
+                Type valueType = arguments[1];
+                foreach (var jsonPair in deserializeTemp)
+                {
+                    object? keyObject = PoulateFromElement(keyType, jsonPair.Key, ref records, ref callbacks, options);
+                    object? valueObject = PoulateFromElement(valueType, jsonPair.Value, ref records, ref callbacks, options);
+
+                    if (keyObject == null || valueObject == null)
+                        continue;
+
+                    dictionary.Add(keyObject, valueObject);
+                }
+                return dictionary;
+            }
+            catch (Exception ex)
+            {
+                //TODO: 이후 로그 작성 필요
+                Debug.WriteLine($"[Deserialize Error] {ex.Message}");
+                if (Debugger.IsAttached)
+                    Debugger.Break();
+            }
+            return null;
+        }
+
+        internal static object? PoulateEnumerableFromJson(Type type, string json, ref List<IdEntityRecord> records, ref List<ISerializationCallback> callbacks, JsonSerializerOptions options)
+        {
+            try
+            {
+                List<string>? deserializeTemp = JsonSerializer.Deserialize<List<string>>(json);
+                if (deserializeTemp == null)
+                    return null;
+
+                Type[]? elementTypes = null;
+                bool isArray = type.IsArray;
+                if (isArray)
+                {
+                    elementTypes = [type.GetElementType()!];
+                }                 
+                else if (type.IsGenericType)
+                {
+                    elementTypes = type.GetGenericArguments();
+                }
+                
+                if (elementTypes == null)
+                    return null;
+
+                if (1 < elementTypes.Length)
+                    return null;
+
+                Type elementType = elementTypes[0];
+                Type listType = typeof(List<>).MakeGenericType(elementType);
+
+                DefaultConstructor? constructor = GetDefaultConstructor(listType);
+                if (constructor == null)
+                    return null;
+
+                IList? instanceList = (IList?)constructor();
+                if (instanceList == null)
+                    return null;
+
+                foreach (var rawJson in deserializeTemp)
+                {
+                    object? instance = PoulateFromElement(elementType, rawJson, ref records, ref callbacks, options);
+                    if(instance != null)
+                        instanceList.Add(instance);
+                }
+
+                if (isArray)
+                {
+                    Array array = Array.CreateInstance(elementType, instanceList.Count);
+                    instanceList.CopyTo(array, 0);
+                    return array;
+                }
+                else
+                    return Activator.CreateInstance(type, instanceList);
+            }
+            catch (Exception ex)
+            {
+                //TODO: 이후 로그 작성 필요
+                Debug.WriteLine($"[Deserialize Error] {ex.Message}");
+                if (Debugger.IsAttached)
+                    Debugger.Break();
+            }
+            return null;
         }
 
         internal static void ResolveReferences(List<IdEntityRecord> records)

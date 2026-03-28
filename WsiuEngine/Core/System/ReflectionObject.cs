@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 
 namespace WsiuEngine.Core.System
 {
@@ -63,6 +66,18 @@ namespace WsiuEngine.Core.System
     {
         public delegate object? MethodInvoker(object? target, object[]? args);
 
+        // 자주 사용하는 타입들
+        public static class Types
+        {
+            public static readonly Type String = typeof(string);
+            public static readonly Type IEnumerable = typeof(IEnumerable);
+            public static readonly Type IDictionary = typeof(IDictionary);
+            public static readonly Type IIdentity = typeof(IIdentity);
+            public static readonly Type ISerializationCallback = typeof(ISerializationCallback);
+            public static readonly Type ListDefinition = typeof(List<>);
+            public static readonly Type KeyValuePairDefinition = typeof(KeyValuePair<,>);
+        }
+
         public class Field
         {
             public string Name { get; init; } = null!;
@@ -71,7 +86,6 @@ namespace WsiuEngine.Core.System
             public Func<object?, object?> Get { get; init; } = null!;
             public Action<object?, object?>? Set { get; init; }
 
-            public IReadOnlyDictionary<Type, Attribute> TypeAttributes { get; init; } = null!;
             public IReadOnlyDictionary<Type, Attribute> FieldAttributes { get; init; } = null!;
         }
         public class Method
@@ -108,7 +122,7 @@ namespace WsiuEngine.Core.System
                 return (TAttribute?)attribute;
             }
 
-            public static Dictionary<Type, Attribute> GetAttributes(MemberInfo info)
+            internal static Dictionary<Type, Attribute> CreateAttributes(MemberInfo info)
             {
                 var attributes = info.GetCustomAttributes(true).Cast<Attribute>();
                 Dictionary<Type, Attribute> dictionary = [];
@@ -178,19 +192,17 @@ namespace WsiuEngine.Core.System
         {
             return CreateSerializeFieldsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
         }
-
         private static List<Field> CreateSerializeFields(Type type)
         {
             return CreateSerializeFieldsWithFlags(type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         }
-
         private static List<Field> CreateSerializeFieldsWithFlags(Type type, BindingFlags flags)
         {
             var list = new List<Field>();
 
             foreach (FieldInfo field in type.GetFields(flags))
             {
-                Dictionary<Type, Attribute> attributes = Member.GetAttributes(field);
+                Dictionary<Type, Attribute> attributes = Member.CreateAttributes(field);
                 Type fieldType = field.FieldType;
                 if (field.IsPublic || Member.HasAttribute<SerializeFieldAttribute>(attributes))
                 {
@@ -202,8 +214,7 @@ namespace WsiuEngine.Core.System
                         IsProperty = false,
                         Get = (obj) => field.GetValue(obj),
                         Set = isReadOnly ? null : (obj, value) => field.SetValue(obj, value),
-                        FieldAttributes = attributes,
-                        TypeAttributes = Member.GetAttributes(fieldType)
+                        FieldAttributes = attributes
                     });
                 }
             }
@@ -212,7 +223,7 @@ namespace WsiuEngine.Core.System
             {
                 if (property.GetIndexParameters().Length > 0) continue;
 
-                Dictionary<Type, Attribute> attributes = Member.GetAttributes(property);
+                Dictionary<Type, Attribute> attributes = Member.CreateAttributes(property);
                 Type propertyType = property.PropertyType;
                 bool isPublicRead = property.CanRead && property.GetMethod!.IsPublic;
                 bool isPublicWrite = property.CanWrite && property.SetMethod!.IsPublic;
@@ -239,12 +250,26 @@ namespace WsiuEngine.Core.System
                         Get = (obj) => property.GetValue(obj),
                         Set = setter,
                         FieldAttributes = attributes,
-                        TypeAttributes = Member.GetAttributes(propertyType)
                     });
                 }
             }
 
             return list;
+        }
+
+        private static readonly Dictionary<Type, IReadOnlyDictionary<Type, Attribute>> typeByAttributes = [];
+        public static IReadOnlyDictionary<Type, Attribute> GetTypeAttributes<TType>()
+        { 
+            return GetTypeAttributes(typeof(TType));
+        }
+        public static IReadOnlyDictionary<Type, Attribute> GetTypeAttributes(Type type)
+        {
+            if (typeByAttributes.TryGetValue(type, out IReadOnlyDictionary<Type, Attribute>? value) == false)
+            {
+                value = Member.CreateAttributes(type);
+                typeByAttributes.Add(type, value);
+            }
+            return value;
         }
 
         private static List<Method> CreateSerializeMethods(Type type)
@@ -262,7 +287,7 @@ namespace WsiuEngine.Core.System
             var list = new List<Method>();
             foreach (MethodInfo method in type.GetMethods(flags))
             {
-                var attributes = Member.GetAttributes(method);
+                var attributes = Member.CreateAttributes(method);
                 if (Member.HasAttribute<SerializeMethodAttribute>(attributes) == true)
                 {
                     string name = method.Name;
@@ -285,11 +310,44 @@ namespace WsiuEngine.Core.System
             return list;
         }
 
+        private static readonly Dictionary<Type, DefaultConstructor> defaultConstructor = [];
+        internal delegate object? DefaultConstructor();
         internal static bool HasDefaultConstructor(Type type)
         {
-            if (type.IsValueType) return true;
-            if (type.IsAbstract || type.IsInterface) return false;
-            return type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null) != null;
+            return null != GetDefaultConstructor(type);
+        }
+        internal static DefaultConstructor? GetDefaultConstructor(Type type)
+        {
+            if (defaultConstructor.TryGetValue(type, out var result) == false)
+            {             
+                if (type.IsValueType)
+                {
+                    object? constructor() { return Activator.CreateInstance(type); }
+                    defaultConstructor.Add(type, constructor);
+                    return constructor;
+                } 
+                    
+                if (type.IsAbstract || type.IsInterface) 
+                    return null;
+
+                if (type.IsArray)
+                {
+                    Type elementType = type.GetElementType()!;
+                    object? constructor() { return Array.CreateInstance(elementType, 0); }
+                    defaultConstructor.Add(type, constructor);
+                    return constructor;
+                }
+
+                if (type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null) != null)
+                {
+                    object? constructor() { return Activator.CreateInstance(type); }
+                    defaultConstructor.Add(type, constructor);
+                    return constructor;
+                }
+
+                return null;
+            }
+            return result;
         }
     }
 }
