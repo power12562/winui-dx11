@@ -69,6 +69,7 @@ namespace WsiuEngine.Core.System
         // 자주 사용하는 타입들
         public static class Types
         {
+            public static readonly Type Type = typeof(Type);
             public static readonly Type String = typeof(string);
             public static readonly Type IEnumerable = typeof(IEnumerable);
             public static readonly Type IDictionary = typeof(IDictionary);
