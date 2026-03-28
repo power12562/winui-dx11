@@ -284,5 +284,12 @@ namespace WsiuEngine.Core.System
             }
             return list;
         }
+
+        internal static bool HasDefaultConstructor(Type type)
+        {
+            if (type.IsValueType) return true;
+            if (type.IsAbstract || type.IsInterface) return false;
+            return type.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null) != null;
+        }
     }
 }
