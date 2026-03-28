@@ -1,11 +1,13 @@
 ﻿using System;
 using WsiuEditor.Editor.Base;
+using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
+    [SingletonEditor]
     internal class TimeEditor : ImguiEditorBase
     {
         private const string editorName = "Time";
