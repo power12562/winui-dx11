@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -12,6 +13,9 @@ namespace WsiuEngine.Core.System
     public static partial class ReflectionObject
     {
         private delegate void DrawFieldHandler(ImguiContext ctx, string name, object value, IReadOnlyDictionary<Type, Attribute>? attributes, Action<object> callback);
+        private static readonly ButtonCallback readonlyButtonCallback = () => { };
+        private static readonly Action<object> readonlyFieldSetter = (obj) => { };
+        private static readonly Action<IEnumerable> readonlyEnumerableSetter = (obj) => { };
         private static readonly Dictionary<Type, DrawFieldHandler> typeByDrawFieldHandler = new(ReferenceEqualityComparer.Instance)
         {
             [typeof(string)] = (ctx, n, v, atts, cb) =>
@@ -70,7 +74,7 @@ namespace WsiuEngine.Core.System
             }
             else
             {
-                context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, () => { });
+                context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
             }
         }
 
@@ -79,19 +83,112 @@ namespace WsiuEngine.Core.System
             DrawField(context, type, strId, value, isReadOnly, null, callback);
         }
 
+        private delegate void DrawIListHandler(ImguiContext context, Type type, string name, IList values, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback);
+        private static readonly Dictionary<Type, DrawIListHandler> typeByIListHandler = new(ReferenceEqualityComparer.Instance)
+        {
+            [typeof(Array)] = (ctx, t, n, lt, rd, attr, cb) =>
+            {
+                int count = lt.Count;
+                ctx.TreeNodeEx($"{n} [{t.Name}] ({count})###{n}", ImGuiTreeNodeFlags.None);
+                DarwIList(ctx, n, lt, rd, attr, cb);
+                if (rd == false)
+                {
+                    Type? elementType = t.GetElementType();
+                    if (elementType != null && HasDefaultConstructor(elementType))
+                    {
+                        ctx.Button("+", () =>
+                        {
+                            Array newArray = Array.CreateInstance(elementType, count + 1);
+                            Array.Copy((Array)lt, newArray, count);
+                            newArray.SetValue(Activator.CreateInstance(elementType), count);
+                            cb(newArray);
+                        });
+                        ctx.SameLine();
+                        if (0 < count)
+                        {
+                            ctx.Button("-", () =>
+                            {
+                                Array newArray = Array.CreateInstance(elementType, count - 1);
+                                Array.Copy((Array)lt, newArray, count - 1);
+                                cb(newArray);
+                            });
+                        }
+                    }
+                }
+                ctx.TreePop();
+            },
+            [typeof(List<>)] = (ctx, t, n, lt, rd, attr, cb) =>
+            {
+                int count = lt.Count;
+                string typeName = GetGenericDisplayName(t);
+                ctx.TreeNodeEx($"{n} [{typeName}] ({count})###{n}", ImGuiTreeNodeFlags.None);
+                DarwIList(ctx, n, lt, rd, attr, cb);
+                Type[] genericArgs = t.GetGenericArguments();
+                if (genericArgs.Length > 0)
+                {
+                    Type elementType = genericArgs[0];
+                    if (HasDefaultConstructor(elementType))
+                    {
+                        ctx.Button("+", () =>
+                        {
+                            lt.Add(Activator.CreateInstance(elementType));
+                        });
+                        ctx.SameLine();
+                        if (0 < count)
+                        {
+                            ctx.Button("-", () =>
+                            {
+                                lt.RemoveAt(count - 1);
+                            });
+                        }
+                    }
+                }
+                ctx.TreePop();
+            }
+        };
+
+        private static Type GetEnumerableType(Type type) => type switch
+        {
+            { IsArray: true } => typeof(Array),
+            { IsGenericType: true } => type.GetGenericTypeDefinition(),
+            _ => type
+        };
+
+        private static readonly Dictionary<Type, string> typeByGenericDisplayName = [];
+        private static string GetGenericDisplayName(Type type)
+        {
+            if (typeByGenericDisplayName.TryGetValue(type, out string? displayName) == false)
+            {
+                displayName = BuildGenericDisplayName(type);
+                typeByGenericDisplayName.Add(type, displayName);
+            }
+            return displayName;
+        }
+
+        private static string BuildGenericDisplayName(Type type)
+        {
+            if (type.IsGenericType == false)
+                return type.Name;
+
+            string baseName = type.Name;
+            if (type.Name.Contains('`'))
+                baseName = type.Name[..type.Name.IndexOf('`')];
+
+            var genericArgs = type.GetGenericArguments().Select(t => BuildGenericDisplayName(t));
+            return $"{baseName}<{string.Join(", ", genericArgs)}>";
+        }
+
         public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback)
         {
-            //TODO: List 및 배열은 따로 처리
-            if (false && values is IList list)
+            Type enumerableType = GetEnumerableType(type);
+            if (typeByIListHandler.TryGetValue(enumerableType, out DrawIListHandler? handler) == true)
             {
-                if (type.IsArray)
-                {
-
-                }
-                else
-                {
-
-                }
+                if (isReadOnly)
+                    context.PushStyleReadOnly();
+                IList list = (IList)values;
+                handler(context, type, name, list, isReadOnly, attributes, callback);
+                if (isReadOnly)
+                    context.PopStyleReadOnly();
             }
             else
             {
@@ -114,7 +211,7 @@ namespace WsiuEngine.Core.System
                 {
                     if (value == null)
                     {
-                        context.Selectable($"({index}) null", false, ImGuiSelectableFlags.None, () => { });
+                        context.Selectable($"({index}) null", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
                     }
                     else
                     {
@@ -129,16 +226,9 @@ namespace WsiuEngine.Core.System
                         else
                         {
                             Type valueType = val.GetType();
-                            context.TextUnformatted($"({index})".PadRight(5));
+                            context.TextUnformatted($"[{index}]".PadRight(5));
                             context.SameLine();
-                            if (typeByDrawFieldHandler.TryGetValue(valueType, out var handle) == true)
-                            {
-                                handle(context, $"[{valueType.Name}]##({index})", val, attributes, (obj) => { });
-                            }
-                            else
-                            {
-                                context.Selectable($"({index}) {val} [{valueType.Name}]", false, ImGuiSelectableFlags.None, () => { });
-                            }
+                            DrawField(context, valueType, $"[{valueType.Name}] ({index})", value, true, attributes, readonlyFieldSetter);
                         }
                     }
                     ++index;
@@ -147,7 +237,6 @@ namespace WsiuEngine.Core.System
                 context.PopStyleReadOnly();
             }
         }
-
         public static void DrawEnumerable(ImguiContext context, Type type, string name, IEnumerable values, bool isReadOnly, Action<IEnumerable> callback)
         {
             DrawEnumerable(context, type, name, values, isReadOnly, null, callback);
@@ -157,6 +246,47 @@ namespace WsiuEngine.Core.System
         {
             IReadOnlyList<Field> fields = GetStaticFields<TClass>();
             DrawFields(context, null, fields);
+        }
+
+        private static void DarwIList(ImguiContext context, string name, IList list, bool isReadOnly, IReadOnlyDictionary<Type, Attribute>? attributes, Action<IEnumerable> callback)
+        {
+            if (isReadOnly)
+                context.PushStyleReadOnly();
+            int index = 0;
+            foreach (object? value in list)
+            {
+                if (value == null)
+                {
+                    context.Selectable($"({index}) null", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
+                }
+                else
+                {
+                    if (value is IReflectionDrawer drawer)
+                    {
+                        if (drawer.UseCustomDrawing)
+                        {
+                            drawer.DrawFields(context, name, isReadOnly, attributes);
+                        }
+                    }
+                    else
+                    {
+                        int i = index;
+                        Type valueType = value.GetType();
+                        context.TextUnformatted($"[{i}]".PadRight(5));
+                        context.SameLine();
+                        Action<object> setter = isReadOnly ? readonlyFieldSetter : (obj) =>
+                        {
+                            list[i] = obj;
+                        };
+                        context.PushID((uint)i);
+                        DrawField(context, valueType, string.Empty, value, isReadOnly, attributes, setter);
+                        context.PopID();
+                    }
+                }
+                ++index;
+            }
+            if (isReadOnly)
+                context.PopStyleReadOnly();
         }
 
         public static void DrawFields(ImguiContext context, object target)
@@ -230,7 +360,7 @@ namespace WsiuEngine.Core.System
                     }
                     else if (value is IIdentity identity)
                     {
-                        context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, () => { });
+                        context.Selectable($"(Reference: {type.Name})", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
                     }
                     continue;
                 }
@@ -240,10 +370,11 @@ namespace WsiuEngine.Core.System
                 if (hasDrawHandler == false && value is IEnumerable enumerable)
                 {
                     CloseTable();
-                    DrawEnumerable(context, type, name, enumerable, isReadOnly, attributes, (obj) =>
+                    Action<IEnumerable> setter = isReadOnly ? readonlyEnumerableSetter : (obj) =>
                     {
                         field.Set?.Invoke(target, obj);
-                    });
+                    };
+                    DrawEnumerable(context, type, name, enumerable, isReadOnly, attributes, setter);
                 }
                 else
                 {
@@ -259,17 +390,18 @@ namespace WsiuEngine.Core.System
                         context.TableNextColumn(); // 1
                         context.TextUnformatted(name);
                         context.TableNextColumn(); // 2
-                        handle!(context, $"[{type.Name}]###{name}", value, attributes, (obj) =>
+                        Action<object> setter = isReadOnly ? readonlyFieldSetter : (obj) =>
                         {
                             field.Set?.Invoke(target, obj);
-                        });
+                        };
+                        handle!(context, $"[{type.Name}]###{name}", value, attributes, setter);
                     }
                     else
                     {
                         context.TableNextColumn(); // 1
                         context.TextUnformatted(name);
                         context.TableNextColumn(); // 2
-                        context.Selectable($"{value} [{type.Name}]###{name}", false, ImGuiSelectableFlags.None, () => { });
+                        context.Selectable($"{value} [{type.Name}]###{name}", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
                     }
 
                     if (isReadOnly)
