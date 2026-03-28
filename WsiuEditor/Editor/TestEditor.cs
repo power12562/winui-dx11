@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using WsiuEditor.Editor.Base;
-using WsiuEditor.Interfaces;
 using WsiuEngine.Collections;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
@@ -10,7 +9,6 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    [SingletonEditor]
     internal class TestEditor : ImguiEditorBase
     {
         public TestEditor(Engine engine, UInt64 id) : base(engine, id)
@@ -22,7 +20,7 @@ namespace WsiuEditor.Editor
         public override void Draw()
         {
             TestDraw();
-            TestDraw2();
+            //TestDraw2();
         }
 
         private readonly TestClassDraw _testClass = new();
@@ -69,6 +67,7 @@ namespace WsiuEditor.Editor
             public Vector2 TestVector2 = new();
             public Vector3 TestVector3 = new();
             public Vector4 TestVector4 = new();
+            public List<TestClassDraw2> TestClassDraw2Array = [];
 
             [MultilineStringField(Height = 100f)]
             public string TestSerialize => _testSerialize;
@@ -93,6 +92,7 @@ namespace WsiuEditor.Editor
             }
         }
 
+        [SerializableClass]
         class TestClassDraw2
         {
             [MultilineStringField]
@@ -100,7 +100,12 @@ namespace WsiuEditor.Editor
             public string TestSerialize = "";
 
             public IdProvider IdProvider = new();
+
             private readonly List<UInt64> _idList = [];
+
+            public List<UInt64> TestUInt64List = [1, 2, 3, 4, 5];
+            public UInt64[] TestUInt64Array = [1, 2, 3, 4, 5];
+            public List<UInt64[]> TestUInt64Grid = [[1], [2, 2], [3, 3, 3], [4, 4, 4, 4]];
 
             [SerializeMethod]
             public void Serialize()
