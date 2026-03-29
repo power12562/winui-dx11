@@ -16,20 +16,20 @@ namespace WsiuEngine.Core.System
         }
 
         private readonly ConcurrentQueue<Entry> _entryQueue;
-        private Log() 
+        private Log()
         {
             _entryQueue = new();
             _loopTask = Task.Run(() => WriteLoop().Forget());
         }
 
         public enum Level
-        { 
+        {
             Trace = 0,
             Debug = 1,
             Info = 2,
             Warning = 3,
             Error = 4,
-            Fatal = 5 
+            Fatal = 5
         }
 
         public record Entry(
@@ -49,7 +49,7 @@ namespace WsiuEngine.Core.System
         }
         public static string DisplaySub(Entry logEntry)
         {
-            return $"{logEntry.FileName}.{logEntry.MemberName}, Line: {logEntry.LineNumber} ({logEntry.FileName})"; 
+            return $"{logEntry.FileName}.{logEntry.MemberName}, Line: {logEntry.LineNumber} ({logEntry.FileName})";
         }
 
         public static event Action<Entry>? OnLogReceived;
@@ -83,7 +83,9 @@ namespace WsiuEngine.Core.System
             string fileName = Path.GetFileNameWithoutExtension(path);
             Entry entry = new(DateTime.Now, level, msg, path, fileName, member, line);
             _entryQueue.Enqueue(entry);
-            TaskDispatcher.PostToDispatcher(() => OnLogReceived?.Invoke(entry));
+
+            if (_isShutdonw == false)
+                TaskDispatcher.PostToDispatcher(() => OnLogReceived?.Invoke(entry));
         }
 
         private static string MakeLogStream(Entry entry)
@@ -99,7 +101,7 @@ namespace WsiuEngine.Core.System
             return Path.Combine(WindowService.AppLocalFolderPath, "Logs");
         }
 
-        private volatile bool _flushEntries = false;
+        private volatile bool _isShutdonw = false;
         private readonly Task _loopTask;
         private async Task WriteLoop()
         {
@@ -119,25 +121,25 @@ namespace WsiuEngine.Core.System
                     await Task.Delay(10);
                 }
 
-                if (_flushEntries)
+                if (_isShutdonw)
                     break;
             }
 
-            while(_entryQueue.TryDequeue(out var entry))
+            while (_entryQueue.TryDequeue(out var entry))
             {
                 await sw.WriteLineAsync(MakeLogStream(entry));
             }
             sw.Flush();
         }
 
-        internal static void FlushEntries()
+        internal static void Shutdown()
         {
-            instance.InternalFlushEntries();
+            instance.InternalShutdown();
         }
 
-        internal void InternalFlushEntries()
+        internal void InternalShutdown()
         {
-            _flushEntries = true;
+            _isShutdonw = true;
             _loopTask.Wait();
         }
     }
