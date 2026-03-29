@@ -118,16 +118,11 @@ namespace WsiuEngine.Core.System
                 }
                 else
                 {
+                    if (_isShutdown)
+                        break;
+
                     await Task.Delay(10);
                 }
-
-                if (_isShutdown)
-                    break;
-            }
-
-            while (_entryQueue.TryDequeue(out var entry))
-            {
-                await sw.WriteLineAsync(MakeLogStream(entry));
             }
             sw.Flush();
         }
