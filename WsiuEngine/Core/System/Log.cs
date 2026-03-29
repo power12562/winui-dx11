@@ -53,9 +53,29 @@ namespace WsiuEngine.Core.System
         }
 
         public static event Action<Entry>? OnLogReceived;
+        public static void Trace(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
+        {
+            instance.Message(Level.Trace, msg, path, line, member);
+        }
         public static void Debug(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
         {
             instance.Message(Level.Debug, msg, path, line, member);
+        }
+        public static void Info(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
+        {
+            instance.Message(Level.Info, msg, path, line, member);
+        }
+        public static void Warning(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
+        {
+            instance.Message(Level.Warning, msg, path, line, member);
+        }
+        public static void Error(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
+        {
+            instance.Message(Level.Error, msg, path, line, member);
+        }
+        public static void Fatal(string msg, [CallerFilePath] string path = "", [CallerLineNumber] int line = 0, [CallerMemberName] string member = "")
+        {
+            instance.Message(Level.Fatal, msg, path, line, member);
         }
 
         private void Message(Level level, string msg, string path, int line, string member)
