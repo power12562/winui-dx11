@@ -81,22 +81,22 @@ namespace WsiuEngine.Core.System
 
         public class Field
         {
-            public string Name { get; init; } = null!;
-            public Type Type { get; init; } = null!;
-            public bool IsProperty { get; init; }
-            public Func<object?, object?> Get { get; init; } = null!;
-            public Action<object?, object?>? Set { get; init; }
+            public required string Name { get; init; }
+            public required Type Type { get; init; }
+            public required bool IsProperty { get; init; }
+            public required Func<object?, object?> Get { get; init; }
+            public required Action<object?, object?>? Set { get; init; }
 
-            public IReadOnlyDictionary<Type, Attribute> FieldAttributes { get; init; } = null!;
+            public required IReadOnlyDictionary<Type, Attribute> FieldAttributes { get; init; }
         }
         public class Method
         {
-            public string Name { get; init; } = null!;
-            public string DisplayName = null!;
-            public Type ReturnType = null!;
-            public MethodInvoker Invoker { get; init; } = null!;
-            public List<ParameterInfo> Parameters = null!;
-            public IReadOnlyDictionary<Type, Attribute> MethodAttributes { get; init; } = null!;
+            public required string Name { get; init; }
+            public required string DisplayName;
+            public required Type ReturnType;
+            public required MethodInvoker Invoker { get; init; }
+            public required List<ParameterInfo> Parameters;
+            public required IReadOnlyDictionary<Type, Attribute> MethodAttributes { get; init; }
         }
         public class Member(Type type)
         {
