@@ -47,9 +47,10 @@ namespace WsiuEditor
         private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
         {
             args.Cancel = true;
-            _engine.Dispose();
             if (EditorManager.IsLayoutSavedOnClose)
                 EditorManager.SaveLayoutToFile();
+            EditorManager.ShutDown();
+            _engine.Dispose();
             Close();
         }
     }

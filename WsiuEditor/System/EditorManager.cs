@@ -16,6 +16,11 @@ namespace WsiuEditor.System
             instance = new EditorManager(engine);
         }
 
+        internal static void ShutDown()
+        {
+            instance.InternalShutDown();
+        }
+
         private EditorManager(Engine engine)
         {
             _engine = engine;
@@ -30,6 +35,18 @@ namespace WsiuEditor.System
         private readonly Dictionary<Type, IEditor> _singletonEditorTypeToInstance = [];
         private bool _cleanupEditors = false;
         private Dictionary<Type, IdProvider> _editorIdProvider = [];
+
+        internal void InternalShutDown()
+        {
+            foreach (IEditor editor in _transientEditors)
+            {
+                editor.Dispose();
+            }
+            foreach (IEditor editor in _singletonEditors)
+            {
+                editor.Dispose();
+            }
+        }
 
         private void CleanUpEditors()
         {
@@ -129,6 +146,7 @@ namespace WsiuEditor.System
                     IEditor editor = _transientEditors[i];
                     if (editor.Active == false)
                     {
+                        editor.Dispose();
                         ReleaseEditorId(editor.GetType(), editor.ID);
                         _transientEditors.RemoveAt(i);
                     }
