@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
@@ -260,7 +259,7 @@ namespace WsiuEngine.Core.System
 
         private static readonly Dictionary<Type, IReadOnlyDictionary<Type, Attribute>> typeByAttributes = [];
         public static IReadOnlyDictionary<Type, Attribute> GetTypeAttributes<TType>()
-        { 
+        {
             return GetTypeAttributes(typeof(TType));
         }
         public static IReadOnlyDictionary<Type, Attribute> GetTypeAttributes(Type type)
@@ -320,15 +319,15 @@ namespace WsiuEngine.Core.System
         internal static DefaultConstructor? GetDefaultConstructor(Type type)
         {
             if (defaultConstructor.TryGetValue(type, out var result) == false)
-            {             
+            {
                 if (type.IsValueType)
                 {
                     object? constructor() { return Activator.CreateInstance(type); }
                     defaultConstructor.Add(type, constructor);
                     return constructor;
-                } 
-                    
-                if (type.IsAbstract || type.IsInterface) 
+                }
+
+                if (type.IsAbstract || type.IsInterface)
                     return null;
 
                 if (type.IsArray)

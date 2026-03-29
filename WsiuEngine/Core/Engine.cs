@@ -34,7 +34,6 @@ namespace WsiuEngine.Core
             Log.Initialize();
         }
 
-
         public void Update()
         {
             Time.Update();                         // 델타타임 갱신

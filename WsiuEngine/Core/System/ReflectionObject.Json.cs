@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -77,7 +74,7 @@ namespace WsiuEngine.Core.System
                 Type type = field.Type;
                 value = SerializeElementToJson(type, value, options);
 
-                if(value == null)
+                if (value == null)
                     continue;
 
                 string name = field.Name;
@@ -274,7 +271,7 @@ namespace WsiuEngine.Core.System
                 if (setter == null)
                     continue;
 
-                Type type = field.Type;          
+                Type type = field.Type;
                 bool isIdEntity = false;
                 bool isSystemNamespaceType = IsSystemNamespace(type);
                 bool isDictionary = false;
@@ -344,7 +341,7 @@ namespace WsiuEngine.Core.System
                             if (elementJson != null)
                                 value = PoulateFromElement(type, elementJson, ref records, ref callbacks, options);
                         }
-                           
+
                         if (value == null)
                             continue;
 
@@ -461,12 +458,12 @@ namespace WsiuEngine.Core.System
                 if (isArray)
                 {
                     elementTypes = [type.GetElementType()!];
-                }                 
+                }
                 else if (type.IsGenericType)
                 {
                     elementTypes = type.GetGenericArguments();
                 }
-                
+
                 if (elementTypes == null)
                     return null;
 
@@ -487,7 +484,7 @@ namespace WsiuEngine.Core.System
                 foreach (var rawJson in deserializeTemp)
                 {
                     object? instance = PoulateFromElement(elementType, rawJson, ref records, ref callbacks, options);
-                    if(instance != null)
+                    if (instance != null)
                         instanceList.Add(instance);
                 }
 

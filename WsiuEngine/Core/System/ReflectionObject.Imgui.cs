@@ -80,7 +80,7 @@ namespace WsiuEngine.Core.System
             }
 
             if (type.IsClass && IsSystemNamespace(type) == false)
-            {      
+            {
                 if (attributes != null && Member.HasAttribute<SerializableClassAttribute>(GetTypeAttributes(type)))
                 {
                     context.TreeNodeEx($"{strId} [{type.Name}]", ImGuiTreeNodeFlags.None);
@@ -94,8 +94,8 @@ namespace WsiuEngine.Core.System
                     return;
                 }
             }
-                  
-            context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, readonlyButtonCallback);         
+
+            context.Selectable($"{value} [{type.Name}]###{strId}", false, ImGuiSelectableFlags.None, readonlyButtonCallback);
         }
 
         public static void DrawField(ImguiContext context, Type type, string strId, object value, bool isReadOnly, Action<object> callback)
