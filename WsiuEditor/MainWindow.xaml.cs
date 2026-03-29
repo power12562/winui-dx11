@@ -43,7 +43,6 @@ namespace WsiuEditor
         private void OnWindowOpened(object obj, RoutedEventArgs args)
         {
             EditorManager.LoadLayoutFromFile();
-            Log.Debug("테스트 테스트 테스트");
         }
 
         private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
