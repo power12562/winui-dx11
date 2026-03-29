@@ -1,3 +1,4 @@
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 
@@ -16,6 +17,14 @@ namespace WsiuEngine.Core.MainEntry
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             _engine = new Engine(this, EnginePanel);
             CompositionTarget.Rendering += (sender, args) => _engine.Update();
+            AppWindow.Closing += OnWindowClosing;
+        }
+
+        private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+        {
+            args.Cancel = true;
+            _engine.Dispose();
+            Close();
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using WsiuEditor.System;
 using WsiuEngine.Core;
+using WsiuEngine.Core.System;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,9 +29,9 @@ namespace WsiuEditor
             CompositionTarget.Rendering += (sender, args) => EditorLoop();
             if (Content is FrameworkElement frameworkElement)
             {
-                frameworkElement.Loaded += (obj, eventArgs) => OnWindowOpened(obj, eventArgs);
+                frameworkElement.Loaded += OnWindowOpened;
             }
-            AppWindow.Closing += (sender, args) => OnWindowClosing(sender, args);
+            AppWindow.Closing += OnWindowClosing;
         }
 
         private void EditorLoop()
@@ -42,11 +43,13 @@ namespace WsiuEditor
         private void OnWindowOpened(object obj, RoutedEventArgs args)
         {
             EditorManager.LoadLayoutFromFile();
+            Log.Debug("테스트 테스트 테스트");
         }
 
         private void OnWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
         {
             args.Cancel = true;
+            _engine.Dispose();
             if (EditorManager.IsLayoutSavedOnClose)
                 EditorManager.SaveLayoutToFile();
             Close();

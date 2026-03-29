@@ -9,7 +9,7 @@ using WsiuApplication = WsiuEngine.Core.System.Application;
 
 namespace WsiuEngine.Core
 {
-    public class Engine
+    public class Engine : IDisposable
     {
         private static Engine instance = null!;
         private readonly EngineCore _engineCore;
@@ -31,7 +31,9 @@ namespace WsiuEngine.Core
             WindowService.Initialize(mainWindow);
             TaskDispatcher.Initialize();
             WsiuApplication.Initialize();
+            Log.Initialize();
         }
+
 
         public void Update()
         {
@@ -42,6 +44,12 @@ namespace WsiuEngine.Core
 
             _engineCore.Tick();                    // 렌더링 드로우콜 실행
             _engineCore.EndFrame();                // 렌더링 프레임 종료 및 백버퍼 Flip
+        }
+
+        public void Dispose()
+        {
+            Log.Shutdown();
+            GC.SuppressFinalize(this);
         }
 
         private readonly static Dictionary<Type, ISingleton> typeToSingletonInstance = [];
