@@ -7,9 +7,9 @@ namespace WsiuEngine.Extensions
 {
     public static class TaskExtensions
     {
-        public static void Forget(this Task task)
+        public static Task Forget(this Task task)
         {
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 try
                 {
@@ -26,9 +26,9 @@ namespace WsiuEngine.Extensions
             });
         }
 
-        public static void SubmitToEngine(this Task task, Action<Task> handle)
+        public static Task SubmitToEngine(this Task task, Action<Task> handle)
         {
-            Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 try
                 {
