@@ -5,7 +5,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor.Base
 {
-    public abstract class ImguiEditorBase : IEditor
+    public abstract partial class ImguiEditorBase : IEditor
     {
         public UInt64 ID
         {
@@ -34,9 +34,11 @@ namespace WsiuEditor.Editor.Base
             set => _imguiContext.SetActive(value);
         }
 
-
         protected string ImguiTitle => _imguiTitle;
         private string _imguiTitle;
+
+        protected bool IsDisposed => _isDisposed;
+        private bool _isDisposed;
 
         protected string ImguiId => _imguiId;
         private readonly string _imguiId;
@@ -60,6 +62,24 @@ namespace WsiuEditor.Editor.Base
             _imguiId = $"{_typeName}{ID}";
             _name = "Please set the editor name after initialization.";
             _imguiTitle = $"{_name}###{_imguiId}";
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            _isDisposed = true;
+        }
+
+        ~ImguiEditorBase()
+        {
+            // 이 코드를 변경하지 마세요. 'Dispose(bool disposing)' 메서드에 정리 코드를 입력합니다.
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            // 이 코드를 변경하지 마세요. 'Dispose(bool disposing)' 메서드에 정리 코드를 입력합니다.
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
