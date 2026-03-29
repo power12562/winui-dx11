@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace WsiuEngine.Core.System
 {
-    public partial class Screen
+    public sealed partial class Screen
     {
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

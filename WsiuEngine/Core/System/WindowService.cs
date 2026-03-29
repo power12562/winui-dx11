@@ -9,7 +9,7 @@ using Windows.Storage;
 
 namespace WsiuEngine.Core.System
 {
-    public class WindowService
+    public sealed class WindowService
     {
         private static WindowService instance = null!;
 

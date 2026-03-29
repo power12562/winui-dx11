@@ -10,7 +10,7 @@ namespace WsiuEngine.Core.System
         Up
     }
 
-    public class InputSystem
+    public sealed class InputSystem
     {
         private static InputSystem instance = null!;
         private EngineCore _engine;

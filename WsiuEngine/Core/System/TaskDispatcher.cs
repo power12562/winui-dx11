@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace WsiuEngine.Core.System
 {
-    internal class TaskDispatcher
+    internal sealed class TaskDispatcher
     {
         private static TaskDispatcher instance = null!;
         internal static void Initialize()

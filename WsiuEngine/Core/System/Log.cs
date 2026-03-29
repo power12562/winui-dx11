@@ -7,7 +7,7 @@ using WsiuEngine.Extensions;
 
 namespace WsiuEngine.Core.System
 {
-    public class Log
+    public sealed class Log
     {
         private static Log instance = null!;
         internal static void Initialize()

@@ -10,7 +10,7 @@ using WsiuRenderer;
 
 namespace WsiuEngine.Core.System
 {
-    public partial class Screen
+    public sealed partial class Screen
     {
         private static Screen instance = null!;
         internal static void Initialize(nint hwnd)

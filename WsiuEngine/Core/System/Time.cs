@@ -4,7 +4,7 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace WsiuEngine.Core.System
 {
-    public class Time : ISingleton
+    public sealed class Time : ISingleton
     {
         private static Time instance = null!;
 
