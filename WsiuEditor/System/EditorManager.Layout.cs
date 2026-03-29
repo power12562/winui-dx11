@@ -15,12 +15,11 @@ namespace WsiuEditor.System
 {
     public partial class EditorManager
     {
-        public static string ApplicationLocalFolderPath => lazyApplicationLocalFolderPath.Value;
-        private static readonly Lazy<string> lazyApplicationLocalFolderPath = new(() => ApplicationData.Current.LocalFolder.Path);
+
         private const string editorLayoutFilename = "EditorManagerLayout.json";
         private static string GetDefaultLayoutPath()
         {
-            return Path.Combine(EditorManager.ApplicationLocalFolderPath, EditorManager.editorLayoutFilename);
+            return Path.Combine(WindowService.AppLocalFolderPath, EditorManager.editorLayoutFilename);
         }
         public static bool IsLayoutSavedOnClose => instance._isLayoutSavedOnClose;
         private bool _isLayoutSavedOnClose = true;
@@ -235,7 +234,7 @@ namespace WsiuEditor.System
 
         public static async Task ShowLayoutInExplorerAsync()
         {
-            string path = ApplicationLocalFolderPath;
+            string path = WindowService.AppLocalFolderPath;
             StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
             if (folder != null)
             {

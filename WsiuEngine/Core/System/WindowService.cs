@@ -5,6 +5,7 @@ using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace WsiuEngine.Core.System
 {
@@ -25,6 +26,9 @@ namespace WsiuEngine.Core.System
             nint hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             _windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         }
+
+        public static string AppLocalFolderPath => lazyAppLocalFolderPath.Value;
+        private static readonly Lazy<string> lazyAppLocalFolderPath = new(() => ApplicationData.Current.LocalFolder.Path);
 
         public static FileOpenPicker CreateFileOpenPicker()
         {
