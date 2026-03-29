@@ -84,7 +84,7 @@ namespace WsiuEngine.Core.System
             Entry entry = new(DateTime.Now, level, msg, path, fileName, member, line);
             _entryQueue.Enqueue(entry);
 
-            if (_isShutdonw == false)
+            if (_isShutdown == false)
                 TaskDispatcher.PostToDispatcher(() => OnLogReceived?.Invoke(entry));
         }
 
@@ -101,7 +101,7 @@ namespace WsiuEngine.Core.System
             return Path.Combine(WindowService.AppLocalFolderPath, "Logs");
         }
 
-        private volatile bool _isShutdonw = false;
+        private volatile bool _isShutdown = false;
         private readonly Task _loopTask;
         private async Task WriteLoop()
         {
@@ -121,7 +121,7 @@ namespace WsiuEngine.Core.System
                     await Task.Delay(10);
                 }
 
-                if (_isShutdonw)
+                if (_isShutdown)
                     break;
             }
 
@@ -139,7 +139,7 @@ namespace WsiuEngine.Core.System
 
         internal void InternalShutdown()
         {
-            _isShutdonw = true;
+            _isShutdown = true;
             _loopTask.Wait();
         }
     }
