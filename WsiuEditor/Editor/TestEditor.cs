@@ -9,7 +9,7 @@ using WsiuRenderer;
 
 namespace WsiuEditor.Editor
 {
-    internal class TestEditor : ImguiEditorBase
+    internal sealed partial class TestEditor : ImguiEditorBase
     {
         public TestEditor(Engine engine, UInt64 id) : base(engine, id)
         {

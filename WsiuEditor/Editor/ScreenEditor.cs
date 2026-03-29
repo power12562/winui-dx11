@@ -7,7 +7,7 @@ using WsiuRenderer;
 namespace WsiuEditor.Editor
 {
     [SingletonEditor]
-    public class ScreenEditor : ImguiEditorBase
+    public sealed partial class ScreenEditor : ImguiEditorBase
     {
         private const string editorName = "Screen";
 

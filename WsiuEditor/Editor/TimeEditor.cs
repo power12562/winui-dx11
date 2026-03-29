@@ -8,7 +8,7 @@ using WsiuRenderer;
 namespace WsiuEditor.Editor
 {
     [SingletonEditor]
-    internal class TimeEditor : ImguiEditorBase
+    internal sealed partial class TimeEditor : ImguiEditorBase
     {
         private const string editorName = "Time";
 
