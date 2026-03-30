@@ -8,6 +8,7 @@
 #include "EditorWindowClosable.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
+#include <filesystem>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -90,8 +91,19 @@ namespace winrt::WsiuRenderer::implementation
         static InputSystem::MouseInputState prevMouseState{};
         static InputSystem::KeyboardInputState prevKeyboardState{};
         ImGuiIO& io = ImGui::GetIO();
-        const auto& mouseState = InputSystem.MouseState;
 
+        constexpr const char* koreanFontPath = "C:\\Windows\\Fonts\\malgun.ttf";
+        if (std::filesystem::exists(koreanFontPath))
+        {
+            io.Fonts->AddFontFromFileTTF(koreanFontPath, 16.0f, nullptr, io.Fonts->GetGlyphRangesKorean());
+        }
+        else
+        {
+            io.Fonts->AddFontDefault();
+        }
+        io.Fonts->Build();
+
+        const auto& mouseState = InputSystem.MouseState;
         if (prevMouseState.IsLeftDown != mouseState.IsLeftDown)
             io.AddMouseButtonEvent(ImGuiMouseButton_Left, mouseState.IsLeftDown);
         if (prevMouseState.IsRightDown != mouseState.IsRightDown)
