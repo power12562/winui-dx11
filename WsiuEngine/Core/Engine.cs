@@ -40,7 +40,6 @@ namespace WsiuEngine.Core
             _engineCore.BeginFrame();              // 렌더링 프레임 시작 백버퍼 초기화
             InputSystem.Update();                  // 입력 상태 갱신 및 이벤트 호출
             TaskDispatcher.DispatchPendingTasks(); // 완료된 Tasks 처리
-
             _engineCore.Tick();                    // 렌더링 드로우콜 실행
             _engineCore.EndFrame();                // 렌더링 프레임 종료 및 백버퍼 Flip
         }
