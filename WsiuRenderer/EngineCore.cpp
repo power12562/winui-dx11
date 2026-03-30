@@ -92,17 +92,6 @@ namespace winrt::WsiuRenderer::implementation
         static InputSystem::KeyboardInputState prevKeyboardState{};
         ImGuiIO& io = ImGui::GetIO();
 
-        constexpr const char* koreanFontPath = "C:\\Windows\\Fonts\\malgun.ttf";
-        if (std::filesystem::exists(koreanFontPath))
-        {
-            io.Fonts->AddFontFromFileTTF(koreanFontPath, 16.0f, nullptr, io.Fonts->GetGlyphRangesKorean());
-        }
-        else
-        {
-            io.Fonts->AddFontDefault();
-        }
-        io.Fonts->Build();
-
         const auto& mouseState = InputSystem.MouseState;
         if (prevMouseState.IsLeftDown != mouseState.IsLeftDown)
             io.AddMouseButtonEvent(ImGuiMouseButton_Left, mouseState.IsLeftDown);
@@ -356,6 +345,18 @@ namespace winrt::WsiuRenderer::implementation
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     
+        
+        constexpr const char* koreanFontPath = "C:\\Windows\\Fonts\\malgun.ttf";
+        if (std::filesystem::exists(koreanFontPath))
+        {
+            io.Fonts->AddFontFromFileTTF(koreanFontPath, 16.0f, nullptr, io.Fonts->GetGlyphRangesKorean());
+        }
+        else
+        {
+            io.Fonts->AddFontDefault();
+        }
+        io.Fonts->Build();
+
         ImGui_ImplWin32_Init(_hwnd);
         ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
