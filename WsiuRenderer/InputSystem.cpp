@@ -92,6 +92,22 @@ void InputSystem::RawInputProcessing(HRAWINPUT hRawInput)
 
             USHORT vkey   = keyboard.VKey;
             bool   isDown = !(keyboard.Flags & RI_KEY_BREAK);
+            bool   isE0   = (keyboard.Flags & RI_KEY_E0);
+
+            switch (vkey)
+            {
+            case VK_CONTROL:                             // 0x11
+                vkey = isE0 ? VK_RCONTROL : VK_LCONTROL; // 0xA3 : 0xA2
+                break;
+            case VK_MENU:                          // 0x12 (Alt)
+                vkey = isE0 ? VK_RMENU : VK_LMENU; // 0xA5 : 0xA4
+                break;
+            case VK_SHIFT: // 0x10         
+                vkey = MapVirtualKey(keyboard.MakeCode, MAPVK_VSC_TO_VK_EX); // Shift는 ScanCode로 판별
+                break;
+            default:
+                break;
+            }
 
             int index = vkey / 32;
             int bit   = vkey % 32;
