@@ -181,6 +181,11 @@ namespace winrt::WsiuRenderer::implementation
                                 float height,
                                 winrt::WsiuRenderer::StringChangedCallback const& handle);
 
+         void DrawTextListClipper(winrt::Windows::Foundation::Collections::IVectorView<hstring> const& list,
+                                 hstring const&                                                       hoveredTooltip,
+                                 uint32_t                                                             line,
+                                 winrt::WsiuRenderer::ItemSelectedCallback const&                     handle);
+
     private:
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;

@@ -996,4 +996,34 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::DrawTextListClipper(winrt::Windows::Foundation::Collections::IVectorView<hstring> const& list,
+                                           hstring const&                                   hoveredTooltip,
+                                           uint32_t                                         line,
+                                           winrt::WsiuRenderer::ItemSelectedCallback const& handle)
+    {
+        auto command = [list, hoveredTooltip = winrt::to_string(hoveredTooltip), line, handle]
+        {
+            auto&            setting    = _inputSetting;
+            float            itemHeight = ImGui::GetTextLineHeightWithSpacing() * line;
+            ImGuiListClipper clipper;
+            clipper.Begin(static_cast<int>(list.Size()), itemHeight);
+            while (clipper.Step())
+            {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                {
+                    std::string text = winrt::to_string(list.GetAt(static_cast<uint32_t>(i)));
+                    ImGui::PushID(i);
+                    ImGui::InputTextMultiline("", &text, {0, itemHeight}, setting.TextFlags);
+                    ImGui::SetItemTooltip(hoveredTooltip.c_str());
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                    {
+                        handle(i);
+                    }
+                    ImGui::PopID();                 
+                }
+            }
+        };
+        PushCommand(command);
+    }
+
 } // namespace winrt::WsiuRenderer::implementation

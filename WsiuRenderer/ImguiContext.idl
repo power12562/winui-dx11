@@ -5,6 +5,7 @@ namespace WsiuRenderer
 {
     delegate void ButtonCallback();
     delegate void DeactivatedCallback();
+    delegate void ItemSelectedCallback(Int32 index);
 
     delegate void BooleanChangedCallback(Boolean val);
     
@@ -115,5 +116,6 @@ namespace WsiuRenderer
         static void SettingInput(ImGuiInputTextFlags textFlags);
         void InputText(String label, String val, StringChangedCallback handle);
         void InputTextMultiline(String label, String val, Single width, Single height, StringChangedCallback handle);
+        void DrawTextListClipper(IVectorView<String> list, String hoveredTooltip, UInt32 line, ItemSelectedCallback handle);
     } 
 }
