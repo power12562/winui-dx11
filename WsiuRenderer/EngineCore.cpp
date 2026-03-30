@@ -355,7 +355,6 @@ namespace winrt::WsiuRenderer::implementation
         {
             io.Fonts->AddFontDefault();
         }
-        io.Fonts->Build();
 
         ImGui_ImplWin32_Init(_hwnd);
         ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
