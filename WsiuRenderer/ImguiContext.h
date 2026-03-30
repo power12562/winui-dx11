@@ -93,6 +93,12 @@ namespace winrt::WsiuRenderer::implementation
         void BeginTable(hstring const& strId, int columnsCount, winrt::WsiuRenderer::ImGuiTableFlags const& flags);
         void EndTable();
 
+        void BeginChild(hstring const&                               strID,
+                        winrt::WsiuRenderer::ImcVec2 const&          size,
+                        winrt::WsiuRenderer::ImGuiChildFlags const&  childFlags,
+                        winrt::WsiuRenderer::ImGuiWindowFlags const& windowFlags);
+        void EndChild();
+
         void TableSetupColumn(hstring const& label, winrt::WsiuRenderer::ImGuiTableColumnFlags const& flags, float initWidth);
 
         void TableNextRow();

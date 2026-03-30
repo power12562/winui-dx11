@@ -350,6 +350,38 @@ namespace winrt::WsiuRenderer::implementation
         PopCommandStack();
     }
 
+    void ImguiContext::BeginChild(hstring const&                               strID,
+                                  winrt::WsiuRenderer::ImcVec2 const&          size,
+                                  winrt::WsiuRenderer::ImGuiChildFlags const&  childFlags,
+                                  winrt::WsiuRenderer::ImGuiWindowFlags const& windowFlags)
+    {
+        uint64_t stackID = _commandsStackCounter.create();
+        auto     command = [this,
+                        stackID,
+                        strID = winrt::to_string(strID),
+                        size,
+                        childFlags  = static_cast<::ImGuiChildFlags>(childFlags),
+                        windowFlags = static_cast<::ImGuiWindowFlags>(windowFlags)]() mutable
+        {
+            if (ImGui::BeginChild(strID.c_str(), {size.x, size.y}, childFlags, windowFlags) == false)
+            {
+                SkipCommand(stackID);
+            }
+        };
+        PushCommand(command);
+        PushCommandStack(stackID);
+    }
+
+    void ImguiContext::EndChild()
+    {
+        auto command = []
+        {
+            ImGui::EndChild();
+        };
+        PopCommandStack();
+        PushCommand(command);
+    }
+
     void ImguiContext::TableSetupColumn(hstring const&                                    label,
                                         winrt::WsiuRenderer::ImGuiTableColumnFlags const& flags,
                                         float                                             initWidth)

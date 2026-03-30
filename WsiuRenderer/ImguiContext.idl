@@ -71,6 +71,8 @@ namespace WsiuRenderer
         void TreePop();
         void BeginTable(String strId, Int32 columnsCount, ImGuiTableFlags flags);
         void EndTable();
+        void BeginChild(String strID, ImcVec2 size, ImGuiChildFlags childFlags, ImGuiWindowFlags windowFlags);
+        void EndChild();
         void TableNextRow();
         void TableNextColumn();
         void TableSetupColumn(String label, ImGuiTableColumnFlags flags, Single initWidth);
