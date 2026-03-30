@@ -13,7 +13,7 @@ namespace WsiuEngine.Core.System
     public sealed class InputSystem
     {
         private static InputSystem instance = null!;
-        private EngineCore _engine;
+        private readonly EngineCore _engine;
 
         private KeyboardInputState _keyboardLastState;
         private KeyboardInputState _keyboardState;
