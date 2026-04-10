@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using WsiuEditor.Editor.Base;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
 using WsiuEngine.Core.System;
 using WsiuEngine.Core.System.Keyboard;
+using WsiuEngine.Extensions;
 using WsiuRenderer;
 
 namespace WsiuEditor.Editor
@@ -19,7 +22,6 @@ namespace WsiuEditor.Editor
             Name = editorName;
             Log.OnLogReceived += OnLogReceived;
         }
-
         private readonly List<string> _displayList = [];
         private readonly List<string> _logfilePathList = [];
         private readonly string _testLog = "";
@@ -35,16 +37,26 @@ namespace WsiuEditor.Editor
             {
                 if (InputSystem.GetKeyState(KeyCode.LeftControl) == KeyState.Held)
                 {
-                    Log.Debug($"경로: {_logfilePathList[index]}");
+                    Task.Run(() =>
+                    {
+                        ProcessStartInfo psi = new()
+                        {
+                            FileName = _logfilePathList[index],
+                            UseShellExecute = true,
+                            Verb = "open"
+                        };
+                        Process.Start(psi);
+                    }).Forget();
                 }
             }
-            _imguiContext.DrawTextListClipper(_displayList, "어쩔툴팁", 2, ClickItem);
+            _imguiContext.DrawTextListClipper(_displayList, "[Ctrl + Click] to open file.", 2, ClickItem);
             _imguiContext.EndChild();
         }
 
         private void OnLogReceived(Log.Entry log)
         {
-            _displayList.Add($"{Log.DisplayHeader(log)}\n{Log.DisplaySub(log)}");
+            string key = $"{Log.DisplayHeader(log)}\n{Log.DisplaySub(log)}";
+            _displayList.Add(key);
             _logfilePathList.Add(log.FilePath);
         }
 
