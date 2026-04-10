@@ -11,11 +11,13 @@ bool InputSystem::RawInputRegister(HWND hwnd)
     rid[0].usUsagePage = 0x01;          
     rid[0].usUsage     = 0x02;            
     rid[0].hwndTarget  = hwnd;
+    rid[0].dwFlags     = RIDEV_INPUTSINK;
 
     // 키보드 등록
     rid[1].usUsagePage = 0x01;
     rid[1].usUsage     = 0x06; 
     rid[1].hwndTarget  = hwnd;
+    rid[1].dwFlags     = RIDEV_INPUTSINK;
 
     if (RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE)) == FALSE)
 	    return false; 
