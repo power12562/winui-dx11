@@ -42,6 +42,10 @@ namespace WsiuRenderer
         ImguiContext(EngineCore engineCore);
         static String SaveIniSettingsToMemory();
         static void LoadIniSettingsFromMemory(String data);
+        static void ImmediatelyPushStyleColor(ImGuiCol col, Single r, Single g, Single b, Single a);
+        static void ImmediatelyPopStyleColor(Int32 count);
+        static void ImmediatelyPopStyleColor();
+
         void InitializeCommands(String title);
         void InitializeWindow(String title);
         void InitializeWindowClosable(String title);
@@ -118,6 +122,6 @@ namespace WsiuRenderer
         static void SettingInput(ImGuiInputTextFlags textFlags);
         void InputText(String label, String val, StringChangedCallback handle);
         void InputTextMultiline(String label, String val, Single width, Single height, StringChangedCallback handle);
-        void DrawTextListClipper(IVectorView<String> list, String hoveredTooltip, UInt32 line, ItemSelectedCallback handle);
+        void DrawTextListClipper(IVectorView<String> list, String hoveredTooltip, UInt32 line, ItemSelectedCallback clicked, ItemSelectedCallback begin, ItemSelectedCallback end);
     } 
 }

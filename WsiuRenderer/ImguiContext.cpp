@@ -9,16 +9,6 @@
 
 namespace winrt::WsiuRenderer::implementation
 {
-    ImguiContext::ImguiContext(EngineCore const& engineCore) : _engineCore(engineCore)
-    {
-    }
-
-    ImguiContext::~ImguiContext()
-    {
-        if (INVALID_WINDOW_ID != _windowID)
-            _engineCore.EditorDestroy(_windowID);
-    }
-
     hstring ImguiContext::SaveIniSettingsToMemory()
     {
         const char* settings = ImGui::SaveIniSettingsToMemory();
@@ -30,6 +20,33 @@ namespace winrt::WsiuRenderer::implementation
         std::string settings = winrt::to_string(data);
         ImGui::LoadIniSettingsFromMemory(settings.c_str(), settings.size());
     }
+    
+    void ImguiContext::ImmediatelyPushStyleColor(
+        winrt::WsiuRenderer::ImGuiCol const& col, float r, float g, float b, float a)
+    {
+        ImGui::PushStyleColor(static_cast<ImGuiCol_>(col), {r, g, b, a});
+    }
+
+    void ImguiContext::ImmediatelyPopStyleColor(int32_t count)
+    {
+        ImGui::PopStyleColor(count);
+    }
+
+    void ImguiContext::ImmediatelyPopStyleColor()
+    {
+        ImGui::PopStyleColor();
+    }
+
+    ImguiContext::ImguiContext(EngineCore const& engineCore) : _engineCore(engineCore)
+    {
+    }
+
+    ImguiContext::~ImguiContext()
+    {
+        if (INVALID_WINDOW_ID != _windowID)
+            _engineCore.EditorDestroy(_windowID);
+    }
+
 
     void ImguiContext::InitializeCommands(hstring const& title)
     {
@@ -1031,9 +1048,11 @@ namespace winrt::WsiuRenderer::implementation
     void ImguiContext::DrawTextListClipper(winrt::Windows::Foundation::Collections::IVectorView<hstring> const& list,
                                            hstring const&                                   hoveredTooltip,
                                            uint32_t                                         line,
-                                           winrt::WsiuRenderer::ItemSelectedCallback const& handle)
+                                           winrt::WsiuRenderer::ItemSelectedCallback const& clicked,
+                                           winrt::WsiuRenderer::ItemSelectedCallback const& begin,
+                                           winrt::WsiuRenderer::ItemSelectedCallback const& end)
     {
-        auto command = [list, hoveredTooltip = winrt::to_string(hoveredTooltip), line, handle]
+        auto command = [list, hoveredTooltip = winrt::to_string(hoveredTooltip), line, clicked, begin, end]
         {
             auto&            setting    = _inputSetting;
             float            itemHeight = ImGui::GetTextLineHeightWithSpacing() * line;
@@ -1045,12 +1064,14 @@ namespace winrt::WsiuRenderer::implementation
                 {
                     std::string text = winrt::to_string(list.GetAt(static_cast<uint32_t>(i)));
                     ImGui::PushID(i);
+                    begin(i);
                     ImGui::InputTextMultiline("", &text, {0, itemHeight}, setting.TextFlags);
                     ImGui::SetItemTooltip(hoveredTooltip.c_str());
                     if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
-                        handle(i);
+                        clicked(i);
                     }
+                    end(i);
                     ImGui::PopID();                 
                 }
             }

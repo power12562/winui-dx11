@@ -50,6 +50,9 @@ namespace winrt::WsiuRenderer::implementation
 
         static hstring SaveIniSettingsToMemory();
         static void LoadIniSettingsFromMemory(hstring const& data);
+        static void ImmediatelyPushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float r, float g, float b, float a);
+        static void ImmediatelyPopStyleColor(int32_t count);
+        static void ImmediatelyPopStyleColor();
 
         void InitializeCommands(hstring const& title);
         void InitializeWindow(hstring const& title);
@@ -190,7 +193,9 @@ namespace winrt::WsiuRenderer::implementation
          void DrawTextListClipper(winrt::Windows::Foundation::Collections::IVectorView<hstring> const& list,
                                  hstring const&                                                       hoveredTooltip,
                                  uint32_t                                                             line,
-                                 winrt::WsiuRenderer::ItemSelectedCallback const&                     handle);
+                                 winrt::WsiuRenderer::ItemSelectedCallback const&                     clicked,
+                                 winrt::WsiuRenderer::ItemSelectedCallback const&                     begin,
+                                 winrt::WsiuRenderer::ItemSelectedCallback const&                     end);
 
     private:
         using Commands = std::vector<std::function<void()>>;
