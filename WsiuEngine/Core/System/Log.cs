@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using WsiuEngine.Collections;
 using WsiuEngine.Extensions;
 
 namespace WsiuEngine.Core.System
@@ -43,13 +45,20 @@ namespace WsiuEngine.Core.System
             int LineNumber
         );
 
+        private static readonly ConcurrentHashSet<string> logCache = [];
+        private static string GetByCache(string str)
+        {
+            return logCache.GetOrAdd(str);
+        }
+
         public static string DisplayHeader(Entry logEntry)
         {
             return $"[{logEntry.Time:HH:mm:ss}] ({logEntry.Level}) {logEntry.Message}";
         }
         public static string DisplaySub(Entry logEntry)
         {
-            return $"{logEntry.FileName}.{logEntry.MemberName}, Line: {logEntry.LineNumber} ({logEntry.FileName})";
+            string display = GetByCache($"{logEntry.FileName}.{logEntry.MemberName}, Line: {logEntry.LineNumber} ({logEntry.FileName})");
+            return display;
         }
 
         public static event Action<Entry>? OnLogReceived;
@@ -80,7 +89,11 @@ namespace WsiuEngine.Core.System
 
         private void Message(Level level, string msg, string path, int line, string member)
         {
-            string fileName = Path.GetFileNameWithoutExtension(path);
+            msg = GetByCache(msg);
+            path = GetByCache(path);
+            string fileName = GetByCache(Path.GetFileNameWithoutExtension(path));
+            member = GetByCache(member);
+
             Entry entry = new(DateTime.Now, level, msg, path, fileName, member, line);
             _entryQueue.Enqueue(entry);
 
