@@ -105,7 +105,7 @@ void InputSystem::RawInputProcessing(HRAWINPUT hRawInput)
                 vkey = isE0 ? VK_RMENU : VK_LMENU; // 0xA5 : 0xA4
                 break;
             case VK_SHIFT: // 0x10         
-                vkey = MapVirtualKey(keyboard.MakeCode, MAPVK_VSC_TO_VK_EX); // Shift는 ScanCode로 판별
+                vkey = (USHORT)MapVirtualKey(keyboard.MakeCode, MAPVK_VSC_TO_VK_EX); // Shift는 ScanCode로 판별
                 break;
             default:
                 break;
