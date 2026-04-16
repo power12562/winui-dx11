@@ -26,6 +26,15 @@ namespace WsiuEditor.System
             _engine = engine;
             _imguiContext = new(engine.EngineCore);
             _imguiContext.InitializeCommands("Editor Manager Commands");
+
+            foreach (Type type in singletonProvider.Keys)
+            {
+                IEditor? editor = CreateSingletonEditor(type);
+                if (editor != null)
+                {
+                    editor.Active = false;
+                }
+            }
         }
 
         private readonly Engine _engine;
@@ -107,13 +116,19 @@ namespace WsiuEditor.System
                 singletonEditor.Active = true;
                 return;
             }
+            CreateSingletonEditor(type);
+        }
 
+        private IEditor? CreateSingletonEditor(Type type)
+        {
             if (EditorManager.singletonProvider.TryGetValue(type, out var provider))
             {
                 IEditor iEditor = provider(_engine);
                 _singletonEditors.Add(iEditor);
                 _singletonEditorTypeToInstance.Add(type, iEditor);
+                return iEditor;
             }
+            return null;
         }
 
         internal static void Update()
