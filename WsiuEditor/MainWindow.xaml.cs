@@ -49,6 +49,7 @@ namespace WsiuEditor
             args.Cancel = true;
             if (EditorManager.IsLayoutSavedOnClose)
                 EditorManager.SaveLayoutToFile();
+
             EditorManager.ShutDown();
             _engine.Dispose();
             Close();
