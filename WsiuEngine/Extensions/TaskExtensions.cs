@@ -17,11 +17,7 @@ namespace WsiuEngine.Extensions
                 }
                 catch (Exception ex)
                 {
-                    //TODO: 이후 엔진 전용 로그로 교체해야함.
-                    Debug.WriteLine($"[Task Error] {ex.Message}");
-                    Debug.WriteLine(ex.StackTrace);
-                    if (Debugger.IsAttached)
-                        Debugger.Break();
+                    Log.Error($"[Task Error] {ex.Message}");
                 }
             });
         }
@@ -40,11 +36,7 @@ namespace WsiuEngine.Extensions
                 }
                 catch (Exception ex)
                 {
-                    //TODO: 이후 엔진 전용 로그로 교체해야함.
-                    Debug.WriteLine($"[Task Error] {ex.Message}");
-                    Debug.WriteLine(ex.StackTrace);
-                    if (Debugger.IsAttached)
-                        Debugger.Break();
+                    Log.Error($"[Task Error] {ex.Message}");
                 }
             });
         }
@@ -60,11 +52,7 @@ namespace WsiuEngine.Extensions
                 }
                 catch (Exception ex)
                 {
-                    //TODO: 이후 엔진 전용 로그로 교체해야함.
-                    Debug.WriteLine($"[Task Error] {ex.Message}");
-                    Debug.WriteLine(ex.StackTrace);
-                    if (Debugger.IsAttached)
-                        Debugger.Break();
+                    Log.Error($"[Task Error] {ex.Message}");
                 }
             });
         }
