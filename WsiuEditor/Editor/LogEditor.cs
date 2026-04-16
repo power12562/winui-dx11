@@ -7,7 +7,6 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System;
-using Windows.UI.Notifications;
 using WsiuEditor.Editor.Base;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
@@ -123,7 +122,7 @@ namespace WsiuEditor.Editor
                 foreach (Filter value in filters)
                 {
                     _renderFilterFlags |= value;
-                }    
+                }
                 _isRefresh = true;
             });
             _imguiContext.Selectable("Clear All", _renderFilterFlags == Filter.None, ImGuiSelectableFlags.DontClosePopups, () =>
@@ -134,7 +133,7 @@ namespace WsiuEditor.Editor
             _imguiContext.EndCombo();
             _imguiContext.BeginChild("LogConsoleRegion", ImGuiChildFlags.Borders, ImGuiWindowFlags.HorizontalScrollbar);
             _imguiContext.DrawTextListClipper(_renderLogList, "[Ctrl + Click] to open file.", 2, ClickItem, PushColor, PopColor);
-            if(_isRenderLogAdded && _isAutoScroll)
+            if (_isRenderLogAdded && _isAutoScroll)
             {
                 _imguiContext.SetScrollHereY(1.0f);
             }

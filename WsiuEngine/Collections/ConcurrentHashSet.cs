@@ -9,7 +9,7 @@ namespace WsiuEngine.Collections
     public class ConcurrentHashSet<T> : ICollection<T>, IReadOnlyCollection<T>, ISet<T>, IReadOnlySet<T>, IEnumerable<T> where T : notnull
     {
         private readonly ConcurrentDictionary<T, T> _dictionary;
- 
+
         public ConcurrentHashSet()
         {
             _dictionary = [];
@@ -101,7 +101,7 @@ namespace WsiuEngine.Collections
             return Enumerable.Count(other);
         }
 
-        private static IEnumerable<KeyValuePair<T,T>> CollectionToKeValuePair(IEnumerable<T> collection)
+        private static IEnumerable<KeyValuePair<T, T>> CollectionToKeValuePair(IEnumerable<T> collection)
         {
             return collection.Select(item => new KeyValuePair<T, T>(item, item));
         }
