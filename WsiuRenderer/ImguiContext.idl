@@ -77,6 +77,8 @@ namespace WsiuRenderer
         void EndTable();
         void BeginChild(String strID, ImcVec2 size, ImGuiChildFlags childFlags, ImGuiWindowFlags windowFlags);
         void EndChild();
+        void BeginCombo(String label, String prev);
+        void EndCombo();
         void TableNextRow();
         void TableNextColumn();
         void TableSetupColumn(String label, ImGuiTableColumnFlags flags, Single initWidth);

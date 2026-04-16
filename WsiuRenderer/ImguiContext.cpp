@@ -20,7 +20,7 @@ namespace winrt::WsiuRenderer::implementation
         std::string settings = winrt::to_string(data);
         ImGui::LoadIniSettingsFromMemory(settings.c_str(), settings.size());
     }
-    
+
     void ImguiContext::ImmediatelyPushStyleColor(
         winrt::WsiuRenderer::ImGuiCol const& col, float r, float g, float b, float a)
     {
@@ -46,7 +46,6 @@ namespace winrt::WsiuRenderer::implementation
         if (INVALID_WINDOW_ID != _windowID)
             _engineCore.EditorDestroy(_windowID);
     }
-
 
     void ImguiContext::InitializeCommands(hstring const& title)
     {
@@ -94,7 +93,7 @@ namespace winrt::WsiuRenderer::implementation
                 _skipCommandCount = 0;
             }
         }
-        ClearCommandsStack();   
+        ClearCommandsStack();
     }
 
     void ImguiContext::ClearCommandsStack()
@@ -160,16 +159,16 @@ namespace winrt::WsiuRenderer::implementation
 
         auto command = [text = winrt::to_string(text), handle]
         {
-            ImVec2 size = ImGui::CalcTextSize(text.c_str());
+            ImVec2           size      = ImGui::CalcTextSize(text.c_str());
             constexpr size_t tempCount = 2;
-            float temp[tempCount];
+            float            temp[tempCount];
             std::memcpy(temp, &size.x, sizeof(temp));
             handle(winrt::array_view<float const>(temp, temp + tempCount));
         };
         PushCommand(command);
     }
 
-    void ImguiContext::Separator() 
+    void ImguiContext::Separator()
     {
         auto command = []
         {
@@ -348,7 +347,7 @@ namespace winrt::WsiuRenderer::implementation
                         columnsCount,
                         flags = static_cast<ImGuiTableFlags_>(flags)]
         {
-            if (ImGui::BeginTable(strId.c_str(),columnsCount, flags) == false)
+            if (ImGui::BeginTable(strId.c_str(), columnsCount, flags) == false)
             {
                 SkipCommand(counterId);
             }
@@ -397,6 +396,35 @@ namespace winrt::WsiuRenderer::implementation
         };
         PopCommandStack();
         PushCommand(command);
+    }
+
+    void ImguiContext::BeginCombo(hstring const& label, hstring const& prev)
+    {
+        BeginCombo(label, prev, ImGuiComboFlags_None);
+    }
+
+    void ImguiContext::BeginCombo(hstring const& label, hstring const& prev, ImGuiComboFlags flags)
+    {
+        uint64_t stackID = _commandsStackCounter.create();
+        auto     command = [this, stackID, label = winrt::to_string(label), prev = winrt::to_string(prev), flags]
+        {
+            if (ImGui::BeginCombo(label.c_str(), prev.c_str(), flags) == false)
+            {
+                SkipCommand(stackID);
+            }
+        };
+        PushCommand(command);
+        PushCommandStack(stackID);
+    }
+
+    void ImguiContext::EndCombo()
+    {
+        auto command = []
+        {
+            ImGui::EndCombo();
+        };
+        PushCommand(command);
+        PopCommandStack();
     }
 
     void ImguiContext::TableSetupColumn(hstring const&                                    label,
@@ -528,7 +556,7 @@ namespace winrt::WsiuRenderer::implementation
 
     void ImguiContext::Checkbox(hstring const& label, bool val, winrt::WsiuRenderer::BooleanChangedCallback handle)
     {
-        auto command = [label = winrt::to_string(label), temp = val, handle] () mutable
+        auto command = [label = winrt::to_string(label), temp = val, handle]() mutable
         {
             if (ImGui::Checkbox(label.c_str(), &temp))
             {
@@ -1014,7 +1042,7 @@ namespace winrt::WsiuRenderer::implementation
         auto command = [this, label = winrt::to_string(label), val = winrt::to_string(val), handle]() mutable
         {
             auto& settings = _inputSetting;
-            ImGui::InputText(label.c_str(), &val, settings.TextFlags);                        
+            ImGui::InputText(label.c_str(), &val, settings.TextFlags);
             if (ImGui::IsItemDeactivatedAfterEdit())
             {
                 handle(winrt::to_hstring(val));
@@ -1072,7 +1100,7 @@ namespace winrt::WsiuRenderer::implementation
                         clicked(i);
                     }
                     end(i);
-                    ImGui::PopID();                 
+                    ImGui::PopID();
                 }
             }
         };

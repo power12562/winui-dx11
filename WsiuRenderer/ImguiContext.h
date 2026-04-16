@@ -102,6 +102,10 @@ namespace winrt::WsiuRenderer::implementation
                         winrt::WsiuRenderer::ImGuiWindowFlags const& windowFlags);
         void EndChild();
 
+        void BeginCombo(hstring const& label, hstring const& prev);
+        void BeginCombo(hstring const& label, hstring const& prev, ImGuiComboFlags flags);
+        void EndCombo();
+
         void TableSetupColumn(hstring const& label, winrt::WsiuRenderer::ImGuiTableColumnFlags const& flags, float initWidth);
 
         void TableNextRow();
