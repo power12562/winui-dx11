@@ -121,6 +121,17 @@ namespace WsiuEngine.Core.System
         private readonly Task _loopTask;
         private async Task WriteLoop()
         {
+            while (!_isShutdown)
+            {
+                if (_entryQueue.TryPeek(out _))
+                    break;
+
+                await Task.Delay(10);
+            }
+
+            if (_isShutdown && _entryQueue.IsEmpty)
+                return;
+
             string fileName = $"{DateTime.Now:yyyy-MM-dd_HHmmss}.log";
             string logDir = GetLogDirectory();
             Directory.CreateDirectory(logDir);
