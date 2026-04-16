@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.System;
+using Windows.UI.Notifications;
 using WsiuEditor.Editor.Base;
 using WsiuEditor.Interfaces;
 using WsiuEngine.Core;
@@ -43,6 +46,7 @@ namespace WsiuEditor.Editor
         private readonly List<string> _renderLogList = [];
         private readonly List<int> _renderIndexList = [];
         private Filter _renderFilterFlags = Filter.None;
+        private bool _isAutoScroll = true;
         public override void Draw()
         {
             void TestLogs()
@@ -88,10 +92,18 @@ namespace WsiuEditor.Editor
                 ImguiContext.ImmediatelyPopStyleColor();
             }
 
+            void SetAutoScroll(bool value)
+            {
+                _isAutoScroll = value;
+            }
+
             RefreshRenderLogList();
             _imguiContext.Button("Clear", Clear);
             _imguiContext.SameLine();
+            _imguiContext.Button("Show in Explorer", ShowLogInExplorer);
+            _imguiContext.SameLine();
             _imguiContext.Button("Test", TestLogs);
+            _imguiContext.Checkbox("Auto scroll", _isAutoScroll, SetAutoScroll);
             _imguiContext.BeginCombo("Filter", _renderFilterFlags.ToString());
             foreach (Filter value in filters)
             {
@@ -102,7 +114,7 @@ namespace WsiuEditor.Editor
                 _imguiContext.Selectable(value.ToString(), hasFlag, ImGuiSelectableFlags.DontClosePopups, () =>
                 {
                     _renderFilterFlags ^= value;
-                    _refresh = true;
+                    _isRefresh = true;
                 });
             }
             _imguiContext.Separator();
@@ -112,16 +124,21 @@ namespace WsiuEditor.Editor
                 {
                     _renderFilterFlags |= value;
                 }    
-                _refresh = true;
+                _isRefresh = true;
             });
             _imguiContext.Selectable("Clear All", _renderFilterFlags == Filter.None, ImGuiSelectableFlags.DontClosePopups, () =>
             {
                 _renderFilterFlags = Filter.None;
-                _refresh = true;
+                _isRefresh = true;
             });
             _imguiContext.EndCombo();
-            _imguiContext.BeginChild("LogConsoleRegion", new(0, 0), ImGuiChildFlags.Borders, ImGuiWindowFlags.HorizontalScrollbar);
+            _imguiContext.BeginChild("LogConsoleRegion", ImGuiChildFlags.Borders, ImGuiWindowFlags.HorizontalScrollbar);
             _imguiContext.DrawTextListClipper(_renderLogList, "[Ctrl + Click] to open file.", 2, ClickItem, PushColor, PopColor);
+            if(_isRenderLogAdded && _isAutoScroll)
+            {
+                _imguiContext.SetScrollHereY(1.0f);
+            }
+            _isRenderLogAdded = false;
             _imguiContext.EndChild();
         }
 
@@ -134,10 +151,10 @@ namespace WsiuEditor.Editor
             _renderIndexList.Clear();
         }
 
-        private bool _refresh = false;
+        private bool _isRefresh = false;
         private void RefreshRenderLogList()
         {
-            if (_refresh == false) return;
+            if (_isRefresh == false) return;
 
             _renderLogList.Clear();
             _renderIndexList.Clear();
@@ -145,15 +162,17 @@ namespace WsiuEditor.Editor
             {
                 AddRenderLog(_displayLogList[i], _displayLevelList[i], i);
             }
-            _refresh = false;
+            _isRefresh = false;
         }
 
+        private bool _isRenderLogAdded;
         private void AddRenderLog(string display, Log.Level logLevel, int originIndex)
         {
             if (_renderFilterFlags == Filter.None)
             {
                 _renderLogList.Add(display);
                 _renderIndexList.Add(originIndex);
+                _isRenderLogAdded = true;
             }
             else
             {
@@ -163,6 +182,7 @@ namespace WsiuEditor.Editor
                 {
                     _renderLogList.Add(display);
                     _renderIndexList.Add(originIndex);
+                    _isRenderLogAdded = true;
                 }
             }
         }
@@ -199,6 +219,20 @@ namespace WsiuEditor.Editor
                 Log.Level.Fatal => new Vector4(1.00f, 0.00f, 1.00f, 1.0f),
                 _ => new Vector4(1.00f, 1.00f, 1.00f, 1.0f),
             };
+        }
+
+        private static void ShowLogInExplorer()
+        {
+            static async Task Show()
+            {
+                string path = Log.GetLogDirectory();
+                StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
+                if (folder != null)
+                {
+                    await Launcher.LaunchFolderAsync(folder).AsTask();
+                }
+            }
+            Show().Forget();
         }
     }
 }

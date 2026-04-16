@@ -37,6 +37,11 @@ namespace winrt::WsiuRenderer::implementation
         ImGui::PopStyleColor();
     }
 
+    void ImguiContext::ImmediateSetScrollHereY(float y)
+    {
+        ImGui::SetScrollHereY(y);
+    }
+
     ImguiContext::ImguiContext(EngineCore const& engineCore) : _engineCore(engineCore)
     {
     }
@@ -204,6 +209,15 @@ namespace winrt::WsiuRenderer::implementation
         PushCommand(command);
     }
 
+    void ImguiContext::SetScrollHereY(float y)
+    {
+        auto command = [y]
+        {
+            ImGui::SetScrollHereY(y);
+        };
+        PushCommand(command);
+    }
+
     void ImguiContext::PushID(uint32_t id)
     {
         auto command = [id]
@@ -364,6 +378,27 @@ namespace winrt::WsiuRenderer::implementation
         };
         PushCommand(command);
         PopCommandStack();
+    }
+
+    void ImguiContext::BeginChild(hstring const&                               strID,
+                                  winrt::WsiuRenderer::ImGuiChildFlags const&  childFlags,
+                                  winrt::WsiuRenderer::ImGuiWindowFlags const& windowFlags)
+    {
+        uint64_t stackID = _commandsStackCounter.create();
+        auto     command = [this,
+                        stackID,
+                        strID = winrt::to_string(strID),
+                        childFlags  = static_cast<::ImGuiChildFlags>(childFlags),
+                        windowFlags = static_cast<::ImGuiWindowFlags>(windowFlags)]() mutable
+        {
+            ImVec2 size = ImGui::GetContentRegionAvail();
+            if (ImGui::BeginChild(strID.c_str(), size, childFlags, windowFlags) == false)
+            {
+                SkipCommand(stackID);
+            }
+        };
+        PushCommand(command);
+        PushCommandStack(stackID);
     }
 
     void ImguiContext::BeginChild(hstring const&                               strID,

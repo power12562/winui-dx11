@@ -53,6 +53,7 @@ namespace winrt::WsiuRenderer::implementation
         static void ImmediatelyPushStyleColor(winrt::WsiuRenderer::ImGuiCol const& col, float r, float g, float b, float a);
         static void ImmediatelyPopStyleColor(int32_t count);
         static void ImmediatelyPopStyleColor();
+        static void ImmediateSetScrollHereY(float y);
 
         void InitializeCommands(hstring const& title);
         void InitializeWindow(hstring const& title);
@@ -72,6 +73,8 @@ namespace winrt::WsiuRenderer::implementation
         void SameLine();
 
         void SetNextItemWidth(float width);
+
+        void SetScrollHereY(float y);
 
         void PushID(uint32_t id);
         void PopID();
@@ -95,6 +98,10 @@ namespace winrt::WsiuRenderer::implementation
 
         void BeginTable(hstring const& strId, int columnsCount, winrt::WsiuRenderer::ImGuiTableFlags const& flags);
         void EndTable();
+
+        void BeginChild(hstring const&                               strID,
+                        winrt::WsiuRenderer::ImGuiChildFlags const&  childFlags,
+                        winrt::WsiuRenderer::ImGuiWindowFlags const& windowFlags);
 
         void BeginChild(hstring const&                               strID,
                         winrt::WsiuRenderer::ImcVec2 const&          size,

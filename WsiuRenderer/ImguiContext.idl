@@ -45,10 +45,12 @@ namespace WsiuRenderer
         static void ImmediatelyPushStyleColor(ImGuiCol col, Single r, Single g, Single b, Single a);
         static void ImmediatelyPopStyleColor(Int32 count);
         static void ImmediatelyPopStyleColor();
+        static void ImmediateSetScrollHereY(Single y);
 
         void InitializeCommands(String title);
         void InitializeWindow(String title);
         void InitializeWindowClosable(String title);
+
         UInt64 GetWindowID();
         Boolean GetActive();
         void SetActive(Boolean active);
@@ -59,6 +61,7 @@ namespace WsiuRenderer
         void SeparatorText(String text);
         void SameLine();
         void SetNextItemWidth(Single width);
+        void SetScrollHereY(Single y);
         void PushID(UInt32 id);
         void PopID();
         void BeginDisabled();
@@ -75,6 +78,7 @@ namespace WsiuRenderer
         void TreePop();
         void BeginTable(String strId, Int32 columnsCount, ImGuiTableFlags flags);
         void EndTable();
+        void BeginChild(String strID, ImGuiChildFlags childFlags, ImGuiWindowFlags windowFlags);
         void BeginChild(String strID, ImcVec2 size, ImGuiChildFlags childFlags, ImGuiWindowFlags windowFlags);
         void EndChild();
         void BeginCombo(String label, String prev);
