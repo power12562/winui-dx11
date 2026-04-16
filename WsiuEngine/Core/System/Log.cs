@@ -114,7 +114,7 @@ namespace WsiuEngine.Core.System
 
         public static string GetLogDirectory()
         {
-            return Path.Combine(WindowService.AppLocalFolderPath, "Logs");
+            return Path.Combine(Application.RootPath, "Logs");
         }
 
         private volatile bool _isShutdown = false;

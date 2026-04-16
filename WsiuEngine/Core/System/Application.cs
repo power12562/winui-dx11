@@ -17,5 +17,7 @@
         {
             Microsoft.UI.Xaml.Application.Current.Exit();
         }
+
+        public static string RootPath => WindowService.AppLocalFolderPath;
     }
 }

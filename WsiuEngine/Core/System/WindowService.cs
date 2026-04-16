@@ -27,7 +27,7 @@ namespace WsiuEngine.Core.System
             _windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         }
 
-        public static string AppLocalFolderPath => lazyAppLocalFolderPath.Value;
+        internal static string AppLocalFolderPath => lazyAppLocalFolderPath.Value;
         private static readonly Lazy<string> lazyAppLocalFolderPath = new(() => ApplicationData.Current.LocalFolder.Path);
 
         public static FileOpenPicker CreateFileOpenPicker()

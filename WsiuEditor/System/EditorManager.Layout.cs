@@ -19,7 +19,7 @@ namespace WsiuEditor.System
         private const string editorLayoutFilename = "EditorManagerLayout.json";
         private static string GetDefaultLayoutPath()
         {
-            return Path.Combine(WindowService.AppLocalFolderPath, EditorManager.editorLayoutFilename);
+            return Path.Combine(Application.RootPath, EditorManager.editorLayoutFilename);
         }
         public static bool IsLayoutSavedOnClose => instance._isLayoutSavedOnClose;
         private bool _isLayoutSavedOnClose = true;
