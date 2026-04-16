@@ -17,9 +17,12 @@ namespace WsiuEditor.System
     {
 
         private const string editorLayoutFilename = "EditorManagerLayout.json";
+
+        public static string EditorDirectory => Path.Combine(Application.RootPath, "Editor");
+
         private static string GetDefaultLayoutPath()
         {
-            return Path.Combine(Application.RootPath, EditorManager.editorLayoutFilename);
+            return Path.Combine(EditorManager.EditorDirectory, EditorManager.editorLayoutFilename);
         }
         public static bool IsLayoutSavedOnClose => instance._isLayoutSavedOnClose;
         private bool _isLayoutSavedOnClose = true;
@@ -234,8 +237,7 @@ namespace WsiuEditor.System
 
         public static async Task ShowLayoutInExplorerAsync()
         {
-            string path = WindowService.AppLocalFolderPath;
-            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
+            StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(EditorDirectory);
             if (folder != null)
             {
                 await Launcher.LaunchFolderAsync(folder).AsTask();
@@ -265,13 +267,17 @@ namespace WsiuEditor.System
                 if (result == null)
                     return;
 
-                string savePath = result.Path;
-                if (string.IsNullOrEmpty(savePath))
+                string readPath = result.Path;
+                if (string.IsNullOrEmpty(readPath))
                     return;
 
-                File.ReadAllTextAsync(savePath).SubmitToEngine((settings) =>
+                File.ReadAllTextAsync(readPath).SubmitToEngine((settings) =>
                 {
                     _isLayoutSavedOnClose = false;
+                    if (Path.Exists(EditorDirectory) == false)
+                    {
+                        Directory.CreateDirectory(EditorDirectory);
+                    }
                     File.WriteAllTextAsync(GetDefaultLayoutPath(), settings).Forget();
                     WindowService.ShowContentDialogAsync(
                     "레이아웃 로드 완료",
