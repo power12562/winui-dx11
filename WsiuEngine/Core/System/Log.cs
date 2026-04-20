@@ -49,6 +49,10 @@ namespace WsiuEngine.Core.System
         {
             return logCache.GetOrAdd(str);
         }
+        public static void ClearCache()
+        {
+            logCache.Clear();
+        }
 
         public static string DisplayHeader(Entry logEntry)
         {
