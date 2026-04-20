@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WsiuEditor.Interfaces;
 
 namespace WsiuEditor.System
@@ -29,15 +30,20 @@ namespace WsiuEditor.System
             _imguiContext.EndMenu();
         }
 
+        private readonly Dictionary<Type, string> _typeByEditorDisplayName = [];
         private void DrawCreateEditorMenuItems()
         {
-            static string GetDisplayName(Type editorType)
+            string GetDisplayName(Type editorType)
             {
                 const string suffix = "Editor";
-                string displayName = editorType.Name;
-                if (displayName.EndsWith(suffix) == true)
+                if(_typeByEditorDisplayName.TryGetValue(editorType, out string? displayName) == false)
                 {
-                    displayName = displayName[..^suffix.Length];
+                    displayName = editorType.Name;
+                    if (displayName.EndsWith(suffix) == true)
+                    {
+                        displayName = displayName[..^suffix.Length];
+                    }
+                    _typeByEditorDisplayName.Add(editorType, displayName);
                 }
                 return displayName;
             }
@@ -62,12 +68,18 @@ namespace WsiuEditor.System
                 {
                     Type type = key;
                     bool isActive = false;
+                    string displayName;
                     if (_singletonEditorTypeToInstance.TryGetValue(type, out IEditor? editor))
                     {
                         isActive = editor.Active;
+                        displayName = editor.Name;
+                    }
+                    else
+                    {
+                        displayName = GetDisplayName(type);
                     }
 
-                    _imguiContext.MenuItem(GetDisplayName(type), isActive, () =>
+                    _imguiContext.MenuItem(displayName, isActive, () =>
                     {
                         if (isActive == false)
                         {
