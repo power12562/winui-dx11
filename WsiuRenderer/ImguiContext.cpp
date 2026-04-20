@@ -1145,10 +1145,11 @@ namespace winrt::WsiuRenderer::implementation
     {
         auto command = [list, hoveredTooltip = winrt::to_string(hoveredTooltip), line, clicked, begin, end]
         {
-            auto&            setting    = _inputSetting;
-            float            itemHeight = ImGui::GetTextLineHeightWithSpacing() * line;
+            auto&            setting     = _inputSetting;
+            ImVec2           regionAvail = ImGui::GetContentRegionAvail();
+            float            itemHeight  = ImGui::GetTextLineHeightWithSpacing() * line;
             ImGuiListClipper clipper;
-            clipper.Begin(static_cast<int>(list.Size()), itemHeight);
+            clipper.Begin(static_cast<int>(list.Size()));
             while (clipper.Step())
             {
                 for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
@@ -1156,7 +1157,7 @@ namespace winrt::WsiuRenderer::implementation
                     std::string text = winrt::to_string(list.GetAt(static_cast<uint32_t>(i)));
                     ImGui::PushID(i);
                     begin(i);
-                    ImGui::InputTextMultiline("", &text, {0, itemHeight}, setting.TextFlags);
+                    ImGui::InputTextMultiline("", &text, {regionAvail.x, itemHeight}, setting.TextFlags);
                     ImGui::SetItemTooltip(hoveredTooltip.c_str());
                     if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
