@@ -32,11 +32,11 @@ namespace WsiuEditor.Editor
             Fatal = 1 << 5
         }
         private static readonly IReadOnlyList<Filter> filters = Enum.GetValues<Filter>().ToList();
-        private const string editorName = "Log";
+        private string _editorName => _receivedCounter > 0 ? $"Log +{_receivedCounter}" : "Log";
         public LogEditor(Engine engine, ulong id) : base(engine, id)
         {
-            _imguiContext.InitializeWindowClosable(editorName);
-            Name = editorName;
+            _imguiContext.InitializeWindowClosable(_editorName);
+            Name = _editorName;
             Log.OnLogReceived += OnLogReceived;
         }
         private readonly List<Log.Level> _displayLevelList = [];
@@ -148,6 +148,7 @@ namespace WsiuEditor.Editor
             _displayFilePathList.Clear();
             _renderLogList.Clear();
             _renderIndexList.Clear();
+            _receivedCounter = 0;
         }
 
         private bool _isRefresh = false;
@@ -186,6 +187,15 @@ namespace WsiuEditor.Editor
             }
         }
 
+        private Byte _receivedCounter
+        {
+            get => _receivedCounter;
+            set
+            {
+                _receivedCounter = value;
+                Name = _editorName;
+            }
+        }
         private void OnLogReceived(Log.Entry log)
         {
             string display = $"{Log.DisplayHeader(log)}\n{Log.DisplaySub(log)}";
@@ -193,6 +203,12 @@ namespace WsiuEditor.Editor
             _displayLevelList.Add(log.Level);
             _displayFilePathList.Add(log.FilePath);
             AddRenderLog(display, log.Level, _displayLogList.Count - 1);
+
+            if (_receivedCounter < 99)
+            {
+                _receivedCounter++;
+                Name = _editorName;
+            }  
         }
 
         protected override void Dispose(bool disposing)
