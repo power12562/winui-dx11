@@ -32,12 +32,14 @@ namespace WsiuEditor.Editor
             Fatal = 1 << 5
         }
         private static readonly IReadOnlyList<Filter> filters = Enum.GetValues<Filter>().ToList();
-        private string _editorName => _receivedCounter > 0 ? $"Log +{_receivedCounter}" : "Log";
+        private string _editorName => ReceivedCounter > 0 ? $"Log +{ReceivedCounter}" : "Log";
         public LogEditor(Engine engine, ulong id) : base(engine, id)
         {
             _imguiContext.InitializeWindowClosable(_editorName);
             Name = _editorName;
             Log.OnLogReceived += OnLogReceived;
+            _imguiContext.SetWindowFocusedAction(OnFocused);
+            _imguiContext.SetWindowLostFocusAction(OnLostFocus);
         }
         private readonly List<Log.Level> _displayLevelList = [];
         private readonly List<string> _displayLogList = [];
@@ -148,7 +150,7 @@ namespace WsiuEditor.Editor
             _displayFilePathList.Clear();
             _renderLogList.Clear();
             _renderIndexList.Clear();
-            _receivedCounter = 0;
+            ReceivedCounter = 0;
         }
 
         private bool _isRefresh = false;
@@ -187,15 +189,20 @@ namespace WsiuEditor.Editor
             }
         }
 
-        private Byte _receivedCounter
+        [Obsolete("대신 ReceivedCounter를 사용하세요.")]
+        private Byte _receivedCounter;
+        private Byte ReceivedCounter
         {
+#pragma warning disable CS0618
             get => _receivedCounter;
             set
             {
                 _receivedCounter = value;
                 Name = _editorName;
             }
+#pragma warning restore CS0618
         }
+
         private void OnLogReceived(Log.Entry log)
         {
             string display = $"{Log.DisplayHeader(log)}\n{Log.DisplaySub(log)}";
@@ -204,11 +211,22 @@ namespace WsiuEditor.Editor
             _displayFilePathList.Add(log.FilePath);
             AddRenderLog(display, log.Level, _displayLogList.Count - 1);
 
-            if (_receivedCounter < 99)
+            if (!_isWindowFocused && ReceivedCounter < 99)
             {
-                _receivedCounter++;
+                ReceivedCounter++;
                 Name = _editorName;
             }  
+        }
+
+        bool _isWindowFocused = false;
+        private void OnFocused()
+        {
+            _isWindowFocused = true;
+            ReceivedCounter = 0;
+        }
+        private void OnLostFocus()
+        {
+            _isWindowFocused = false;
         }
 
         protected override void Dispose(bool disposing)
