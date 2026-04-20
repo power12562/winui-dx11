@@ -63,6 +63,8 @@ namespace winrt::WsiuRenderer::implementation
         bool GetActive() const;
         void SetActive(bool active);
         void SetTitle(hstring const& title) const;
+        void SetWindowFocusedAction(winrt::WsiuRenderer::IAction const& handle);
+        void SetWindowLostFocusAction(winrt::WsiuRenderer::IAction const& handle);
         
         void SetCursorPosX(float x);
         void CalcTextSize(hstring const& text, winrt::WsiuRenderer::FloatNChangedCallback const& handle);
@@ -209,17 +211,23 @@ namespace winrt::WsiuRenderer::implementation
                                  winrt::WsiuRenderer::ItemSelectedCallback const&                     end);
 
     private:
+        using Action = winrt::WsiuRenderer::IAction;
         using Commands = std::vector<std::function<void()>>;
         using CommandsStack = std::vector<size_t>;
         using CommandsStackCounter = slot_pool<size_t>;
+
         EngineCore _engineCore;
         uint64_t _windowID  = INVALID_WINDOW_ID;
+        bool _isWindowFocused = false;
+        Action _onWindowFocused = nullptr;
+        Action _onWindowLostFocus = nullptr;
         size_t  _stackDepth = 0;
         Commands _commands;
         CommandsStack _commandsStack;
         CommandsStackCounter _commandsStackCounter;
         size_t _skipCommandCount = 0;
 
+        void DrawWindow();
         void DrawCommands();
         void ClearCommandsStack();
         void SkipCommand(size_t counterId);

@@ -3,6 +3,7 @@ import "ImguiEnums.idl";
 
 namespace WsiuRenderer
 {
+    delegate void IAction();
     delegate void ButtonCallback();
     delegate void DeactivatedCallback();
     delegate void ItemSelectedCallback(Int32 index);
@@ -55,6 +56,8 @@ namespace WsiuRenderer
         Boolean GetActive();
         void SetActive(Boolean active);
         void SetTitle(String newTitle);
+        void SetWindowFocusedAction(IAction handle);
+        void SetWindowLostFocusAction(IAction handle);
         void SetCursorPosX(Single x);
         void CalcTextSize(String text, FloatNChangedCallback handle);
         void Separator();

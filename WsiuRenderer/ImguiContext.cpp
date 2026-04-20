@@ -68,7 +68,7 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorDrawCallback(_windowID,
                                        [this]
                                        {
-                                           DrawCommands();
+                                           DrawWindow();
                                        });
     }
 
@@ -78,8 +78,26 @@ namespace winrt::WsiuRenderer::implementation
         _engineCore.EditorDrawCallback(_windowID,
                                        [this]
                                        {
-                                           DrawCommands();
+                                           DrawWindow();
                                        });
+    }
+
+    void ImguiContext::DrawWindow()
+    {
+        bool prev = _isWindowFocused;
+        _isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+        if (prev != _isWindowFocused)
+        {
+            if (_isWindowFocused && _onWindowFocused)
+            {
+                _onWindowFocused();
+            }
+            else if (!_isWindowFocused && _onWindowLostFocus)
+            {
+                _onWindowLostFocus();
+            }
+        }
+        DrawCommands();
     }
 
     void ImguiContext::DrawCommands()
@@ -148,6 +166,16 @@ namespace winrt::WsiuRenderer::implementation
             return;
 
         _engineCore.EditorChangeTitle(_windowID, title);
+    }
+
+    void ImguiContext::SetWindowFocusedAction(winrt::WsiuRenderer::IAction const& handle)
+    {
+        _onWindowFocused = handle;
+    }
+
+    void ImguiContext::SetWindowLostFocusAction(winrt::WsiuRenderer::IAction const& handle)
+    {
+        _onWindowLostFocus = handle;
     }
 
     void ImguiContext::SetCursorPosX(float x)
