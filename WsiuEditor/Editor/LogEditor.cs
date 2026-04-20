@@ -146,6 +146,7 @@ namespace WsiuEditor.Editor
             _renderLogList.Clear();
             _renderIndexList.Clear();
             ReceivedCounter = 0;
+            Log.ClearCache();
         }
 
         private bool _isRefresh = false;
