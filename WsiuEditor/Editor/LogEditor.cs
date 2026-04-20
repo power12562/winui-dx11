@@ -31,7 +31,8 @@ namespace WsiuEditor.Editor
             Error = 1 << 4,
             Fatal = 1 << 5
         }
-        private static readonly IReadOnlyList<Filter> filters = Enum.GetValues<Filter>().ToList();
+        private static readonly IReadOnlyList<Filter> filterValues = Enum.GetValues<Filter>().ToList();
+        private static readonly Filter allFilter = filterValues.Aggregate(Filter.None, (current, next) => current | next);
         private string _editorName => ReceivedCounter > 0 ? $"Log +{ReceivedCounter}" : "Log";
         public LogEditor(Engine engine, ulong id) : base(engine, id)
         {
@@ -41,12 +42,11 @@ namespace WsiuEditor.Editor
             _imguiContext.SetWindowFocusedAction(OnFocused);
             _imguiContext.SetWindowLostFocusAction(OnLostFocus);
         }
-        private readonly List<Log.Level> _displayLevelList = [];
-        private readonly List<string> _displayLogList = [];
-        private readonly List<string> _displayFilePathList = [];
+        private readonly List<(Log.Level Level, string Log, string FilePath)> _displayLogList = [];
         private readonly List<string> _renderLogList = [];
         private readonly List<int> _renderIndexList = [];
-        private Filter _renderFilterFlags = Filter.None;
+
+        private Filter _renderFilterFlags = allFilter;
         private bool _isAutoScroll = true;
         public override void Draw()
         {
@@ -65,7 +65,7 @@ namespace WsiuEditor.Editor
                     Task.Run(() =>
                     {
                         int i = _renderIndexList[index];
-                        string filePath = _displayFilePathList[i];
+                        string filePath = _displayLogList[i].FilePath;
                         if (File.Exists(filePath))
                         {
                             ProcessStartInfo psi = new()
@@ -83,7 +83,7 @@ namespace WsiuEditor.Editor
             void PushColor(Int32 index)
             {
                 int i = _renderIndexList[index];
-                Log.Level lv = _displayLevelList[i];
+                Log.Level lv = _displayLogList[i].Level;
                 Vector4 color = LogEditor.GetLevelColor(lv);
                 ImguiContext.ImmediatelyPushStyleColor(ImGuiCol.Text, color.X, color.Y, color.Z, color.W);
             }
@@ -106,7 +106,7 @@ namespace WsiuEditor.Editor
             _imguiContext.Button("Test", TestLogs);
             _imguiContext.Checkbox("Auto scroll", _isAutoScroll, SetAutoScroll);
             _imguiContext.BeginCombo("Filter", _renderFilterFlags.ToString());
-            foreach (Filter value in filters)
+            foreach (Filter value in filterValues)
             {
                 if (value == Filter.None)
                     continue;
@@ -121,10 +121,7 @@ namespace WsiuEditor.Editor
             _imguiContext.Separator();
             _imguiContext.Selectable("Select All", _renderFilterFlags == (Filter)~0, ImGuiSelectableFlags.DontClosePopups, () =>
             {
-                foreach (Filter value in filters)
-                {
-                    _renderFilterFlags |= value;
-                }
+                _renderFilterFlags = allFilter;
                 _isRefresh = true;
             });
             _imguiContext.Selectable("Clear All", _renderFilterFlags == Filter.None, ImGuiSelectableFlags.DontClosePopups, () =>
@@ -145,9 +142,7 @@ namespace WsiuEditor.Editor
 
         private void Clear()
         {
-            _displayLevelList.Clear();
             _displayLogList.Clear();
-            _displayFilePathList.Clear();
             _renderLogList.Clear();
             _renderIndexList.Clear();
             ReceivedCounter = 0;
@@ -162,7 +157,8 @@ namespace WsiuEditor.Editor
             _renderIndexList.Clear();
             for (int i = 0; i < _displayLogList.Count; i++)
             {
-                AddRenderLog(_displayLogList[i], _displayLevelList[i], i);
+                var log = _displayLogList[i];
+                AddRenderLog(log.Log, log.Level, i);
             }
             _isRefresh = false;
         }
@@ -206,9 +202,7 @@ namespace WsiuEditor.Editor
         private void OnLogReceived(Log.Entry log)
         {
             string display = $"{Log.DisplayHeader(log)}\n{Log.DisplaySub(log)}";
-            _displayLogList.Add(display);
-            _displayLevelList.Add(log.Level);
-            _displayFilePathList.Add(log.FilePath);
+            _displayLogList.Add((log.Level, display, log.FilePath));
             AddRenderLog(display, log.Level, _displayLogList.Count - 1);
 
             if (!_isWindowFocused && ReceivedCounter < 99)
