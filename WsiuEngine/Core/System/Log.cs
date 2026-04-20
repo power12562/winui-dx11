@@ -56,7 +56,7 @@ namespace WsiuEngine.Core.System
         }
         public static string DisplaySub(Entry logEntry)
         {
-            return GetByCache($"{logEntry.MemberName}(), {logEntry.FileName}.cs : line {logEntry.LineNumber}");
+            return GetByCache($"{logEntry.FileName}.cs : line {logEntry.LineNumber}, {logEntry.MemberName}()");
         }
 
         public static event Action<Entry>? OnLogReceived;
